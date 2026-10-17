@@ -57,6 +57,10 @@ jobs:
         run: npm run build
       - name: Configure GitHub Pages
         uses: actions/configure-pages@v5
+        with:
+          # Enable Pages automatically on the first run so no manual repository
+          # setting is required before the site can be published.
+          enablement: true
       - name: Upload static site
         uses: actions/upload-pages-artifact@v3
         with:
