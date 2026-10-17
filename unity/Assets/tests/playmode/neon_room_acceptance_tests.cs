@@ -1,8 +1,10 @@
 // SDDTDD SPEC: ../../../../tasks/spec-006.md
 // Gameplay details are preserved from ../tasks/spec-001.md and ../tasks/spec-002.md.
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Security.Cryptography;
 using NUnit.Framework;
 using UnityEngine;
 using UnityEngine.EventSystems;
@@ -84,6 +86,8 @@ namespace NeonRoom.Tests
 
             Click("wardrobe-continue-button");
             AssertVisible("locations-screen");
+            Click("control-mode-mobile");
+            Assert.That(PlayerPrefs.GetString("neon-room.control-mode", ""), Is.EqualTo("mobile"), "The player chooses a control scheme before entering the club.");
             Click("location-neon-room");
             Click("enter-club-button");
             AssertVisible("club-hud");
@@ -98,6 +102,12 @@ namespace NeonRoom.Tests
             Assert.That(GameObject.Find("enter-club-button").GetComponent<Button>().interactable, Is.False, "Unimplemented locations remain visibly unavailable.");
             Click("location-neon-room");
             Assert.That(GameObject.Find("enter-club-button").GetComponent<Button>().interactable, Is.True);
+            Click("enter-club-button");
+            AssertVisible("move-stick");
+            AssertVisible("look-stick");
+            Click("back-to-wardrobe-button");
+            Click("wardrobe-continue-button");
+            Click("location-neon-room");
             PlayerPrefs.Save();
             var gameScene = SceneManager.GetActiveScene().name;
             Assert.That(gameScene, Is.Not.Empty, "The game must run from a reloadable Unity scene.");
@@ -105,6 +115,7 @@ namespace NeonRoom.Tests
             yield return null;
             Assert.That(PlayerPrefs.GetString("neon-room.nickname", ""), Is.EqualTo("Afterhours Guest"), "The chosen nickname must survive reloading the game scene.");
             Assert.That(PlayerPrefs.GetInt("neon-room.outfit", -1), Is.EqualTo(3), "The chosen outfit must survive reloading the game scene.");
+            Assert.That(PlayerPrefs.GetString("neon-room.control-mode", ""), Is.EqualTo("mobile"), "The chosen controls must survive reloading the game scene.");
             Click("start-button");
             Click("suggested-name-luna");
             Click("nickname-continue-button");
@@ -189,6 +200,12 @@ namespace NeonRoom.Tests
         public IEnumerator Player_CanDanceDrinkAndUseEveryNpcGestureWithRecordedReplies()
         {
             yield return EnterClub();
+            Click("settings-button");
+            Click("music-toggle-button");
+            var clubMusicForContinuity = GameObject.Find("club-music-source").GetComponent<AudioSource>();
+            Assert.That(clubMusicForContinuity.isPlaying, Is.True, "The club track must be playing before testing an NPC reply.");
+            var musicClipBeforeReply = clubMusicForContinuity.clip;
+            Click("settings-close-button");
             Click("map-button");
             Click("map-zone-dancefloor");
 
@@ -223,14 +240,20 @@ namespace NeonRoom.Tests
             foreach (var action in new[] { "talk", "heart", "wave", "high-five" })
             {
                 Click("action-wheel-button");
+                var musicPositionBeforeReply = clubMusicForContinuity.timeSamples;
                 Click("action-" + action + "-button");
                 AssertVisible("npc-speaking-status");
                 var voice = GameObject.Find("npc-voice-source").GetComponent<AudioSource>();
                 var music = GameObject.Find("club-music-source").GetComponent<AudioSource>();
                 Assert.That(voice.isPlaying, Is.True, action + " must play the bundled NPC recording.");
+                Assert.That(voice.clip.name, Is.EqualTo("npc-voice"), "Every gesture must use the supplied recorded reply asset.");
+                Assert.That(voice.clip.length, Is.EqualTo(6.4f).Within(.15f), "The bundled NPC recording must be the supplied 6.4 second one-shot.");
                 Assert.That(music.isPlaying, Is.True, "NPC speech must not stop club music.");
+                Assert.That(music.clip, Is.SameAs(musicClipBeforeReply), "An NPC reply must keep the same music track instance playing.");
                 Assert.That(music.volume, Is.LessThan(PlayerPrefs.GetFloat("neon-room.volume", .35f)));
-                Assert.That(music.time, Is.GreaterThan(0f), "Ducking NPC speech must leave the current music playing without restarting it.");
+                yield return new WaitForSeconds(.12f);
+                Assert.That(music.timeSamples, Is.GreaterThan(musicPositionBeforeReply), "Ducking speech must let the existing music playback clock continue forward.");
+                musicPositionBeforeReply = music.timeSamples;
                 Click("npc-stop-button");
                 Assert.That(GameObject.Find("npc-speaking-status"), Is.Null);
                 Assert.That(music.volume, Is.EqualTo(PlayerPrefs.GetFloat("neon-room.volume", .35f)).Within(.02f));
@@ -339,6 +362,7 @@ namespace NeonRoom.Tests
             var voice = GameObject.Find("npc-voice-source").GetComponent<AudioSource>();
             Assert.That(voice.isPlaying, Is.True);
             Assert.That(voice.volume, Is.EqualTo(.65f).Within(.03f), "Recorded speech must respect the selected volume.");
+            Click("settings-button");
             Click("quality-option-low");
             Assert.That(PlayerPrefs.GetString("neon-room.quality", ""), Is.EqualTo("low"));
             Click("reduced-motion-toggle");
@@ -346,6 +370,18 @@ namespace NeonRoom.Tests
 
             Click("control-mode-desktop");
             Assert.That(PlayerPrefs.GetString("neon-room.control-mode", ""), Is.EqualTo("desktop"));
+
+            PlayerPrefs.Save();
+            var sceneName = SceneManager.GetActiveScene().name;
+            yield return SceneManager.LoadSceneAsync(sceneName);
+            yield return null;
+            yield return EnterClub();
+            Click("settings-button");
+            Assert.That(GameObject.Find("volume-slider").GetComponent<Slider>().value, Is.EqualTo(.65f).Within(.03f), "The selected volume must be restored in the UI after reloading the game.");
+            Assert.That(PlayerPrefs.GetInt("neon-room.track", -1), Is.EqualTo(2), "The selected track must survive reloading the game.");
+            Assert.That(PlayerPrefs.GetString("neon-room.quality", ""), Is.EqualTo("low"), "The selected graphics quality must survive reloading the game.");
+            Assert.That(PlayerPrefs.GetInt("neon-room.reduced-motion", 0), Is.EqualTo(1), "The reduced-motion setting must survive reloading the game.");
+            Assert.That(PlayerPrefs.GetString("neon-room.control-mode", ""), Is.EqualTo("desktop"), "The control choice must survive reloading the game.");
         }
 
         [UnityTest]
@@ -376,6 +412,19 @@ namespace NeonRoom.Tests
                 var brightNeonPixels = pixels.Count(pixel => pixel.r > 150 && (pixel.b > 130 || pixel.g > 130));
                 Assert.That(brightNeonPixels, Is.GreaterThan(100), filename + " must render neon-lit scene/UI pixels in the captured frame.");
                 Object.DestroyImmediate(image);
+            }
+        }
+
+        [Test]
+        public void WebBuild_IncludesTheExactSuppliedNpcRecording()
+        {
+            var recordingPath = Path.Combine(Application.dataPath, "StreamingAssets", "npc-voice.mp3");
+            Assert.That(File.Exists(recordingPath), Is.True, "The supplied NPC recording must be bundled with the Web player.");
+            using (var sha = SHA256.Create())
+            using (var stream = File.OpenRead(recordingPath))
+            {
+                var hash = System.BitConverter.ToString(sha.ComputeHash(stream)).Replace("-", "").ToLowerInvariant();
+                Assert.That(hash, Is.EqualTo("a981353c785357ca4d7dde008eea630a57f2ce9c6318067d54624d750feb7b9f"), "Bundle the exact supplied recording, not a substitute or a mixed track.");
             }
         }
 
@@ -427,6 +476,16 @@ namespace NeonRoom.Tests
             Assert.That(button, Is.Not.Null, "Expected visible interactive button '" + objectName + "'.");
             var eventSystem = Object.FindFirstObjectByType<EventSystem>();
             Assert.That(eventSystem, Is.Not.Null, "The visible game controls must be wired through Unity's EventSystem.");
+            var canvas = button.GetComponentInParent<Canvas>();
+            Assert.That(canvas, Is.Not.Null, "The game control must belong to a rendered Canvas.");
+            var eventCamera = canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvas.worldCamera;
+            var buttonRect = button.GetComponent<RectTransform>();
+            var screenPoint = RectTransformUtility.WorldToScreenPoint(eventCamera, buttonRect.TransformPoint(buttonRect.rect.center));
+            var hit = new PointerEventData(eventSystem) { position = screenPoint, button = PointerEventData.InputButton.Left };
+            var raycastResults = new List<RaycastResult>();
+            eventSystem.RaycastAll(hit, raycastResults);
+            Assert.That(raycastResults.FirstOrDefault().gameObject, Is.Not.Null, "The control must be reachable by a real UI raycast.");
+            Assert.That(raycastResults.First().gameObject.GetComponentInParent<Button>(), Is.SameAs(button), "A visible UI control must receive input at its rendered position.");
             var data = new PointerEventData(eventSystem)
             {
                 button = PointerEventData.InputButton.Left,
@@ -443,18 +502,23 @@ namespace NeonRoom.Tests
         {
             var eventSystem = Object.FindFirstObjectByType<EventSystem>();
             var rect = slider.GetComponent<RectTransform>();
+            var canvas = slider.GetComponentInParent<Canvas>();
+            Assert.That(canvas, Is.Not.Null, "The slider must belong to a rendered Canvas.");
+            var eventCamera = canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvas.worldCamera;
+            var center = RectTransformUtility.WorldToScreenPoint(eventCamera, rect.TransformPoint(rect.rect.center));
             var pointer = new PointerEventData(eventSystem)
             {
                 button = PointerEventData.InputButton.Left,
                 pointerId = -1,
                 pointerPress = slider.gameObject,
-                eligibleForClick = true
+                eligibleForClick = true,
+                position = center
             };
-            RectTransformUtility.ScreenPointToLocalPointInRectangle(rect, rect.position, null, out var local);
+            AssertTopUiHit(eventSystem, slider.gameObject, center, "The volume slider must be reachable at its visible position.");
+            RectTransformUtility.ScreenPointToLocalPointInRectangle(rect, center, eventCamera, out var local);
             var edge = rect.rect.xMin + rect.rect.width * normalizedValue;
-            pointer.position = RectTransformUtility.WorldToScreenPoint(null, rect.TransformPoint(local.x, local.y, 0f));
             ExecuteEvents.Execute(slider.gameObject, pointer, ExecuteEvents.pointerDownHandler);
-            pointer.position = RectTransformUtility.WorldToScreenPoint(null, rect.TransformPoint(edge, local.y, 0f));
+            pointer.position = RectTransformUtility.WorldToScreenPoint(eventCamera, rect.TransformPoint(edge, local.y, 0f));
             ExecuteEvents.Execute(slider.gameObject, pointer, ExecuteEvents.dragHandler);
             ExecuteEvents.Execute(slider.gameObject, pointer, ExecuteEvents.pointerUpHandler);
         }
@@ -463,9 +527,15 @@ namespace NeonRoom.Tests
         {
             var stick = GameObject.Find(objectName);
             var eventSystem = Object.FindFirstObjectByType<EventSystem>();
-            var pointer = new PointerEventData(eventSystem) { pointerId = pointerId, position = start, button = PointerEventData.InputButton.Left };
+            var canvas = stick.GetComponentInParent<Canvas>();
+            Assert.That(canvas, Is.Not.Null, "The mobile stick must belong to a rendered Canvas.");
+            var eventCamera = canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvas.worldCamera;
+            var rect = stick.GetComponent<RectTransform>();
+            var center = RectTransformUtility.WorldToScreenPoint(eventCamera, rect.TransformPoint(rect.rect.center));
+            AssertTopUiHit(eventSystem, stick, center, "The mobile stick must be reachable at its visible position.");
+            var pointer = new PointerEventData(eventSystem) { pointerId = pointerId, position = center, button = PointerEventData.InputButton.Left };
             ExecuteEvents.Execute(stick, pointer, ExecuteEvents.pointerDownHandler);
-            pointer.position = end;
+            pointer.position = center + (end - start);
             ExecuteEvents.Execute(stick, pointer, ExecuteEvents.dragHandler);
         }
 
@@ -473,11 +543,28 @@ namespace NeonRoom.Tests
         {
             var target = GameObject.Find(objectName);
             var eventSystem = Object.FindFirstObjectByType<EventSystem>();
-            var pointer = new PointerEventData(eventSystem) { pointerId = pointerId, position = start, button = PointerEventData.InputButton.Left };
+            var canvas = target.GetComponentInParent<Canvas>();
+            Assert.That(canvas, Is.Not.Null, "The drag target must belong to a rendered Canvas.");
+            var eventCamera = canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvas.worldCamera;
+            var rect = target.GetComponent<RectTransform>();
+            var center = RectTransformUtility.WorldToScreenPoint(eventCamera, rect.TransformPoint(rect.rect.center));
+            var pointer = new PointerEventData(eventSystem) { pointerId = pointerId, position = center, button = PointerEventData.InputButton.Left };
+            AssertTopUiHit(eventSystem, target, center, "The drag target must be reachable at its visible position.");
+            pointer.position = center;
             ExecuteEvents.Execute(target, pointer, ExecuteEvents.pointerDownHandler);
-            pointer.position = end;
+            pointer.position = center + (end - start);
             ExecuteEvents.Execute(target, pointer, ExecuteEvents.dragHandler);
             ExecuteEvents.Execute(target, pointer, ExecuteEvents.pointerUpHandler);
+        }
+
+        private static void AssertTopUiHit(EventSystem eventSystem, GameObject target, Vector2 screenPoint, string message)
+        {
+            var pointer = new PointerEventData(eventSystem) { position = screenPoint, button = PointerEventData.InputButton.Left };
+            var results = new List<RaycastResult>();
+            eventSystem.RaycastAll(pointer, results);
+            var hit = results.FirstOrDefault().gameObject;
+            Assert.That(hit, Is.Not.Null, message);
+            Assert.That(hit == target || hit.transform.IsChildOf(target.transform), Is.True, message + " A different overlay must not intercept the input.");
         }
 
         private static void ReleaseStick(string objectName, int pointerId)
