@@ -7,7 +7,7 @@
 - **ChatGPT Sites:** [Open the published prototype](https://neon-room-afterhours.jazzyknoll3.chatgpt.site)
 - **GitHub Pages:** deployment workflow is included; the target URL after first-time setup is https://tonidondoni.github.io/neon-room-afterhours/.
 
-The published site runs as a static browser application. Both hosting targets publish the same application. The canonical source lives in `src/`; the build script copies it to `dist/`. GitHub Actions tests and builds the project before publishing `dist/` to GitHub Pages. ChatGPT Sites also publishes `dist/`.
+The published site runs as a static browser application. On this experiment branch the build script copies the PlayCanvas port to `dist/` and the original Three.js application from `src/` to `dist/classic/`. GitHub Actions tests and builds the project before publishing `dist/` to GitHub Pages. ChatGPT Sites also publishes `dist/`.
 
 ## Current prototype
 
@@ -16,6 +16,20 @@ Choose a nickname and one of ten looks, select a control scheme, then enter the 
 The current build is a local prototype: its club characters are NPCs. Online multiplayer, friends, voice chat and VR are future work.
 
 Near a character, open Actions and choose **Поговорить / Talk**, heart, wave or high-five to hear the supplied recorded voice reply. Club music continues and briefly becomes quieter during speech. Repeated taps do not overlap replies; the speaking indicator includes a Stop button. See [`Tasks/spec-002.md`](Tasks/spec-002.md).
+
+## PlayCanvas port experiment
+
+The branch `codex/playcanvas-port` rebuilds the same club, mechanics, procedural
+music and recorded NPC replies on the [PlayCanvas](https://playcanvas.com/products/engine)
+engine. The PlayCanvas build is the site root; the original Three.js build stays
+available under `dist/classic/` for comparison.
+
+- Specification: [`Tasks/spec-003.md`](Tasks/spec-003.md)
+- Performance notes: [`playcanvas/PERFORMANCE.md`](playcanvas/PERFORMANCE.md)
+
+Serve the port locally with `npx serve playcanvas`, or after `npm run build` with
+`npx serve dist`. The optional headless gameplay and performance check is
+`npm run smoke:pc` (requires Python and Playwright).
 
 ## First-time GitHub Pages setup
 
@@ -45,12 +59,14 @@ npm run build
 
 ## Project layout
 
-- `src/` — browser application, 3D assets and bundled Three.js runtime.
+- `src/` — original browser application, 3D assets and bundled Three.js runtime.
+- `playcanvas/` — experimental PlayCanvas port served as the site root on this branch.
 - `Tasks/` — numbered product specifications; read `Tasks/spec-001.md` first.
 - `tests/` — automated tests for input behavior.
 - `.github/workflows/deploy-pages.yml` — checks and GitHub Pages deployment.
 - `dist/` — generated static output for both hosting targets.
-- `scripts/build-site.js` — copies the source into the static output directory.
+- `scripts/build-site.js` — builds `dist/` from the PlayCanvas port plus `dist/classic/` from `src/`.
+- `scripts/pc-smoke.py` — headless gameplay, voice and performance smoke test.
 - `AGENTS.md` — project instructions and the spec-driven workflow.
 
 See [`AGENTS.md`](AGENTS.md) for contributor instructions and [`Tasks/spec-001.md`](Tasks/spec-001.md) for the first specification.

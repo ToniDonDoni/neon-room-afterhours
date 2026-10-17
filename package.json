@@ -5,9 +5,10 @@
   "type": "module",
   "description": "A mobile-first browser prototype of a neon tech-house club",
   "scripts": {
-    "check": "node --check src/app.js && node --check src/controls.js && node --check src/npc-interaction.js && node --check src/fashion.js && node --check src/three.module.js && node --check src/geometry-utils.js",
+    "check": "node --check src/app.js && node --check src/controls.js && node --check src/npc-interaction.js && node --check src/fashion.js && node --check src/three.module.js && node --check src/geometry-utils.js && node --check playcanvas/app.js && node --check playcanvas/logic.js && node --check playcanvas/audio.js && node --check playcanvas/avatar.js && node --check playcanvas/scene.js && node --check playcanvas/primitives.js && node --check playcanvas/joysticks.js && node --check playcanvas/npc-interaction.js",
     "test": "npm run check && node --test tests/*.test.js && npm run build",
-    "build": "node scripts/build-site.js"
+    "build": "node scripts/build-site.js",
+    "smoke:pc": "python3 scripts/pc-smoke.py"
   },
   "engines": {
     "node": ">=20"
