@@ -102,4 +102,10 @@ The game interface is now entirely in English, including onboarding, all ten out
 
 ## Unity WebGL port
 
-This branch also contains the Unity port in [`unity/`](unity/), documented in [`tasks/spec-006.md`](tasks/spec-006.md). Its WebGL build is produced separately from the PlayCanvas static site.
+The Unity project is in [`unity/`](unity/), documented in [`tasks/spec-006.md`](tasks/spec-006.md). Its WebGL build is separate from the PlayCanvas static site.
+
+To run the Unity game locally, open `unity/` in Unity `6000.3.6f1` and press **Play**. To create a browser build, select **WebGL** in **File > Build Profiles**, then build to an output folder. Serve that folder over HTTP, for example with `npx serve <build-folder>`; do not open `index.html` directly from Finder. The root `npm run build` builds the PlayCanvas site in `dist/`, not the Unity game.
+
+For agent work, read [`tasks/spec-006.md`](tasks/spec-006.md) and the applicable Unity skills before editing. Use the Unity MCP connected to the open `unity/` project for Editor state, PlayMode tests and build validation. Local Unity skill checkouts in `skills/unity/` are Mac-only and are not committed.
+
+The Unity WebGL workflow builds the project and uploads a downloadable artifact; it does not publish it to GitHub Pages. GameCI needs the repository secret `UNITY_LICENSE` before its first Unity job can activate the Editor. See [`unity-webgl-build.yml`](.github/workflows/unity-webgl-build.yml).
