@@ -204,6 +204,40 @@ def main():
         result["frameMs"] = last.get("ms")
         result["drawCalls"] = last.get("drawCalls")
         result["consoleErrors"] = errors
+
+        # Mobile pass: two joysticks must own independent touch pointers at once.
+        mobile = browser.new_context(viewport={"width": 390, "height": 844}, has_touch=True, is_mobile=True, device_scale_factor=2)
+        mpage = mobile.new_page()
+        mpage.goto(f"http://127.0.0.1:{port}/index.html")
+        mpage.wait_for_timeout(900)
+        mpage.click("#start")
+        mpage.fill("#nickname", "Touch")
+        mpage.click("#next-name")
+        mpage.wait_for_timeout(800)
+        mpage.click("#next-outfit")
+        mpage.wait_for_timeout(150)
+        mpage.click("#enter-club")
+        mpage.wait_for_timeout(150)
+        mpage.click('[data-control="mobile"]')
+        mpage.wait_for_timeout(150)
+        mpage.click("#confirm-controls")
+        mpage.wait_for_function("window.__neonRoom && window.__neonRoom.playing", timeout=args.timeout)
+        mpage.wait_for_timeout(400)
+        result["mobileMode"] = mpage.evaluate("document.body.classList.contains('mobile-controls')")
+        move_box = mpage.locator("#move-stick").bounding_box()
+        look_box = mpage.locator("#look-stick").bounding_box()
+        cdp = mobile.new_cdp_session(mpage)
+        cdp.send("Input.dispatchTouchEvent", {"type": "touchStart", "touchPoints": [
+            {"x": move_box["x"] + move_box["width"] * .72, "y": move_box["y"] + move_box["height"] * .28, "id": 1},
+            {"x": look_box["x"] + look_box["width"] * .28, "y": look_box["y"] + look_box["height"] * .72, "id": 2},
+        ]})
+        mpage.wait_for_timeout(250)
+        result["mobileDualSticks"] = mpage.evaluate("document.querySelector('#move-stick').classList.contains('active') && document.querySelector('#look-stick').classList.contains('active')")
+        result["mobileMoveOffset"] = mpage.evaluate("document.querySelector('#move-stick .stick-thumb').style.transform")
+        cdp.send("Input.dispatchTouchEvent", {"type": "touchEnd", "touchPoints": []})
+        mpage.wait_for_timeout(150)
+        result["mobileSticksRelease"] = mpage.evaluate("!document.querySelector('#move-stick').classList.contains('active') && !document.querySelector('#look-stick').classList.contains('active')")
+        mobile.close()
         browser.close()
 
     httpd.shutdown()
@@ -221,6 +255,8 @@ def main():
         "drinkToggles": bool(result.get("drinkOn")) and bool(result.get("drinkOff")),
         "settingsWork": "Electric pulse" in (result.get("trackLabel") or ""),
         "wardrobeReopens": bool(result.get("wardrobeReopen")) and bool(result.get("reentered")),
+        "mobileMode": bool(result.get("mobileMode")),
+        "mobileDualSticks": bool(result.get("mobileDualSticks")) and bool(result.get("mobileSticksRelease")),
         "noConsoleErrors": not errors,
     }
     result["checks"] = checks
