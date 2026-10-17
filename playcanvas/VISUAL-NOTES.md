@@ -41,17 +41,17 @@ capture the WebGL frame; normal play keeps the faster default.
 - **Palette and light:** hot magenta vs cyan wash, violet haze, acid-green UI
   accents, glossy dark materials with neon trim.
 - **Composition:** a close NPC in dark leather with platinum hair and shades,
-  first-person arm shapes in the foreground, the action panel on the right, the
-  people control at the lower right. (At this scale the hands read as stylised
-  arm shapes rather than recognisable fingers and bracelets.)
+  first-person arm shapes in the foreground meeting in a heart gesture, the round
+  radial action dial on the right with six glowing icon discs, the people control
+  at the lower right. (At this scale the hands read as stylised arm shapes
+  rather than recognisable fingers and bracelets.)
 - **Scene:** dense crowd around the dancefloor, bar line with glowing cups,
   lounge booths, DJ stage with rings and speakers, ceiling truss.
 
 ## What differs
 
 - The port is built from PlayCanvas primitives, so people, stage and furniture
-  are stylised low-poly shapes rather than the photoreal render of the brief;
-  the action control is a rectangular panel, not the brief's radial wheel.
+  are stylised low-poly shapes rather than the photoreal render of the brief.
 - Crowd density is faked with ~26 non-interactive silhouettes; the 12
   interactive NPCs from the spec are unchanged.
 - God rays, depth of field and bloom from the reference are approximated with

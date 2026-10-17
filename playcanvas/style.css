@@ -105,3 +105,15 @@
 
 #npc-speaking{position:absolute;top:90px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:18px;max-width:calc(100vw - 32px);padding:10px 15px;white-space:nowrap;pointer-events:auto;font-size:12px}#stop-npc-voice{border:0;background:transparent;color:inherit;font-size:24px;min-width:36px;min-height:36px;cursor:pointer}
 .avatar-preview canvas{position:absolute;inset:0;width:100%;height:100%;display:block;z-index:0}.avatar-preview{position:relative;overflow:hidden}.avatar-preview .model-views,.avatar-preview .model-zoom,.avatar-preview .avatar-caption{position:relative;z-index:2}
+
+/* Radial action wheel to match the brief: a round glass dial with icon discs. */
+body:not(.mobile-controls) #action-wheel{position:absolute;right:3.4%;top:47%;transform:translateY(-50%);width:320px;height:320px;padding:0;display:block;border-radius:50%;background:radial-gradient(circle at 50% 40%,#3a1556e6,#130720cc);border:1px solid #dc86ff80;box-shadow:0 0 80px #a62dfa44,inset 0 0 46px #7a2bd01f;backdrop-filter:blur(15px)}
+body:not(.mobile-controls) #action-wheel .wheel-title{position:absolute;left:50%;top:50%;width:96px;margin:0;transform:translate(-50%,-50%);font-size:8px;letter-spacing:2px;text-align:center;color:#d9b8ee;pointer-events:none}
+body:not(.mobile-controls) #action-wheel button{position:absolute;left:50%;top:50%;width:84px;height:84px;padding:0;margin:0;border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;font-size:30px;box-shadow:0 0 24px #b45cff33,inset 0 0 18px #ffffff0f}
+body:not(.mobile-controls) #action-wheel button span{font-size:8px;margin-top:3px;letter-spacing:.3px}
+body:not(.mobile-controls) #action-wheel button:nth-child(2){transform:translate(-50%,-50%) translate(0,-112px)}
+body:not(.mobile-controls) #action-wheel button:nth-child(3){transform:translate(-50%,-50%) translate(97px,-56px)}
+body:not(.mobile-controls) #action-wheel button:nth-child(4){transform:translate(-50%,-50%) translate(97px,56px)}
+body:not(.mobile-controls) #action-wheel button:nth-child(5){transform:translate(-50%,-50%) translate(0,112px)}
+body:not(.mobile-controls) #action-wheel button:nth-child(6){transform:translate(-50%,-50%) translate(-97px,56px)}
+body:not(.mobile-controls) #action-wheel button:nth-child(7){transform:translate(-50%,-50%) translate(-97px,-56px)}
