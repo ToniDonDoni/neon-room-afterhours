@@ -213,7 +213,7 @@ namespace NeonRoom.Tests
             AssertVisible("action-wheel");
             var keyboard = InputSystem.AddDevice<Keyboard>();
             Click("action-wheel-button");
-            Assert.That(GameObject.Find("action-wheel").activeInHierarchy, Is.False, "The action wheel must be closed before testing its keyboard shortcut.");
+            Assert.That(FindAny("action-wheel").activeInHierarchy, Is.False, "The action wheel must be closed before testing its keyboard shortcut.");
             InputSystem.QueueStateEvent(keyboard, new KeyboardState(Key.E));
             InputSystem.Update();
             AssertVisible("action-wheel");
@@ -467,6 +467,13 @@ namespace NeonRoom.Tests
             var gameObject = GameObject.Find(objectName);
             Assert.That(gameObject, Is.Not.Null, "Expected visible game object '" + objectName + "'.");
             Assert.That(gameObject.activeInHierarchy, Is.True, "Expected '" + objectName + "' to be visible and active.");
+        }
+
+        private static GameObject FindAny(string objectName)
+        {
+            return Object.FindObjectsByType<Transform>(FindObjectsInactive.Include, FindObjectsSortMode.None)
+                .Select(transform => transform.gameObject)
+                .FirstOrDefault(gameObject => gameObject.name == objectName);
         }
 
         private static void Click(string objectName)
