@@ -83,8 +83,11 @@ def main():
     with sync_playwright() as p:
         browser = p.chromium.launch(executable_path=find_chromium(), args=launch_args)
         page = browser.new_page(viewport={"width": 1280, "height": 800})
-        page.on("console", lambda m: errors.append("console: " + m.text) if m.type == "error" and not any(font in m.text for font in ("fonts.googleapis.com", "fonts.gstatic.com")) else None)
-        page.on("pageerror", lambda e: errors.append("pageerror: " + str(e)))
+        def watch(target):
+            target.on("console", lambda m: errors.append("console: " + m.text) if m.type == "error" and not any(font in m.text for font in ("fonts.googleapis.com", "fonts.gstatic.com")) else None)
+            target.on("pageerror", lambda e: errors.append("pageerror: " + str(e)))
+
+        watch(page)
 
         page.goto(f"http://127.0.0.1:{port}/index.html")
         page.wait_for_timeout(900)
@@ -210,6 +213,7 @@ def main():
         # Track-first regression: choosing a track on the landing page must not
         # create a silent, disabled audio graph before the club is entered.
         tpage = browser.new_page(viewport={"width": 1280, "height": 800})
+        watch(tpage)
         tpage.goto(f"http://127.0.0.1:{port}/index.html")
         tpage.wait_for_timeout(800)
         tpage.click("#settings")
@@ -238,6 +242,7 @@ def main():
         # Mobile pass: two joysticks must own independent touch pointers at once.
         mobile = browser.new_context(viewport={"width": 390, "height": 844}, has_touch=True, is_mobile=True, device_scale_factor=2)
         mpage = mobile.new_page()
+        watch(mpage)
         mpage.goto(f"http://127.0.0.1:{port}/index.html")
         mpage.wait_for_timeout(900)
         mpage.click("#start")

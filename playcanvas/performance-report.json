@@ -18,10 +18,20 @@
   "trackLabel": "Electric pulse · 132 BPM",
   "wardrobeReopen": true,
   "reentered": true,
-  "fpsMedian": 51.0,
-  "frameMs": 16.7,
-  "drawCalls": 571,
+  "fpsMedian": 53.0,
+  "frameMs": 16.6,
+  "drawCalls": 576,
   "consoleErrors": [],
+  "trackFirstAudio": {
+    "enabled": true,
+    "hasContext": true,
+    "track": 2
+  },
+  "trackFirstStartsMusic": true,
+  "mobileMode": true,
+  "mobileDualSticks": true,
+  "mobileMoveOffset": "translate(27.28px, -27.28px)",
+  "mobileSticksRelease": true,
   "checks": {
     "engineLoaded": true,
     "previewCanvas": true,
@@ -36,6 +46,9 @@
     "drinkToggles": true,
     "settingsWork": true,
     "wardrobeReopens": true,
+    "trackFirstStartsMusic": true,
+    "mobileMode": true,
+    "mobileDualSticks": true,
     "noConsoleErrors": true
   }
 }
