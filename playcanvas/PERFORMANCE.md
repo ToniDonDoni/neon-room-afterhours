@@ -25,8 +25,8 @@ device results.
 | PlayCanvas port | 59.0 / 60.7 | 59 / 60 | 545 / 549 |
 | Three.js prototype | 1.7 / 2.0 | — | — |
 
-`npm run smoke:pc` on this machine reported medians between **43 and 53 fps**,
-~**16.7 ms per frame** and **545-575 draw calls** at the entrance (the worst-case
+`npm run smoke:pc` on this machine reported medians between **43 and 60 fps**,
+~**16.6-16.7 ms per frame** and **545-575 draw calls** at the entrance (the worst-case
 view of the club). The same script drives a 390×844 touch context and confirms
 that both virtual joysticks acquire separate pointers at the same time.
 

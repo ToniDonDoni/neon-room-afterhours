@@ -1,3 +1,11 @@
+Manrope and Unbounded (Google Fonts, self-hosted in playcanvas/fonts/)
+Manrope: Copyright 2018 The Manrope Project Authors (https://github.com/sharanda/manrope)
+Unbounded: Copyright 2022 The Unbounded Project Authors (https://github.com/googlefonts/unbounded)
+Both are licensed under the SIL Open Font License, Version 1.1
+(https://openfontlicense.org), which permits bundling and redistribution.
+
+----------------------------------------------------------------------
+
 PlayCanvas Engine 2.7.4
 https://github.com/playcanvas/engine
 

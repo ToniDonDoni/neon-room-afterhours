@@ -92,6 +92,7 @@ export function createClubAudio(trackList = tracks) {
   function ensure() {
     if (state.ctx) return;
     const Ctx = window.AudioContext || window.webkitAudioContext;
+    if (!Ctx) throw new Error('Web Audio API is not available');
     const ctx = new Ctx();
     const master = ctx.createGain();
     master.gain.value = 0;

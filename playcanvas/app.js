@@ -72,15 +72,23 @@ const npcInteraction = createNpcInteraction({
 });
 $('#stop-npc-voice').onclick = () => npcInteraction.stop();
 
-function ensureAudio() { if (!audio) audio = createClubAudio(tracks); return audio; }
+let pendingTrack = 0;
+function ensureAudio() {
+  if (!audio) { audio = createClubAudio(tracks); audio.setTrack(pendingTrack); }
+  return audio;
+}
 function setVolume() { npcInteraction.setVolume(profile.volume); if (audio) audio.setVolume(profile.volume); }
 function toggleAudio() {
-  const instance = ensureAudio();
-  const on = instance.toggle();
-  if (on) instance.setSilent(false);
-  setVolume();
-  $('#sound').style.color = on ? 'var(--acid)' : '';
-  toast(on ? 'Музыка включена · ' + instance.trackLabel : 'Музыка выключена');
+  try {
+    const instance = ensureAudio();
+    const on = instance.toggle();
+    if (on) instance.setSilent(false);
+    setVolume();
+    $('#sound').style.color = on ? 'var(--acid)' : '';
+    toast(on ? 'Музыка включена · ' + instance.trackLabel : 'Музыка выключена');
+  } catch (e) {
+    toast('Браузер не разрешил воспроизведение звука');
+  }
 }
 $('#sound').onclick = toggleAudio;
 $('#game-music').onclick = toggleAudio;
@@ -161,11 +169,11 @@ function controlScreen() {
 
 function settings() {
   const trackOptions = tracks.map((t, i) => '<option value="' + i + '">' + t.label + '</option>').join('');
-  openModal('<span class="step-label">MAKE IT YOURS</span><h2>Твоя частота.</h2><div class="settings-row"><label for="control-mode">Управление</label><select id="control-mode"><option value="mobile">Телефон · джойстики</option><option value="desktop">Клавиатура и мышь</option></select></div><div class="settings-row"><label for="volume">Громкость</label><input id="volume" type="range" min="0" max="100" value="' + profile.volume * 100 + '"></div><div class="settings-row"><label for="quality">Графика</label><select id="quality"><option value="low">Экономичная</option><option value="high">Высокая</option></select></div><div class="settings-row"><label for="motion">Спокойный свет</label><input id="motion" type="checkbox" ' + (lowMotion ? 'checked' : '') + '></div><div class="settings-row"><label for="track">Трек</label><select id="track">' + trackOptions + '</select></div><p>Оригинальные процедурные лупы. Музыка запускается только по твоему нажатию.</p><button class="primary" id="audio-toggle">' + (audio && audio.enabled ? 'ВЫКЛЮЧИТЬ' : 'ВКЛЮЧИТЬ') + ' МУЗЫКУ</button><p style="font-size:10px">Телефон: двигай два джойстика одновременно, чтобы идти и осматриваться. ПК: WASD + мышь.</p>', 'settings');
+  openModal('<span class="step-label">MAKE IT YOURS</span><h2>Твоя частота.</h2><div class="settings-row"><label for="control-mode">Управление</label><select id="control-mode"><option value="mobile">Телефон · джойстики</option><option value="desktop">Клавиатура и мышь</option></select></div><div class="settings-row"><label for="volume">Громкость</label><input id="volume" type="range" min="0" max="100" value="' + profile.volume * 100 + '"></div><div class="settings-row"><label for="quality">Графика</label><select id="quality"><option value="low">Экономичная</option><option value="high">Высокая</option></select></div><div class="settings-row"><label for="motion">Спокойный свет</label><input id="motion" type="checkbox" ' + (calmMotion() ? 'checked' : '') + '></div><div class="settings-row"><label for="track">Трек</label><select id="track">' + trackOptions + '</select></div><p>Оригинальные процедурные лупы. Музыка запускается только по твоему нажатию.</p><button class="primary" id="audio-toggle">' + (audio && audio.enabled ? 'ВЫКЛЮЧИТЬ' : 'ВКЛЮЧИТЬ') + ' МУЗЫКУ</button><p style="font-size:10px">Телефон: двигай два джойстика одновременно, чтобы идти и осматриваться. ПК: WASD + мышь.</p>', 'settings');
   $('#control-mode').value = controlMode;
   $('#control-mode').onchange = e => setControlMode(e.target.value);
   $('#quality').value = quality;
-  $('#track').value = audio ? audio.track : 0;
+  $('#track').value = audio ? audio.track : pendingTrack;
   $('#volume').oninput = e => { profile.volume = +e.target.value / 100; save(); setVolume(); };
   $('#quality').onchange = e => {
     quality = e.target.value;
@@ -174,9 +182,11 @@ function settings() {
   };
   $('#motion').onchange = e => { motionOverride = e.target.checked; };
   $('#track').onchange = e => {
-    const instance = ensureAudio();
-    instance.setTrack(+e.target.value);
-    $('#track-label').textContent = instance.trackLabel;
+    // Do not create the audio graph here: the reference only starts music from
+    // an explicit play action or when the club is entered.
+    pendingTrack = +e.target.value;
+    if (audio) audio.setTrack(pendingTrack);
+    $('#track-label').textContent = tracks[pendingTrack].label;
     toast('Новая частота выбрана');
   };
   $('#audio-toggle').onclick = () => {
@@ -208,9 +218,20 @@ function positionPreview() {
   previewCamera.lookAt(0, previewTargetY, 0);
 }
 
+function disposeEntity(entity) {
+  const materials = new Set();
+  const walk = node => {
+    if (node.render) node.render.meshInstances.forEach(mi => { if (mi.material) materials.add(mi.material); });
+    node.children.forEach(walk);
+  };
+  walk(entity);
+  entity.destroy();
+  materials.forEach(material => material.destroy());
+}
+
 function updatePreview() {
   if (!previewApp) return;
-  if (previewAvatar) { previewAvatar.destroy(); previewAvatar = null; }
+  if (previewAvatar) { disposeEntity(previewAvatar); previewAvatar = null; }
   previewAvatar = createAvatar(profile.outfit, { detail: true });
   previewApp.root.addChild(previewAvatar);
 }
@@ -573,5 +594,6 @@ window.__neonRoom = {
   get dancingCount() { return club ? club.npcs.filter(n => n.dance).length : 0; },
   get zone() { return camera ? zoneLabels[zoneForPosition(camera.getPosition().x, camera.getPosition().z)] : ''; },
   get stats() { return app && app.stats ? { fps: Math.round(app.stats.frame.fps * 10) / 10, ms: Math.round(app.stats.frame.ms * 100) / 100, drawCalls: app.stats.drawCalls.total, triangles: app.stats.frame.triangles } : null; },
-  get engine() { return pc.version; }
+  get engine() { return pc.version; },
+  get audio() { return audio ? { enabled: audio.enabled, hasContext: !!audio.context, track: audio.track } : null; }
 };

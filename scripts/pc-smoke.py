@@ -64,7 +64,9 @@ def serve(directory):
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("--dir", default=os.path.join(os.path.dirname(__file__), "..", "playcanvas"))
+    root = os.path.join(os.path.dirname(__file__), "..")
+    default_dir = os.path.join(root, "dist") if os.path.isdir(os.path.join(root, "dist")) else os.path.join(root, "playcanvas")
+    parser.add_argument("--dir", default=default_dir)
     parser.add_argument("--out", default=None)
     parser.add_argument("--timeout", type=int, default=20000)
     args = parser.parse_args()
@@ -81,7 +83,7 @@ def main():
     with sync_playwright() as p:
         browser = p.chromium.launch(executable_path=find_chromium(), args=launch_args)
         page = browser.new_page(viewport={"width": 1280, "height": 800})
-        page.on("console", lambda m: errors.append("console: " + m.text) if m.type == "error" and "fonts.g" not in m.text else None)
+        page.on("console", lambda m: errors.append("console: " + m.text) if m.type == "error" and not any(font in m.text for font in ("fonts.googleapis.com", "fonts.gstatic.com")) else None)
         page.on("pageerror", lambda e: errors.append("pageerror: " + str(e)))
 
         page.goto(f"http://127.0.0.1:{port}/index.html")
@@ -205,6 +207,34 @@ def main():
         result["drawCalls"] = last.get("drawCalls")
         result["consoleErrors"] = errors
 
+        # Track-first regression: choosing a track on the landing page must not
+        # create a silent, disabled audio graph before the club is entered.
+        tpage = browser.new_page(viewport={"width": 1280, "height": 800})
+        tpage.goto(f"http://127.0.0.1:{port}/index.html")
+        tpage.wait_for_timeout(800)
+        tpage.click("#settings")
+        tpage.wait_for_timeout(200)
+        tpage.select_option("#track", "2")
+        tpage.click("#close-modal")
+        tpage.wait_for_timeout(150)
+        tpage.click("#start")
+        tpage.fill("#nickname", "Track")
+        tpage.click("#next-name")
+        tpage.wait_for_timeout(800)
+        tpage.click("#next-outfit")
+        tpage.wait_for_timeout(150)
+        tpage.click("#enter-club")
+        tpage.wait_for_timeout(150)
+        tpage.click('[data-control="desktop"]')
+        tpage.wait_for_timeout(100)
+        tpage.click("#confirm-controls")
+        tpage.wait_for_function("window.__neonRoom && window.__neonRoom.playing", timeout=args.timeout)
+        tpage.wait_for_timeout(400)
+        audio_state = tpage.evaluate("window.__neonRoom.audio")
+        result["trackFirstAudio"] = audio_state
+        result["trackFirstStartsMusic"] = bool(audio_state and audio_state.get("enabled") and audio_state.get("hasContext") and audio_state.get("track") == 2)
+        tpage.close()
+
         # Mobile pass: two joysticks must own independent touch pointers at once.
         mobile = browser.new_context(viewport={"width": 390, "height": 844}, has_touch=True, is_mobile=True, device_scale_factor=2)
         mpage = mobile.new_page()
@@ -255,6 +285,7 @@ def main():
         "drinkToggles": bool(result.get("drinkOn")) and bool(result.get("drinkOff")),
         "settingsWork": "Electric pulse" in (result.get("trackLabel") or ""),
         "wardrobeReopens": bool(result.get("wardrobeReopen")) and bool(result.get("reentered")),
+        "trackFirstStartsMusic": bool(result.get("trackFirstStartsMusic")),
         "mobileMode": bool(result.get("mobileMode")),
         "mobileDualSticks": bool(result.get("mobileDualSticks")) and bool(result.get("mobileSticksRelease")),
         "noConsoleErrors": not errors,
