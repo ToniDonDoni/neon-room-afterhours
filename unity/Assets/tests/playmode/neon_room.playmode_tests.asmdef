@@ -1,0 +1,23 @@
+{
+  "name": "NeonRoom.PlayModeTests",
+  "rootNamespace": "NeonRoom.Tests",
+  "references": [
+    "Unity.InputSystem",
+    "Unity.ugui",
+    "UnityEngine.AudioModule"
+  ],
+  "includePlatforms": [],
+  "excludePlatforms": [],
+  "allowUnsafeCode": false,
+  "overrideReferences": false,
+  "precompiledReferences": [],
+  "autoReferenced": false,
+  "defineConstraints": [
+    "UNITY_INCLUDE_TESTS"
+  ],
+  "versionDefines": [],
+  "noEngineReferences": false,
+  "optionalUnityReferences": [
+    "TestAssemblies"
+  ]
+}
