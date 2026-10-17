@@ -2,7 +2,7 @@
 
 Follow the repository contribution rules in [CONTRIBUTING.md](CONTRIBUTING.md).
 
-Use [skills/](skills/) for reusable agent skills and development workflows. Use [engineering/](engineering/) for engineering best practices and testing guidance.
+Use [skills/](skills/) for reusable agent skills and development workflows. Unity-specific skills from Unity Technologies and Scenario Labs are cloned locally in `skills/unity/` on this Mac; that directory is intentionally ignored by Git. Use [engineering/](engineering/) for engineering best practices and testing guidance.
 
 Use [references/REFERENCES.md](references/REFERENCES.md) for the visual references and their descriptions.
 

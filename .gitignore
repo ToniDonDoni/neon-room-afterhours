@@ -2,3 +2,4 @@ dist/
 node_modules/
 build-meta.json
 .DS_Store
+skills/unity/
