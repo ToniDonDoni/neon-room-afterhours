@@ -30,8 +30,8 @@ arm64, viewport 1280×800, device pixel ratio 1.
 Both builds are far below real time because the rasteriser is software. The
 relative result is the meaningful one: at the same viewport and with the same
 scene concept, the PlayCanvas build renders about **1.6× faster** than the
-Three.js prototype. On GPU hardware this scene (≈550 draw calls, shared
-low-poly materials) is comfortably real-time.
+Three.js prototype. The scene (≈550 draw calls, shared low-poly materials) is
+light enough that GPU hardware should handle it, but no GPU run was measured.
 
 `npm run smoke:pc` samples PlayCanvas' own counter while also driving input, so
 it reports a lower median (≈1.5 fps) than the dedicated bench pass; both agree

@@ -9,7 +9,7 @@
     1280,
     800
   ],
-  "walkDistance": 1.85,
+  "walkDistance": 1.5,
   "zoneAfterWalk": "ТАНЦПОЛ",
   "speaking": true,
   "voicePlaying": true,
@@ -23,9 +23,9 @@
   "trackLabel": "Electric pulse · 132 BPM",
   "wardrobeReopen": true,
   "reentered": true,
-  "fpsMedian": 1.5,
-  "frameMs": 483.4,
-  "drawCalls": 559,
+  "fpsMedian": 2.0,
+  "frameMs": 399.9,
+  "drawCalls": 556,
   "consoleErrors": [],
   "trackFirstAudio": {
     "enabled": true,

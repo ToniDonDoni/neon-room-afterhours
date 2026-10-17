@@ -376,9 +376,14 @@ function animateHands(now, t, moving) {
   hands.setLocalPosition(0, moving && !calmMotion() ? Math.sin(t * 9) * .014 : 0, 0);
   const heart = hands.action === 'heart' && hands.until > now;
   hands.hands.forEach((h, i) => {
-    const rx = hands.until > now ? -.7 : dancing ? Math.sin(t * 6 + i) * .25 : 0;
-    h.setLocalEulerAngles(rx * 180 / Math.PI, 0, 0);
-    h.setLocalPosition(heart ? (i ? .12 : -.12) : h.baseX, h.baseY, h.baseZ);
+    const active = hands.until > now;
+    const rx = active ? -.7 : dancing ? Math.sin(t * 6 + i) * .25 : 0;
+    // Tilt the forearms towards each other so the heart gesture reads as two
+    // hands meeting, not two parallel bars.
+    const rz = heart ? (i ? -.62 : .62) : 0;
+    h.setLocalEulerAngles(rx * 180 / Math.PI, 0, rz * 180 / Math.PI);
+    if (heart) h.setLocalPosition(i ? .06 : -.06, h.baseY + .14, h.baseZ + .1);
+    else h.setLocalPosition(h.baseX, h.baseY, h.baseZ);
   });
 }
 
@@ -465,7 +470,6 @@ function enterClub() {
       hands.braceletMaterials.forEach(material => { material.diffuse = new pc.Color().fromString(color); material.update(); });
     }
     closeModal();
-    document.body.classList.add('playing');
     $('#game-ui').hidden = false;
     $('#action-wheel').hidden = true;
     camera.setPosition(0, 1.66, 10);

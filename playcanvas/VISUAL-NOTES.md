@@ -2,8 +2,8 @@
 
 ## Reference
 
-`reference/club-meeting-reference.webp` is the mood reference from the brief
-(`reference/club-meeting-reference.webp` is the original). It shows the target:
+`reference/club-meeting-reference.webp` is the mood reference from the brief.
+It shows the target:
 a crowded neon club washed in hot magenta on one side and electric cyan on the
 other, a platinum-haired NPC in dark glossy leather and shades, the player's
 first-person hands and bracelets forming a heart, and the round action wheel on
@@ -14,7 +14,8 @@ the right with heart / wave / dance / drink plus the "people" button.
 `scripts/pc-shots.py` serves the built site, drives the whole onboarding flow
 (headless Chromium + SwiftShader), poses the debug camera surface
 (`window.__neonRoom.pose / focus / act`), triggers the action wheel and gestures,
-and writes 14 PNGs plus a manifest to `screenshots/`:
+and writes 14 JPEGs, two reference comparison sheets and a manifest to
+`screenshots/`:
 
 | File | What it shows |
 | --- | --- |
@@ -40,15 +41,17 @@ capture the WebGL frame; normal play keeps the faster default.
 - **Palette and light:** hot magenta vs cyan wash, violet haze, acid-green UI
   accents, glossy dark materials with neon trim.
 - **Composition:** a close NPC in dark leather with platinum hair and shades,
-  first-person hands and bracelets in the foreground, the glowing action wheel
-  on the right, the people control at the lower right.
+  first-person arm shapes in the foreground, the action panel on the right, the
+  people control at the lower right. (At this scale the hands read as stylised
+  arm shapes rather than recognisable fingers and bracelets.)
 - **Scene:** dense crowd around the dancefloor, bar line with glowing cups,
   lounge booths, DJ stage with rings and speakers, ceiling truss.
 
 ## What differs
 
 - The port is built from PlayCanvas primitives, so people, stage and furniture
-  are stylised low-poly shapes rather than the photoreal render of the brief.
+  are stylised low-poly shapes rather than the photoreal render of the brief;
+  the action control is a rectangular panel, not the brief's radial wheel.
 - Crowd density is faked with ~26 non-interactive silhouettes; the 12
   interactive NPCs from the spec are unchanged.
 - God rays, depth of field and bloom from the reference are approximated with

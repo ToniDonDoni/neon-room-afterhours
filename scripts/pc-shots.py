@@ -2,9 +2,10 @@
 """Capture comparison screenshots of the PlayCanvas port.
 
 Serves the built site, drives the full onboarding, then poses the camera inside
-the club and saves a set of 1400x800 PNGs to playcanvas/screenshots/. The
-meeting shots reproduce the composition of reference/club-meeting-reference.jpg:
-a close NPC, the action wheel on the right and the first-person heart gesture.
+the club and saves 14 1400x800 JPEGs plus two reference comparison sheets to
+playcanvas/screenshots/. The meeting shots reproduce the composition of
+playcanvas/reference/club-meeting-reference.webp: a close NPC, the action wheel
+on the right and the first-person heart gesture.
 
 Usage:
     python3 scripts/pc-shots.py [--dir dist] [--out playcanvas/screenshots]
