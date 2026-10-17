@@ -68,8 +68,8 @@ a measured performance smoke test. Pixel-identical character meshes are not requ
       written down in the branch notes.
 - [x] The brief's club/meeting mood reference is stored on the branch, and a Playwright script
       captures gameplay screenshots and compares them with it.
-- [ ] The experiment is committed on `codex/playcanvas-port`, pushed, and published to
-      GitHub Pages from that branch.
+- [x] The experiment is committed on `codex/playcanvas-port`, pushed, and published to
+      GitHub Pages from that branch: https://tonidondoni.github.io/neon-room-afterhours/
 - [x] Online multiplayer, friends, chat, live voice, VR, streaming and monetization remain out
       of scope.
 
