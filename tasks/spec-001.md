@@ -50,7 +50,7 @@ Audio is synthesized with the Web Audio API, so the scene does not require music
 - **Audio:** Web Audio API and procedural tech-house rhythm loops.
 - **Controls:** independent multitouch virtual sticks on phones; WASD, pointer input and keyboard on computers.
 - **Profile:** nickname, outfit, music settings and controls are saved locally.
-- **Source:** `src/` is the canonical app; tests live in `tests/`; task specifications live in `Tasks/`.
+- **Source:** `src/` is the canonical app; tests live in `tests/`; task specifications live in `tasks/`.
 - **GitHub Pages:** GitHub Actions runs `npm test`, including checks and `dist/` generation, then publishes `dist/`.
 - **ChatGPT Sites:** the same project supports the existing static publication from `dist/`.
 - **Future development:** define a separate specification and server architecture for online play and VR after validating interest in the core mechanics.

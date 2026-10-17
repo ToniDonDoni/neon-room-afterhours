@@ -10,7 +10,7 @@ on:
       - 'package-lock.json'
       - 'README.md'
       - 'LICENSE'
-      - 'Tasks/**'
+      - 'tasks/**'
       - 'scripts/**'
       - 'AGENTS.md'
       - '.github/workflows/deploy-pages.yml'
