@@ -5,7 +5,7 @@
 ## Play
 
 - **ChatGPT Sites:** [Open the published prototype](https://neon-room-afterhours.jazzyknoll3.chatgpt.site)
-- **GitHub Pages:** [Open the GitHub Pages version](https://tonidondoni.github.io/neon-room-afterhours/)
+- **GitHub Pages:** deployment workflow is included; the target URL after first-time setup is https://tonidondoni.github.io/neon-room-afterhours/.
 
 The published site runs as a static browser application. Both hosting targets publish the same application. The canonical source lives in `src/`; the build script copies it to `dist/`. GitHub Actions tests and builds the project before publishing `dist/` to GitHub Pages. ChatGPT Sites also publishes `dist/`.
 
@@ -14,6 +14,12 @@ The published site runs as a static browser application. Both hosting targets pu
 Choose a nickname and one of ten looks, select a control scheme, then enter the NEON ROOM. Explore the club, meet stylized NPCs, send gestures, dance, pick up a drink at the bar, and listen to original procedural tech-house loops. The wardrobe has full-body, face and clothing inspection views with rotation and zoom.
 
 The current build is a local prototype: its club characters are NPCs. Online multiplayer, friends, voice chat and VR are future work.
+
+## First-time GitHub Pages setup
+
+The repository must have Pages enabled before the workflow can publish. In **Settings → Pages → Build and deployment**, set **Source** to **GitHub Actions**. Then open **Actions → Test and deploy GitHub Pages → Run workflow**, or re-run the failed deployment. Future changes to `main` are published automatically by the workflow.
+
+The initial GitHub Actions test job passed; publication was blocked because GitHub Pages had not yet been enabled in the repository settings.
 
 ## Run locally
 
