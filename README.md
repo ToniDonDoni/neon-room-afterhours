@@ -26,10 +26,14 @@ available under `dist/classic/` for comparison.
 
 - Specification: [`Tasks/spec-003.md`](Tasks/spec-003.md)
 - Performance notes: [`playcanvas/PERFORMANCE.md`](playcanvas/PERFORMANCE.md)
+- Visual comparison against the brief: [`playcanvas/VISUAL-NOTES.md`](playcanvas/VISUAL-NOTES.md)
 
 Serve the port locally with `npx serve playcanvas`, or after `npm run build` with
-`npx serve dist`. The optional headless gameplay and performance check is
-`npm run smoke:pc` (requires Python and Playwright).
+`npx serve dist`. The headless tooling (Python + Playwright) is:
+
+- `npm run smoke:pc` — gameplay, voice, mobile and canvas checks.
+- `npm run bench:pc` — PlayCanvas vs Three.js frame rate in the same harness.
+- `npm run shots:pc` — 14 gameplay screenshots and reference comparison sheets.
 
 ## First-time GitHub Pages setup
 
@@ -61,12 +65,16 @@ npm run build
 
 - `src/` — original browser application, 3D assets and bundled Three.js runtime.
 - `playcanvas/` — experimental PlayCanvas port served as the site root on this branch.
+- `playcanvas/reference/` — the brief's club/meeting mood image.
+- `playcanvas/screenshots/` — generated gameplay screenshots and comparison sheets.
 - `Tasks/` — numbered product specifications; read `Tasks/spec-001.md` first.
 - `tests/` — automated tests for input behavior.
 - `.github/workflows/deploy-pages.yml` — checks and GitHub Pages deployment.
 - `dist/` — generated static output for both hosting targets.
 - `scripts/build-site.js` — builds `dist/` from the PlayCanvas port plus `dist/classic/` from `src/`.
-- `scripts/pc-smoke.py` — headless gameplay, voice and performance smoke test.
+- `scripts/pc-smoke.py` — headless gameplay, voice and canvas smoke test.
+- `scripts/pc-bench.py` — PlayCanvas vs Three.js frame-rate benchmark.
+- `scripts/pc-shots.py` — Playwright screenshot capture for visual comparison.
 - `AGENTS.md` — project instructions and the spec-driven workflow.
 
 See [`AGENTS.md`](AGENTS.md) for contributor instructions and [`Tasks/spec-001.md`](Tasks/spec-001.md) for the first specification.

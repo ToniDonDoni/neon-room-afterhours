@@ -7,7 +7,7 @@ import { hex, standard, neon, box, sphere, cylinder, cone, capsule, torus, group
 function outfitMaterials(index, style, female, detail) {
   return {
     skin: standard({ color: female ? '#bf968c' : '#c3a294', roughness: 0.62, metal: 0.04 }),
-    hair: standard({ color: style === 2 ? '#b4adb3' : style === 5 ? '#817b83' : '#16131c', roughness: 0.53, metal: 0.08 }),
+    hair: standard({ color: index === 0 ? '#e6e0ef' : style === 2 ? '#b4adb3' : style === 5 ? '#817b83' : '#16131c', roughness: 0.53, metal: 0.08 }),
     cloth: standard({ color: looks[index][1], roughness: style === 0 ? 0.35 : 0.77, metal: style === 0 ? 0.28 : 0.04 }),
     inner: standard({ color: style === 4 ? '#302033' : '#18171f', roughness: 0.78, metal: 0.04 }),
     leather: standard({ color: '#242029', roughness: 0.3, metal: 0.24 }),
@@ -92,6 +92,8 @@ export function createAvatar(index = 0, { detail = true } = {}) {
   if (detail) {
     for (const sign of [-1, 1]) sphere(root, m.inner, [0.026, 0.03, 0.02], [sign * 0.055, 1.93, 0.1], null, 'eye');
   }
+  // Night-club shades on the leather silhouettes, as in the mood reference.
+  if (style === 0 || style === 4) box(root, m.inner, [0.22, 0.06, 0.05], [0, 1.95, 0.1], null, 'shades');
 
   // Recycled fabric accent strip per look.
   box(root, m.trim, [0.34, 0.014, 0.014], [0, 1.52, 0.16], null, 'trim');

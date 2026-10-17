@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { readFileSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import { fileURLToPath } from 'node:url';
 import { dirname, join } from 'node:path';
 
@@ -123,4 +123,25 @@ test('the scene builds the club, the crowd and the lasers', () => {
   assert.match(scene, /export function buildClub/);
   assert.match(scene, /npcPositions/);
   assert.match(scene, /lasers/);
+  assert.match(scene, /scene.crowd/);
+});
+
+test('the world is revealed before the canvas is created', () => {
+  const app = read('playcanvas/app.js');
+  const enterClub = app.slice(app.indexOf('function enterClub()'));
+  const reveal = enterClub.indexOf("classList.add('playing')");
+  const init = enterClub.indexOf('initWorld()');
+  assert.ok(reveal >= 0 && init >= 0, 'enterClub must reveal the world and init it');
+  assert.ok(reveal < init, 'body.playing must be set before initWorld so the canvas is not 0x0');
+  assert.match(app, /app.resizeCanvas\(/);
+  assert.match(read('scripts/pc-smoke.py'), /canvasSized/);
+});
+
+test('the brief reference and the screenshot automation are committed', () => {
+  assert.ok(existsSync(join(root, 'playcanvas/reference/club-meeting-reference.webp')));
+  assert.ok(existsSync(join(root, 'playcanvas/VISUAL-NOTES.md')));
+  const shots = read('scripts/pc-shots.py');
+  assert.match(shots, /shots=1/);
+  assert.match(shots, /focus\(/);
+  assert.ok(read('playcanvas/app.js').includes('preserveDrawingBuffer'));
 });

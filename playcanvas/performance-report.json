@@ -5,6 +5,11 @@
   "npcs": 12,
   "dancing": 7,
   "zoneStart": "ВХОДНАЯ ГАЛЕРЕЯ",
+  "canvas": [
+    1280,
+    800
+  ],
+  "walkDistance": 1.85,
   "zoneAfterWalk": "ТАНЦПОЛ",
   "speaking": true,
   "voicePlaying": true,
@@ -18,9 +23,9 @@
   "trackLabel": "Electric pulse · 132 BPM",
   "wardrobeReopen": true,
   "reentered": true,
-  "fpsMedian": 53.0,
-  "frameMs": 16.6,
-  "drawCalls": 576,
+  "fpsMedian": 1.5,
+  "frameMs": 483.4,
+  "drawCalls": 559,
   "consoleErrors": [],
   "trackFirstAudio": {
     "enabled": true,
@@ -34,6 +39,8 @@
   "mobileSticksRelease": true,
   "checks": {
     "engineLoaded": true,
+    "canvasSized": true,
+    "walkMoves": true,
     "previewCanvas": true,
     "twelveNpcs": true,
     "sevenDancing": true,

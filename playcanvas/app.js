@@ -310,19 +310,23 @@ function initWorld() {
   worldCanvas = document.createElement('canvas');
   $('#world').appendChild(worldCanvas);
   try {
-    app = new pc.Application(worldCanvas, { graphicsDeviceOptions: { antialias: quality === 'high', alpha: false } });
+    // preserveDrawingBuffer keeps the frame readable for screenshot automation
+    // (index.html?shots=1); normal play keeps the faster default.
+    const shotMode = /[?&]shots=1/.test(location.search);
+    app = new pc.Application(worldCanvas, { graphicsDeviceOptions: { antialias: quality === 'high', alpha: false, preserveDrawingBuffer: shotMode } });
   } catch (e) {
     toast('Не удалось запустить WebGL. Попробуй браузер с поддержкой 3D.');
     throw e;
   }
   app.setCanvasFillMode(pc.FILLMODE_FILL_WINDOW);
   app.setCanvasResolution(pc.RESOLUTION_AUTO);
+  app.resizeCanvas(window.innerWidth, window.innerHeight);
   app.graphicsDevice.maxPixelRatio = quality === 'high' ? Math.min(devicePixelRatio, 1.5) : 1;
   app.scene.fog.type = pc.FOG_EXP2;
-  app.scene.fog.color = new pc.Color().fromString('#180c29');
-  app.scene.fog.density = .034;
+  app.scene.fog.color = new pc.Color().fromString('#2a0d3c');
+  app.scene.fog.density = .04;
   if ('toneMapping' in app.scene && pc.TONEMAP_ACES !== undefined) app.scene.toneMapping = pc.TONEMAP_ACES;
-  if ('exposure' in app.scene) app.scene.exposure = 1.15;
+  if ('exposure' in app.scene) app.scene.exposure = 1.32;
   club = buildClub(app);
   camera = new pc.Entity('camera');
   camera.addComponent('camera', { fov: 70, nearClip: .05, farClip: 70, clearColor: new pc.Color().fromString('#10091c') });
@@ -396,6 +400,11 @@ function animateNpcs(now, t) {
       l.setLocalEulerAngles(rx * 180 / Math.PI, 0, 0);
     });
   }
+  if (club.crowd) {
+    for (const c of club.crowd) {
+      c.setLocalEulerAngles(0, c.baseYaw + (calmMotion() ? 0 : Math.sin(t * 2 + c.phase) * 6), 0);
+    }
+  }
 }
 
 function animateLasers(t) {
@@ -446,6 +455,9 @@ function onWorldUpdate(dt) {
 
 function enterClub() {
   try {
+    // #world is display:none until body.playing is set, so reveal it before the
+    // canvas is created or the drawing buffer starts at 0x0 and stays black.
+    document.body.classList.add('playing');
     if (!worldStarted) initWorld();
     playing = true;
     if (hands) {
@@ -583,6 +595,7 @@ sticks.push(createJoystick($('#move-stick'), (x, y) => { touchInput.x = x; touch
 sticks.push(createJoystick($('#look-stick'), (x, y) => { touchInput.lookX = x; touchInput.lookY = y; }));
 
 window.addEventListener('resize', () => {
+  if (app) app.resizeCanvas(window.innerWidth, window.innerHeight);
   resetControls();
 });
 
@@ -595,5 +608,32 @@ window.__neonRoom = {
   get zone() { return camera ? zoneLabels[zoneForPosition(camera.getPosition().x, camera.getPosition().z)] : ''; },
   get stats() { return app && app.stats ? { fps: Math.round(app.stats.frame.fps * 10) / 10, ms: Math.round(app.stats.frame.ms * 100) / 100, drawCalls: app.stats.drawCalls.total, triangles: app.stats.frame.triangles } : null; },
   get engine() { return pc.version; },
-  get audio() { return audio ? { enabled: audio.enabled, hasContext: !!audio.context, track: audio.track } : null; }
+  get audio() { return audio ? { enabled: audio.enabled, hasContext: !!audio.context, track: audio.track } : null; },
+  get position() { const p = camera.getPosition(); return [Math.round(p.x * 100) / 100, Math.round(p.y * 100) / 100, Math.round(p.z * 100) / 100]; },
+  get npcs() {
+    return club ? club.npcs.map(n => {
+      const p = n.getPosition();
+      return { name: n.npcName, x: p.x, z: p.z, look: n.lookIndex, dance: !!n.dance };
+    }) : [];
+  },
+  pose(x, z, yawDeg, pitchDeg) {
+    if (!camera) return false;
+    camera.setPosition(x, 1.66, z);
+    yaw = (yawDeg || 0) * Math.PI / 180;
+    pitch = (pitchDeg || 0) * Math.PI / 180;
+    setCameraRotation();
+    return true;
+  },
+  focus(index, distance) {
+    if (!camera || !club || !club.npcs[index]) return false;
+    const np = club.npcs[index].getPosition();
+    const d = distance || 2.4;
+    camera.setPosition(np.x, 1.62, np.z + d);
+    yaw = Math.atan2(camera.getPosition().x - np.x, camera.getPosition().z - np.z);
+    pitch = -.05;
+    setCameraRotation();
+    club.npcs[index].baseYaw = 0; // avatars face +z, the side the camera stands on
+    return true;
+  },
+  act(type) { action(type); }
 };

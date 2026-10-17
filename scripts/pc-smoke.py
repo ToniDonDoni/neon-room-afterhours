@@ -112,14 +112,24 @@ def main():
         result["npcs"] = page.evaluate("window.__neonRoom.npcCount")
         result["dancing"] = page.evaluate("window.__neonRoom.dancingCount")
         result["zoneStart"] = page.evaluate("window.__neonRoom.zone")
+        result["canvas"] = page.evaluate("(() => { const c = document.querySelector('#world canvas'); return c ? [c.width, c.height] : null; })()")
 
+        before = page.evaluate("window.__neonRoom.position")
         page.keyboard.down("w")
         page.wait_for_timeout(2500)
         page.keyboard.up("w")
         page.wait_for_timeout(300)
+        after = page.evaluate("window.__neonRoom.position")
+        result["walkDistance"] = round(((after[0] - before[0]) ** 2 + (after[2] - before[2]) ** 2) ** 0.5, 2)
+        # Frames are slow on SwiftShader, so place the camera deterministically
+        # for the interaction checks instead of relying on a fixed walk distance.
+        page.evaluate("window.__neonRoom.pose(0, 3, 0, 0)")
+        page.wait_for_timeout(250)
         result["zoneAfterWalk"] = page.evaluate("window.__neonRoom.zone")
 
         # Talk to a nearby NPC.
+        page.evaluate("window.__neonRoom.focus(0, 2.2)")
+        page.wait_for_timeout(250)
         page.keyboard.press("e")
         page.wait_for_timeout(200)
         page.click('[data-action="talk"]')
@@ -157,9 +167,7 @@ def main():
         page.click('[data-zone="1"]')
         page.wait_for_timeout(300)
         result["zoneAfterMap"] = page.evaluate("window.__neonRoom.zone")
-        page.keyboard.down("w")
-        page.wait_for_timeout(500)
-        page.keyboard.up("w")
+        page.evaluate("window.__neonRoom.pose(-7, 1, 90, 0)")
         page.wait_for_timeout(200)
         page.keyboard.press("e")
         page.wait_for_timeout(150)
@@ -278,6 +286,8 @@ def main():
     httpd.shutdown()
     checks = {
         "engineLoaded": bool(result.get("engine")),
+        "canvasSized": bool(result.get("canvas")) and result["canvas"][0] > 0 and result["canvas"][1] > 0,
+        "walkMoves": (result.get("walkDistance") or 0) > 0.5,
         "previewCanvas": bool(result.get("previewCanvas")),
         "twelveNpcs": result.get("npcs") == 12,
         "sevenDancing": result.get("dancing") == 7,

@@ -64,8 +64,10 @@ a measured performance smoke test. Pixel-identical character meshes are not requ
       Three.js build under `dist/classic/`.
 - [x] A headless browser smoke test loads the built site, reports no console errors and
       paints WebGL frames.
-- [x] A performance smoke test records a median frame rate at the desktop viewport and the
-      result is written down in the branch notes.
+- [x] A performance smoke test records a frame rate at the desktop viewport and the result is
+      written down in the branch notes.
+- [x] The brief's club/meeting mood reference is stored on the branch, and a Playwright script
+      captures gameplay screenshots and compares them with it.
 - [ ] The experiment is committed on `codex/playcanvas-port`, pushed, and published to
       GitHub Pages from that branch.
 - [x] Online multiplayer, friends, chat, live voice, VR, streaming and monetization remain out
@@ -88,8 +90,20 @@ port recreates the ten looks with a PlayCanvas primitive humanoid and per-look c
 and accessory parameters. Visual parity is approximate; silhouette families (draped, tailor,
 ritual, nomad, veil, mass) and the acid/violet/ash palette are preserved.
 
-Performance is measured with a headless Chromium smoke test. The result is a smoke signal,
-not a claim about reference phones; device QA is still required.
+Performance is measured with a headless Chromium smoke test. Screenshot capture exposed a real
+bug: the world canvas was created while `#world` was `display:none`, so it stayed 0×0 and the
+scene never rasterised. `enterClub()` now reveals the world first and resizes the canvas, the
+smoke test asserts a sized canvas, and the comparison below is measured on the fixed build.
+
+The brief's mood image is kept under `playcanvas/reference/`. `scripts/pc-shots.py` drives the
+onboarding, poses the camera and gestures, and stores 14 screenshots plus reference comparison
+sheets under `playcanvas/screenshots/`; `playcanvas/VISUAL-NOTES.md` records what matches and
+what stays stylised. The result is a smoke signal, not a claim about reference phones; device
+QA is still required.
+
+On headless software rendering the port is about 1.6× faster than the Three.js prototype at the
+same 1280×800 viewport (2.3-2.4 fps vs 1.4 fps); both are far below real time without a GPU,
+so this is a relative signal only.
 
 ## 5. Proposed solution
 
@@ -108,14 +122,17 @@ not a claim about reference phones; device QA is still required.
   NPC replies with ducking, single-reply and stop behavior.
 - **Build:** `scripts/build-site.js` copies the PlayCanvas build to `dist/` and the Three.js
   build to `dist/classic/`.
-- **Tests:** Node unit tests for the pure PlayCanvas logic modules, plus a headless browser
-  smoke and performance script used during development.
+- **Tests:** Node unit tests for the pure PlayCanvas logic modules, plus headless browser smoke,
+  benchmark and screenshot scripts used during development.
+- **Visual QA:** `playcanvas/reference/` keeps the brief's mood image and
+  `scripts/pc-shots.py` produces `playcanvas/screenshots/` for side-by-side comparison.
 - **Delivery:** commit on the branch, push it and run the Pages workflow from the branch.
 
 ## 6. ToDo
 
 - [x] Confirm at least seven NPCs and zone detection match the reference numbers.
 - [ ] Validate multitouch, autoplay and audio policies on reference iOS and Android devices.
-- [x] Compare median frame rate and draw calls between the PlayCanvas and Three.js builds.
+- [x] Compare frame rate and draw calls between the PlayCanvas and Three.js builds.
+- [x] Capture gameplay screenshots and compare the club and encounter composition with the brief.
 - [ ] Decide the long-term engine after the comparison and either promote this spec or archive it.
 - [ ] Recreate full-body clothing geometry with real garment meshes if PlayCanvas is chosen.

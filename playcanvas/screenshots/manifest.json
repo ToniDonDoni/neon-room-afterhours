@@ -1,0 +1,90 @@
+{
+  "viewport": "1400x800",
+  "engine": "PlayCanvas 2.7.4",
+  "shots": [
+    {
+      "file": "00-landing.jpg",
+      "note": "landing hero before onboarding",
+      "zone": "",
+      "npcs": 0
+    },
+    {
+      "file": "01-wardrobe.jpg",
+      "note": "wardrobe with live avatar preview",
+      "zone": "",
+      "npcs": 0
+    },
+    {
+      "file": "10-entrance.jpg",
+      "note": "entrance gallery looking into the club",
+      "zone": "ВХОДНАЯ ГАЛЕРЕЯ",
+      "npcs": 12
+    },
+    {
+      "file": "20-dancefloor.jpg",
+      "note": "dancefloor towards the DJ stage",
+      "zone": "ТАНЦПОЛ",
+      "npcs": 12
+    },
+    {
+      "file": "21-crowd.jpg",
+      "note": "dancing crowd close up",
+      "zone": "ТАНЦПОЛ",
+      "npcs": 12
+    },
+    {
+      "file": "30-bar.jpg",
+      "note": "bar and recharge counter",
+      "zone": "БАР / RECHARGE",
+      "npcs": 12
+    },
+    {
+      "file": "31-drink.jpg",
+      "note": "neon tonic in hand at the bar",
+      "zone": "БАР / RECHARGE",
+      "npcs": 12
+    },
+    {
+      "file": "40-stage.jpg",
+      "note": "DJ stage and rings",
+      "zone": "ТАНЦПОЛ",
+      "npcs": 12
+    },
+    {
+      "file": "41-lounge.jpg",
+      "note": "lounge booths",
+      "zone": "ТАНЦПОЛ",
+      "npcs": 12
+    },
+    {
+      "file": "50-meeting-wheel.jpg",
+      "note": "NPC meeting with the action wheel open",
+      "zone": "ТАНЦПОЛ",
+      "npcs": 12
+    },
+    {
+      "file": "51-meeting-heart.jpg",
+      "note": "heart gesture and NPC reply with wheel open",
+      "zone": "ТАНЦПОЛ",
+      "npcs": 12
+    },
+    {
+      "file": "52-meeting-wave.jpg",
+      "note": "wave gesture close up",
+      "zone": "ТАНЦПОЛ",
+      "npcs": 12
+    },
+    {
+      "file": "60-people.jpg",
+      "note": "people list modal",
+      "zone": "ТАНЦПОЛ",
+      "npcs": 12
+    },
+    {
+      "file": "61-map.jpg",
+      "note": "club map modal",
+      "zone": "ТАНЦПОЛ",
+      "npcs": 12
+    }
+  ]
+}

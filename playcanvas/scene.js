@@ -1,7 +1,7 @@
 // NEON ROOM club built from PlayCanvas primitives.
 
 import { npcPositions, npcNames, looks, dancingNpcCount } from './logic.js';
-import { standard, unlit, neon, box, sphere, cylinder, cone, torus, plane, group, light, glowTexture, textureFromCanvas, textSign } from './primitives.js';
+import { standard, unlit, neon, box, sphere, cylinder, cone, capsule, torus, plane, group, light, glowTexture, textureFromCanvas, textSign } from './primitives.js';
 import { createAvatar } from './avatar.js';
 
 export function buildClub(app) {
@@ -9,6 +9,7 @@ export function buildClub(app) {
     npcs: [],
     lasers: [],
     glows: [],
+    crowd: [],
     tables: [],
     speakers: [],
     materials: {}
@@ -50,6 +51,14 @@ export function buildClub(app) {
     }
   }
   for (let x = -10; x <= 10; x += 2.5) box(app.root, m.floorLine, [0.015, 0.018, 28], [x, 0.005, 0], null, 'grid-x');
+
+  // Magenta and cyan light wash on the walls plus a floor haze, matching the
+  // hot pink / electric blue balance of the mood reference.
+  for (let z = -8; z <= 8; z += 8) {
+    scene.glows.push(glow(app, '#ff37b0', -12.6, 3.2, z, 6, 0.08, [90, 90, 0]));
+    scene.glows.push(glow(app, '#37d0ff', 12.6, 3.2, z, 6, 0.08, [90, -90, 0]));
+  }
+  scene.glows.push(glow(app, '#a437ff', 0, 4.0, -13.5, 9, 0.07));
 
   // DJ stage backdrop.
   for (let j = 0; j < 4; j++) {
@@ -126,6 +135,35 @@ export function buildClub(app) {
     scene.npcs.push(npc);
   });
 
+  // Background crowd: cheap silhouettes that thicken the dancefloor without
+  // joining the interactive NPC list (npcCount stays 12).
+  const crowdCloth = [
+    standard({ color: '#241d2c', metal: 0.45, roughness: 0.5 }),
+    standard({ color: '#2a1a30', metal: 0.4, roughness: 0.52 }),
+    standard({ color: '#1b2130', metal: 0.4, roughness: 0.55 })
+  ];
+  const crowdTrim = [neon('#ff3fb4'), neon('#53d9ff'), neon('#a95aff')];
+  const crowdSpots = [
+    [-4.6, -4.2], [-3.1, -5.4], [-1.4, -5.9], [0.6, -5.6], [2.3, -5.2], [4.1, -4.4],
+    [-5.3, -1.9], [-3.9, -0.6], [-2.3, -1.4], [-0.6, -2.2], [1.1, -1.1], [2.8, -2.4], [4.7, -1.6],
+    [-5.6, 0.8], [-4.2, 2.1], [-2.6, 3.2], [-0.9, 2.4], [0.8, 3.6], [2.4, 2.2], [4.2, 3.1], [5.4, 1.2],
+    [-7.6, -4.6], [-7.9, 3.9], [6.4, -3.2], [6.7, 2.6], [-9.2, -2.4]
+  ];
+  crowdSpots.forEach(([x, z], i) => {
+    const g = group(app.root, [x, 0, z], 'crowd');
+    const yaw = (i * 47 % 360) * Math.PI / 180;
+    g.setLocalEulerAngles(0, yaw, 0);
+    g.baseYaw = yaw;
+    g.phase = i * 0.7;
+    const cloth = crowdCloth[i % 3];
+    const scale = 0.92 + (i % 5) * 0.04;
+    capsule(g, cloth, [0.3 * scale, 0.34 * scale, 0.21 * scale], [0, 1.16 * scale, 0], null, 'crowd-torso');
+    sphere(g, cloth, [0.15 * scale, 0.16 * scale, 0.15 * scale], [0, 1.6 * scale, 0], null, 'crowd-head');
+    box(g, cloth, [0.2 * scale, 0.7 * scale, 0.14 * scale], [0, 0.36 * scale, 0], null, 'crowd-legs');
+    if (i % 3 === 0) box(g, crowdTrim[i % 3], [0.31 * scale, 0.028 * scale, 0.23 * scale], [0, 1.5 * scale, 0], null, 'crowd-trim');
+    scene.crowd.push(g);
+  });
+
   // Laser cones.
   for (let i = 0; i < 8; i++) {
     const g = group(app.root, [((i % 4) - 1.5) * 2.3, 5.9, -9], 'laser');
@@ -136,7 +174,7 @@ export function buildClub(app) {
 
   // Sparkles.
   const sparkMat = unlit({ color: '#cbb0ff', opacity: 0.5, blend: pc.BLEND_ADDITIVE, depthWrite: false });
-  for (let i = 0; i < 90; i++) {
+  for (let i = 0; i < 50; i++) {
     const x = (Math.random() - 0.5) * 25;
     const y = Math.random() * 6;
     const z = (Math.random() - 0.5) * 26;
@@ -144,17 +182,18 @@ export function buildClub(app) {
   }
 
   // Lighting.
-  app.scene.ambientLight = new pc.Color(0.09, 0.06, 0.14);
-  light(app.root, { type: 'directional', color: '#b094e3', intensity: 0.9, rotation: [-45, 30, 0] });
-  light(app.root, { type: 'omni', color: '#a53dff', intensity: 1.1, range: 20, position: [0, 5, -5] });
-  light(app.root, { type: 'omni', color: '#61cfff', intensity: 0.9, range: 20, position: [-8, 3, 1] });
-  light(app.root, { type: 'omni', color: '#ed54c6', intensity: 0.9, range: 20, position: [7, 3, 5] });
-  light(app.root, { type: 'omni', color: '#b875ff', intensity: 0.8, range: 20, position: [0, 3, 9] });
+  app.scene.ambientLight = new pc.Color(0.15, 0.09, 0.22);
+  light(app.root, { type: 'directional', color: '#c9aee8', intensity: 1.25, rotation: [-45, 30, 0] });
+  light(app.root, { type: 'omni', color: '#b04cff', intensity: 2.2, range: 24, position: [0, 4.6, -5] });
+  light(app.root, { type: 'omni', color: '#45d4ff', intensity: 2.0, range: 22, position: [-9, 3.2, 1] });
+  light(app.root, { type: 'omni', color: '#ff3fb4', intensity: 2.0, range: 22, position: [8, 3.2, 4] });
+  // Low key light on the dancefloor so faces read in close encounters.
+  light(app.root, { type: 'omni', color: '#ff78c8', intensity: 1.7, range: 9, position: [0, 2.1, -1] });
 
   return scene;
 }
 
-function glow(app, color, x, y, z, size = 3, opacity = 0.45) {
+function glow(app, color, x, y, z, size = 3, opacity = 0.45, rotation = [90, 0, 0]) {
   const canvas = document.createElement('canvas');
   canvas.width = canvas.height = 64;
   const ctx = canvas.getContext('2d');
@@ -176,5 +215,5 @@ function glow(app, color, x, y, z, size = 3, opacity = 0.45) {
   mat.depthWrite = false;
   mat.cull = pc.CULLFACE_NONE;
   mat.update();
-  return plane(app.root, mat, [size, 1, size], [x, y, z], [90, 0, 0], 'glow');
+  return plane(app.root, mat, [size, 1, size], [x, y, z], rotation, 'glow');
 }
