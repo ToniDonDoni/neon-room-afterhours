@@ -35,11 +35,14 @@ Serve the port locally with `npx serve playcanvas`, or after `npm run build` wit
 - `npm run bench:pc` — PlayCanvas vs Three.js frame rate in the same harness.
 - `npm run shots:pc` — 14 gameplay screenshots and reference comparison sheets.
 
-## First-time GitHub Pages setup
+## GitHub Pages
 
-The repository must have Pages enabled before the workflow can publish. In **Settings → Pages → Build and deployment**, set **Source** to **GitHub Actions**. Then open **Actions → Test and deploy GitHub Pages → Run workflow**, or re-run the failed deployment. Future changes to `main` are published automatically by the workflow.
+Pages is enabled for this repository (**Settings → Pages → Build and deployment →
+Source: GitHub Actions**). A push to `main` or `codex/playcanvas-port` that touches a watched
+path runs the tests and publishes the built site.
 
-The initial GitHub Actions test job passed; publication was blocked because GitHub Pages had not yet been enabled in the repository settings.
+- PlayCanvas port (site root): https://tonidondoni.github.io/neon-room-afterhours/
+- Three.js reference: https://tonidondoni.github.io/neon-room-afterhours/classic/
 
 ## Run locally
 
