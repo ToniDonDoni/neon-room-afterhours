@@ -8,7 +8,8 @@
     "check": "node scripts/check-source.js",
     "test": "npm run check && node --test tests/*.test.js && npm run build",
     "build": "node scripts/build-site.js",
-    "bake:avatars": "node scripts/bake-avatars.mjs"
+    "bake:avatars": "node scripts/bake-avatars.mjs",
+    "test:visual": "npm run build && node scripts/visual-review.cjs"
   },
   "engines": {
     "node": ">=20"
@@ -19,6 +20,7 @@
   "devDependencies": {
     "esbuild": "0.25.11",
     "three": "0.169.0",
-    "gltfpack": "1.3.0"
+    "gltfpack": "1.3.0",
+    "playwright": "1.62.1"
   }
 }

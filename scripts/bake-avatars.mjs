@@ -2,7 +2,7 @@ import { mkdir, writeFile, readFile, rename } from 'node:fs/promises';
 import { execFileSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { GLTFExporter } from 'three/addons/exporters/GLTFExporter.js';
-import { createFashionAvatar, createFirstPersonHands, looks, lookNotes } from './avatar-source/fashion.js';
+import { createFashionAvatar, createFirstPersonHands, createHeartHands, looks, lookNotes } from './avatar-source/fashion.js';
 
 // Node's Blob API supplies the same bytes that the browser exporter writes.
 globalThis.FileReader = class {
@@ -43,5 +43,7 @@ for (let index = 0; index < looks.length; index++) {
 const hands = createFirstPersonHands('#a0a3ad');
 hands.userData.braceletMaterials.forEach(m => m.name = 'bracelet');
 await save(hands, 'hands.glb', hands.children.map((node, i) => [node, `hand-${i}`]));
+const heartHands = createHeartHands('#a0a3ad');
+await save(heartHands, 'hands-heart.glb', heartHands.children.map((node,i)=>[node, `hand-${i}`]));
 await writeFile(new URL('manifest.json', out), JSON.stringify({ looks, lookNotes, models: records }, null, 2));
 console.log(`Baked ${records.length} avatars and first-person hands; ${(records.reduce((s, x) => s + x.bytes, 0) / 1048576).toFixed(1)} MiB`);

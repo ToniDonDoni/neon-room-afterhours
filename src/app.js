@@ -63,7 +63,7 @@ async function updatePreview(){
 }
 function initWorld(){
   renderer=new ClubRenderer(quality);camera={position:renderer.position};npcs=renderer.npcs;hands=renderer.hands;
-  const canvas=renderer.canvas;$('#world').appendChild(canvas);
+  $('.npc-badge').textContent=renderer.npcs.length+' NPC';const canvas=renderer.canvas;$('#world').appendChild(canvas);
   canvas.addEventListener('click',()=>{if(playing&&$('#modal').hidden&&controlMode==='desktop')canvas.requestPointerLock?.()?.catch?.(()=>{})});
   let touch=null;
   canvas.onpointerdown=e=>{if(controlMode==='mobile'&&$('#modal').hidden){touch={id:e.pointerId,x:e.clientX,y:e.clientY};canvas.setPointerCapture(e.pointerId)}};

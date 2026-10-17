@@ -4,7 +4,8 @@
 
 ## Play
 
-- **ChatGPT Sites:** [Open the published prototype](https://neon-room-afterhours.jazzyknoll3.chatgpt.site)
+- **Public PlayCanvas version:** [Open the separate experiment](https://neon-room-playcanvas-style.jazzyknoll3.chatgpt.site)
+- **Original ChatGPT Sites version (preserved):** [Open the published prototype](https://neon-room-afterhours.jazzyknoll3.chatgpt.site)
 - **GitHub Pages:** deployment workflow is included; the target URL after first-time setup is https://tonidondoni.github.io/neon-room-afterhours/.
 
 The published site runs as a static browser application. Both hosting targets publish the same application. The canonical source lives in `src/`; esbuild bundles PlayCanvas and application JavaScript into `dist/`, alongside local models, images and audio. GitHub Actions tests and builds the project before publishing `dist/` to GitHub Pages. ChatGPT Sites also publishes `dist/`.
@@ -48,11 +49,11 @@ npm run bake:avatars
 npm test
 ```
 
-All twenty avatar variants occupy about 8.4 MiB together; the wardrobe loads only the selected detailed model, while the club caches ten lighter crowd models for twelve guests and the DJ. The scene batches static architecture and caps pixel ratio. The low-quality setting lowers pixel ratio and bloom. This does not establish a measured frame-rate target.
+All twenty avatar variants occupy about 9.9 MiB together; the wardrobe loads only the selected detailed model, while the club caches ten lighter crowd models for twenty-four guests and the DJ. The scene batches static architecture and animated guest parts and caps pixel ratio. The low-quality setting lowers pixel ratio and bloom. This does not establish a measured frame-rate target.
 
-Tests cover simultaneous touch sticks, voice playback through the shipped action buttons, music ducking/cancellation, native parsing of every GLB, articulated poses, scene construction/frame submission, collision boundaries and relative asset URLs. Native graphics tests use PlayCanvas's NullGraphicsDevice, so GPU appearance and physical phone performance still require browser/device review.
+Tests cover simultaneous touch sticks, voice playback through the shipped action buttons, music ducking/cancellation, native parsing of every GLB, articulated poses, scene construction/frame submission, collision boundaries and relative asset URLs. Native graphics tests use PlayCanvas's NullGraphicsDevice, so Captured GPU output was visually reviewed against the supplied reference; physical phone performance remains unmeasured.
 
-The managed browser preview was unavailable during implementation (`bwrap: Can't mount proc on /newroot/proc`). The experiment is isolated from the original published game and main remains unchanged. Branch CI runs checks; GitHub Pages deployment is restricted to `main`.
+The managed preview was unavailable, so the user explicitly requested direct local Playwright. Chromium screenshots and a 390×844 touch test were then run locally. The touch test passed with two active independent pointers and six reachable action targets, with no JavaScript errors. The experiment is isolated from the original published game and main remains unchanged. Branch CI runs checks; GitHub Pages deployment is restricted to `main`.
 
 ## Project layout
 
@@ -66,3 +67,18 @@ The managed browser preview was unavailable during implementation (`bwrap: Can't
 - `AGENTS.md` — project instructions and the spec-driven workflow.
 
 See [`AGENTS.md`](AGENTS.md) for contributor instructions and [`Tasks/spec-001.md`](Tasks/spec-001.md) for the first specification.
+
+## Visual comparison and browser checks
+
+See [`Tasks/spec-004.md`](Tasks/spec-004.md) and [`artifacts/visual/review.md`](artifacts/visual/review.md) for five visual passes, captures and remaining differences. The final result is still stylized; it does not reproduce the reference's photographic characters.
+
+For local browser checks, install Playwright's Chromium once, then run:
+
+```sh
+npx playwright install chromium
+npm run test:visual -- final
+node scripts/mobile-review.cjs
+node scripts/compare-reference.cjs /path/to/reference.png
+```
+
+`PLAYWRIGHT_CHROMIUM_EXECUTABLE` optionally selects an already installed Chromium binary. The visual scripts serve `dist/` on loopback only and close their servers/browsers when finished. The final action capture pauses Playwright's game clock to capture the brief hand pose.

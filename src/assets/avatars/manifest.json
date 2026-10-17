@@ -68,121 +68,121 @@
       "index": 0,
       "detail": true,
       "file": "look-0-detail.glb",
-      "bytes": 572260
+      "bytes": 693088
     },
     {
       "index": 0,
       "detail": false,
       "file": "look-0-crowd.glb",
-      "bytes": 336464
+      "bytes": 389664
     },
     {
       "index": 1,
       "detail": true,
       "file": "look-1-detail.glb",
-      "bytes": 559988
+      "bytes": 664608
     },
     {
       "index": 1,
       "detail": false,
       "file": "look-1-crowd.glb",
-      "bytes": 327380
+      "bytes": 364368
     },
     {
       "index": 2,
       "detail": true,
       "file": "look-2-detail.glb",
-      "bytes": 456188
+      "bytes": 560804
     },
     {
       "index": 2,
       "detail": false,
       "file": "look-2-crowd.glb",
-      "bytes": 279460
+      "bytes": 316452
     },
     {
       "index": 3,
       "detail": true,
       "file": "look-3-detail.glb",
-      "bytes": 563028
+      "bytes": 683864
     },
     {
       "index": 3,
       "detail": false,
       "file": "look-3-crowd.glb",
-      "bytes": 323356
+      "bytes": 376552
     },
     {
       "index": 4,
       "detail": true,
       "file": "look-4-detail.glb",
-      "bytes": 621220
+      "bytes": 742036
     },
     {
       "index": 4,
       "detail": false,
       "file": "look-4-crowd.glb",
-      "bytes": 362840
+      "bytes": 416028
     },
     {
       "index": 5,
       "detail": true,
       "file": "look-5-detail.glb",
-      "bytes": 619800
+      "bytes": 724420
     },
     {
       "index": 5,
       "detail": false,
       "file": "look-5-crowd.glb",
-      "bytes": 366196
+      "bytes": 403180
     },
     {
       "index": 6,
       "detail": true,
       "file": "look-6-detail.glb",
-      "bytes": 572260
+      "bytes": 693088
     },
     {
       "index": 6,
       "detail": false,
       "file": "look-6-crowd.glb",
-      "bytes": 336464
+      "bytes": 389664
     },
     {
       "index": 7,
       "detail": true,
       "file": "look-7-detail.glb",
-      "bytes": 456188
+      "bytes": 560804
     },
     {
       "index": 7,
       "detail": false,
       "file": "look-7-crowd.glb",
-      "bytes": 279460
+      "bytes": 316448
     },
     {
       "index": 8,
       "detail": true,
       "file": "look-8-detail.glb",
-      "bytes": 563028
+      "bytes": 683864
     },
     {
       "index": 8,
       "detail": false,
       "file": "look-8-crowd.glb",
-      "bytes": 323356
+      "bytes": 376552
     },
     {
       "index": 9,
       "detail": true,
       "file": "look-9-detail.glb",
-      "bytes": 559984
+      "bytes": 664604
     },
     {
       "index": 9,
       "detail": false,
       "file": "look-9-crowd.glb",
-      "bytes": 327376
+      "bytes": 364368
     }
   ]
 }

@@ -37,9 +37,9 @@ Use PlayCanvas entities, cameras, meshes, lights and materials directly. Reuse t
 ## 6. ToDo
 
 - [x] Implement the port; syntax/build and 16 regression tests pass.
-- [ ] Review GPU appearance and mobile/desktop behavior in a real browser. Managed preview was blocked by `bwrap: Can't mount proc on /newroot/proc: Operation not permitted`. Native graphics tests use NullGraphicsDevice and do not validate pixels.
+- [x] Review rendered output with local Chromium/Playwright after the user requested direct sandbox automation. See `spec-004.md` for screenshots and visual limitations.
 - [ ] Measure performance on the selected physical phones; no frame-rate claim is made before measurement.
 
 ## Verification notes
 
-The renderer tests load every optimized GLB through PlayCanvas, instantiate real render entities, validate shoulder pivots/materials, construct and batch the club, submit frames, and check gesture/dance/reduced-motion poses. UI-level tests exercise the shipped action buttons, prerecorded audio and music gain, simultaneous mobile movement/look, keyboard movement, menu pauses and drink constraints. Input tests verify two independent touch pointers. The static build rejects Three.js in its dependency graph and copies all media locally. GPU appearance and physical-device frame rate remain unverified.
+The renderer tests load every optimized GLB through PlayCanvas, instantiate real render entities, validate shoulder pivots/materials, construct and batch the club, submit frames, and check gesture/dance/reduced-motion poses. UI-level tests exercise the shipped action buttons, prerecorded audio and music gain, simultaneous mobile movement/look, keyboard movement, menu pauses and drink constraints. Input tests verify two independent touch pointers. The static build rejects Three.js in its dependency graph and copies all media locally. Rendered appearance was subsequently reviewed through local Chromium screenshots in spec-004; physical-device frame rate remains unverified.

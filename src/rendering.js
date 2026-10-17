@@ -45,8 +45,9 @@ export function createContext(canvas, { alpha = false, quality = 'high', fog = f
   app.graphicsDevice.maxPixelRatio = quality === 'high' ? Math.min(globalThis.devicePixelRatio || 1, 1.5) : 1;
   app.setCanvasResolution(pc.RESOLUTION_AUTO);
   app.setCanvasFillMode(pc.FILLMODE_NONE);
-  app.scene.ambientLight = rgb(fog ? '#554567' : '#aca0b5');
-  app.scene.exposure = fog ? 1.15 : 1;
+  app.scene.ambientLight = rgb(fog ? '#2b1e31' : '#35313b');
+  app.scene.exposure = fog ? .9 : 1;
+  app.scene.skyboxIntensity = fog ? .35 : .55;
   if (fog) {
     app.scene.fog.type = pc.FOG_EXP2;
     app.scene.fog.color = rgb('#180c29');
@@ -60,7 +61,7 @@ export function createContext(canvas, { alpha = false, quality = 'high', fog = f
   app.root.addChild(camera);
   const frame = new pc.CameraFrame(app, camera.camera);
   frame.rendering.toneMapping = pc.TONEMAP_ACES;
-  frame.bloom.intensity = alpha ? .05 : .12;
+  frame.bloom.intensity = alpha ? .035 : .085;
   frame.bloom.threshold = 1;
   frame.bloom.blurLevel = 6;
   frame.update();
@@ -74,7 +75,7 @@ function setEnvironment({ app }) {
   const faces = Array.from({ length: 6 }, (_, i) => {
     const c = document.createElement('canvas'); c.width = c.height = 64;
     const x = c.getContext('2d'), g = x.createLinearGradient(0, 0, 64, 64);
-    for (const [at, color] of [[0, '#0e0924'], [.3, i % 2 ? '#ae4ad8' : '#31b2dc'], [.5, '#eee0ff'], [.6, '#292339'], [1, '#100c17']]) g.addColorStop(at, color);
+    for (const [at, color] of [[0, '#0e0924'], [.3, i % 2 ? '#ae4ad8' : '#31b2dc'], [.5, '#7b5078'], [.6, '#292339'], [1, '#100c17']]) g.addColorStop(at, color);
     x.fillStyle = g; x.fillRect(0, 0, 64, 64);
     x.fillStyle = '#f7e8ff'; x.fillRect(10, 0, 2, 64); x.fillRect(40, 0, 2, 64);
     return c;
@@ -88,7 +89,7 @@ function setEnvironment({ app }) {
 
 export function setQuality(context, quality) {
   context.app.graphicsDevice.maxPixelRatio = quality === 'high' ? Math.min(globalThis.devicePixelRatio || 1, 1.5) : 1;
-  context.frame.bloom.intensity = context.alpha ? .05 : quality === 'high' ? .12 : .07;
+  context.frame.bloom.intensity = context.alpha ? .035 : quality === 'high' ? .085 : .05;
   context.app.resizeCanvas(context.width || 1, context.height || 1);
   context.frame.update();
 }
@@ -153,7 +154,7 @@ function quad(c, parent, width, height, mat) {
 
 export function text(c, parent, label, size, color = '#fff') {
   const canvas = document.createElement('canvas'); canvas.width = 1024; canvas.height = 160;
-  const x = canvas.getContext('2d'); x.font = 'bold 100px Arial'; x.fillStyle = color; x.textAlign = 'center'; x.fillText(label, 512, 115);
+  const x = canvas.getContext('2d'); x.font = 'bold 100px Arial'; x.fillStyle = color; x.textAlign = 'center'; x.fillText(label, 512, 115, 960);
   const mat = unlit('#ffffff', 1, canvasTexture(c, canvas));
   return quad(c, parent, size, size / 6.4, mat);
 }
@@ -169,4 +170,22 @@ export function glow(c, parent, color, x, y, z, size = 3, opacity = .45) {
   // Billboard pivot keeps the plane's local XZ orientation and rectangular scale intact.
   const pivot = new pc.Entity('glow'); parent.addChild(pivot); pivot.setLocalPosition(x, y, z);
   quad(c, pivot, size, size, mat); c.glows.push(pivot); return pivot;
+}
+
+// Authored light streaks provide inexpensive floor sheen without an extra reflected scene pass.
+export function floorReflection(c, parent, color, x, z, width = 1, length = 4) {
+  if (!c.reflectionTexture) {
+    const canvas = document.createElement('canvas');canvas.width=64;canvas.height=256;
+    const ctx=canvas.getContext('2d');
+    for(let y=0;y<256;y++){
+      const spread=5+y*.045, drift=Math.sin(y*.43)*2+Math.sin(y*1.7)*1.2;
+      const g=ctx.createLinearGradient(0,0,64,0),a=(1-y/256)**1.6;
+      g.addColorStop(0,'#fff0');g.addColorStop(Math.max(.01,(32-spread+drift)/64),'#fff0');g.addColorStop(.5+drift/64,`rgba(255,255,255,${a*.6})`);g.addColorStop(Math.min(.99,(32+spread+drift)/64),'#fff0');g.addColorStop(1,'#fff0');
+      ctx.fillStyle=g;ctx.fillRect(0,y,64,1);
+    }
+    c.reflectionTexture=canvasTexture(c,canvas);c.reflectionMats=new Map();
+  }
+  if(!c.reflectionMats.has(color))c.reflectionMats.set(color,unlit(color,.32,c.reflectionTexture,true));
+  const geometry=meshFor(c,'reflection-plane',()=>pc.createPlane(c.app.graphicsDevice,{halfExtents:new pc.Vec2(.5,.5)}));
+  const e=mesh(c,parent,geometry,c.reflectionMats.get(color),'floor-reflection');e.setLocalScale(width,1,length);e.setLocalPosition(x,.027,z);return e;
 }

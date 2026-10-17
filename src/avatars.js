@@ -24,6 +24,7 @@ export class AvatarLibrary {
   finishMaterials(asset) {
     for (const entry of asset.resource.materials || []) {
       const mat = entry.resource;
+      if (mat && ['leather', 'metal', 'bracelet'].includes(mat.name)) { mat.clearCoat = .65; mat.clearCoatGloss = .9; mat.update(); }
       if (mat && ['cloth', 'inner'].includes(mat.name)) {
         mat.normalMap = this.fabricNormal();
         mat.normalMapTiling.set(5, 7);
@@ -60,8 +61,8 @@ export class AvatarLibrary {
     return { entity, arms: [0, 1].map(i => entity.findByName(`arm-${i}`)), legs: [0, 1].map(i => entity.findByName(`leg-${i}`)) };
   }
 
-  async hands(color) {
-    const asset = await this.load(new URL('./assets/avatars/hands.glb', import.meta.url).href);
+  async hands(color, heart = false) {
+    const asset = await this.load(new URL(heart ? './assets/avatars/hands-heart.glb' : './assets/avatars/hands.glb', import.meta.url).href);
     const entity = asset.resource.instantiateRenderEntity();
     const parts = [0, 1].map(i => entity.findByName(`hand-${i}`));
     const materials = (asset.resource.materials || []).map(x => x.resource).filter(x => x?.name === 'bracelet');

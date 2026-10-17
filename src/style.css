@@ -16,3 +16,22 @@
 @media(orientation:landscape) and (max-height:600px){.outfit-layout{grid-template-columns:48% 1fr}.avatar-preview{min-height:420px}}
 
 #npc-speaking{position:absolute;top:90px;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:18px;max-width:calc(100vw - 32px);padding:10px 15px;white-space:nowrap;pointer-events:auto;font-size:12px}#stop-npc-voice{border:0;background:transparent;color:inherit;font-size:24px;min-width:36px;min-height:36px;cursor:pointer}
+/* Neon radial actions: five gestures around a central conversation button. */
+#action-wheel{display:block;width:330px;height:330px;padding:0;border-radius:50%;background:radial-gradient(circle,#241027cc,#140b20bb 70%);border:1px solid #df70edaa;box-shadow:0 0 35px #c82baa33,inset 0 0 30px #d442c21a;gap:0}
+#action-wheel[hidden]{display:none}
+#action-wheel .wheel-title{display:none}
+#action-wheel button{position:absolute;transform:translate(-50%,-50%);width:86px;height:86px;min-height:0;padding:8px 4px;border-radius:50%;border:1px solid #df78e76b;background:radial-gradient(circle,#8d2f6744,#29153755);color:#fff;font-size:30px;text-shadow:0 0 12px #fa4caf;box-shadow:inset 0 0 14px #e953b719}
+#action-wheel button span{font-size:9px;color:#f0d9eb;margin-top:3px}
+#action-wheel [data-action=heart]{left:50%;top:16%;font-size:40px;color:#ff9ad2;border-color:#ff65bf;background:radial-gradient(circle,#b43d7566,#29153755);box-shadow:0 0 20px #ff45a333,inset 0 0 12px #f94ba333}
+#action-wheel [data-action=wave]{left:16%;top:43%}
+#action-wheel [data-action=five]{left:84%;top:43%}
+#action-wheel [data-action=dance]{left:29%;top:80%}
+#action-wheel [data-action=drink]{left:71%;top:80%;color:#aceaff;text-shadow:0 0 12px #40cfff}
+#action-wheel [data-action=talk]{left:50%;top:49%;width:70px;height:70px;font-size:24px;background:#190e24bb}
+#action-wheel button:hover,#action-wheel button:focus-visible{border-color:#ffb6e5;box-shadow:0 0 18px #ff69ce66;outline:1px solid #ffe1f5}
+@media(max-width:650px){#action-wheel,.mobile-controls #action-wheel{width:280px;height:280px;padding:0;display:block}#action-wheel[hidden],.mobile-controls #action-wheel[hidden]{display:none}#action-wheel button,.mobile-controls #action-wheel button{width:73px;height:73px;min-height:0;padding:6px 3px;font-size:26px}#action-wheel [data-action=talk],.mobile-controls #action-wheel [data-action=talk]{width:62px;height:62px;font-size:21px}#action-wheel [data-action=heart]{font-size:35px}}
+@media(orientation:landscape) and (max-height:600px){.mobile-controls #action-wheel{width:260px;height:260px;padding:0}.mobile-controls #action-wheel button{width:68px;height:68px;min-height:0}}
+
+#action-wheel svg{display:block;width:31px;height:31px;margin:0 auto;filter:drop-shadow(0 0 5px #f646b077)}#action-wheel [data-action=heart] svg{width:36px;height:36px;fill:#f344a333}#action-wheel [data-action=talk] svg{width:25px;height:25px}
+
+.round svg{display:block;width:22px;height:22px;margin:auto}.stick-thumb svg{width:25px;height:25px}

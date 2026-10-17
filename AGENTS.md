@@ -24,5 +24,7 @@ The shipped prototype is a local single-player browser scene with NPCs and prere
 ## PlayCanvas port
 
 - `Tasks/spec-003.md` governs this branch, based on main `90a1755141288e5d538367db8ff03b96dabcf4e7`. Preserve the original NEON ROOM palette, outfits, layout, interactions and sound. Cyber City is not a visual reference.
-- The experiment is separate from the stable Site. Do not overwrite its Site ID or deploy the branch to the main GitHub Pages environment.
+- The experiment is a separate public Site governed by `Tasks/spec-004.md`, alongside the stable Site. Do not overwrite its Site ID or deploy the branch to the main GitHub Pages environment.
 - `npm test` includes native PlayCanvas GLB parsing and scene/frame tests using its NullGraphicsDevice, plus UI/audio/input regression tests. These are not GPU screenshot or physical-phone performance tests. Report browser verification limits honestly.
+
+- Reproduce visual checks with `npm run test:visual -- final` and `node scripts/mobile-review.cjs` after installing Playwright Chromium. Use the optional `PLAYWRIGHT_CHROMIUM_EXECUTABLE` for a prepared browser. Keep screenshot evidence in `artifacts/visual/`. Capture the real rendered scene and compare it with the supplied reference; never substitute generated mockups for gameplay evidence.

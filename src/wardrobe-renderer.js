@@ -8,9 +8,9 @@ export class WardrobeRenderer {
     this.library = new AvatarLibrary(this.context);
     this.distance = 4.8; this.targetY = 1.06; this.angle = 0; this.request = 0;
     const c = this.context, root = c.app.root;
-    light(c, root, '#e1edff', 1.7, -2, 3, 4, { directional: true });
-    light(c, root, '#b58de8', 18, -2, 2, -1);
-    light(c, root, '#c6f7ff', 22, 2, 3, 2);
+    light(c, root, '#e1edff', .8, -2, 3, 4, { directional: true });
+    light(c, root, '#b58de8', .65, -2, 2, -1);
+    light(c, root, '#c6f7ff', 1.1, 2, 3, 2);
     cylinder(c, root, .7, .08, 0, 0, 0, material('#382f4c', .85, .18), 48);
     torus(c, root, .65, .012, 0, .05, 0, neon('#d9ff64'), true);
     this.positionCamera();

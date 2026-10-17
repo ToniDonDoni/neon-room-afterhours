@@ -21,3 +21,6 @@ export function nearestNpc(npcs, position) {
   }
   return { npc, d };
 }
+
+export const EXTRA_GUESTS = [[-3.5,-4.7],[-1.3,-5.5],[1.2,-5.6],[3.7,-3.4],[-3.5,.5],[-.4,1.7],[1.5,.3],[4.8,2.7],[-5,5],[2,7],[5.8,-1.6],[-5.5,-4]];
+export const EXTRA_NAMES = ['Sage','Blair','River','Kai','Moss','Onyx','Raven','Lux','Vex','Jules','Sky','Sol'];

@@ -1,6 +1,6 @@
-import { pc, createContext, material, neon, box, sphere, cylinder, torus, light, text, glow, mesh, render, setQuality, rgb, degrees, unlit } from './rendering.js';
+import { pc, createContext, material, neon, box, sphere, cylinder, torus, light, text, glow, mesh, render, setQuality, rgb, degrees, unlit, floorReflection } from './rendering.js';
 import { AvatarLibrary } from './avatars.js';
-import { NPC_NAMES, NPC_POSITIONS } from './club-layout.js';
+import { NPC_NAMES, NPC_POSITIONS, EXTRA_GUESTS, EXTRA_NAMES } from './club-layout.js';
 
 // Club dimensions, furniture, outfits and choreography are carried over from main.
 export class ClubRenderer {
@@ -14,9 +14,9 @@ export class ClubRenderer {
     this.context.app.root.addChild(this.player);
     this.context.camera.reparent(this.player);
     this.buildClub();
-    this.npcs = NPC_POSITIONS.map(([x, z], i) => ({
+    this.npcs = [...NPC_POSITIONS, ...EXTRA_GUESTS].map(([x, z], i) => ({
       position: new pc.Vec3(x, 0, z), yaw: (i * .9) % 6.28,
-      userData: { index: i % 10, name: NPC_NAMES[i], phase: i * 2.1, dance: i < 7 },
+      userData: { index: i % 10, name: [...NPC_NAMES,...EXTRA_NAMES][i], phase: i * 2.1, dance: i < 7 || i >= 12 },
       lookAt(tx, _y, tz) { this.yaw = Math.atan2(tx - this.position.x, tz - this.position.z); },
     }));
     // Sequential unique assets keep mobile decode/HTTP pressure bounded.
@@ -34,12 +34,21 @@ export class ClubRenderer {
       n.entity.setLocalPosition(n.position); n.entity.setLocalEulerAngles(0, n.yaw * degrees, 0);
       this.context.app.root.addChild(n.entity);
     }
+    this.batchPeople();
     this.handModel = await this.library.hands(this.handColor || '#a0a3ad');
     this.context.camera.addChild(this.handModel.entity);
+    this.heartModel = await this.library.hands(this.handColor || '#a0a3ad', true);
+    this.context.camera.addChild(this.heartModel.entity);this.heartModel.entity.enabled = false;
+  }
+  batchPeople() {
+    const app = this.context.app;
+    const group = app.batcher.addGroup('moving-guests', true, 32);
+    for(const n of this.npcs) for(const part of n.entity.findComponents('render')) part.batchGroupId=group.id;
+    app.root.syncHierarchy();app.batcher.generate([group.id]);
   }
   setHandColor(color) {
     this.handColor = color;
-    this.handModel?.materials.forEach(m => { m.diffuse = rgb(color); m.update(); });
+    [...(this.handModel?.materials || []), ...(this.heartModel?.materials || [])].forEach(m => { m.diffuse = rgb(color); m.update(); });
   }
   buildClub() {
     const c = this.context, root = c.app.root;
@@ -51,21 +60,21 @@ export class ClubRenderer {
     };
     const n = color => { if (!neons.has(color)) neons.set(color, neon(color)); return neons.get(color); };
     const b = (...args) => box(c, root, ...args);
-    const floor = m('#1c1529', .8, .19), wall = m('#15111e', .35, .4), chrome = m('#a3a6b7', .92, .16), black = m('#0b0810', .2, .4);
+    const floor = m('#110e18', .78, .12), wall = m('#15111e', .35, .4), chrome = m('#a3a6b7', .92, .16), black = m('#0b0810', .2, .4);
     b(26, .2, 28, 0, -.15, 0, floor);
     b(26, 7, .25, 0, 3.3, -14, wall); b(.25, 7, 28, -13, 3.3, 0, wall);
     b(.25, 7, 28, 13, 3.3, 0, wall); b(26, 7, .25, 0, 3.3, 14, wall); b(26, .2, 28, 0, 7, 0, black);
     for (let z = -12; z <= 12; z += 3) {
-      b(25, .018, .018, 0, .005, z, n('#38214c'));
+      b(25, .018, .018, 0, .005, z, m('#22182b', .45, .4));
       for (const x of [-12.5, 12.5]) {
-        b(.04, 5, .08, x, 2.6, z, n(x < 0 ? '#9e51ff' : '#f23bb9'));
-        glow(c, root, x < 0 ? '#8e40ff' : '#f22fae', x, 2.4, z, 3, .22);
+        b(.04, 5, .08, x, 2.6, z, n(x < 0 ? '#20ccff' : '#ff29ac'));
+        glow(c, root, x < 0 ? '#20bfff' : '#ff29ac', x, 2.4, z, 3, .22);
       }
     }
-    for (let x = -10; x <= 10; x += 2.5) b(.015, .018, 28, x, .005, 0, n('#38214c'));
+    for (let x = -10; x <= 10; x += 2.5) b(.015, .018, 28, x, .005, 0, m('#22182b', .45, .4));
     for (let j = 0; j < 4; j++) {
-      torus(c, root, 3.1 + j * .3, .045, 0, 4.3 + j * .05, -10.8 - j * .25, n(j % 2 ? '#a95aff' : '#f663ff'), false, 80);
-      glow(c, root, '#b044ff', 0, 4, -11, 9, .16);
+      torus(c, root, 3.1 + j * .3, .045, 0, 4.3 + j * .05, -10.8 - j * .25, n(j % 2 ? '#a95aff' : '#ff27a9'), false, 80);
+      glow(c, root, '#ff2fae', 0, 4, -11, 7, .06);
     }
     text(c, root, 'NEON ROOM', 7, '#e3c4ff').setLocalPosition(0, 4.8, -13.6);
     text(c, root, 'FIND YOUR FREQUENCY', 4, '#d9ff64').setLocalPosition(0, 3.8, -13.5);
@@ -77,7 +86,7 @@ export class ClubRenderer {
     }
     for (let x = -6; x <= 6; x += 3) {
       b(.12, .12, 25, x, 6.2, 0, chrome);
-      for (let z = -8; z <= 8; z += 4) { sphere(c, root, .1, x, 6.1, z, n('#b36bff')); glow(c, root, '#b655ff', x, 6, z, 1.5, .3); }
+      for (let z = -8; z <= 8; z += 4) { sphere(c, root, .1, x, 6.1, z, n('#b36bff')); glow(c, root, '#ee55c8', x, 6, z, .55, .14); }
     }
     b(3.2, 1.05, 8, -10, .5, 1, m('#281d35', .8, .24)); b(3.3, .1, 8.1, -10, 1.08, 1, chrome);
     b(.04, .07, 8.1, -8.33, .9, 1, n('#60e5ff'));
@@ -104,7 +113,22 @@ export class ClubRenderer {
       const cone = mesh(c, pivot, pc.createCone(c.app.graphicsDevice, { baseRadius: .65, peakRadius: 0, height: 15, capSegments: 12, heightSegments: 1 }), mat);
       cone.setLocalPosition(0, -7.5, 0); this.lasers.push(pivot);
     }
-    for (const [color, x, y, z, power] of [['#a53dff', 0, 5, -5, 110], ['#61cfff', -8, 3, 1, 55], ['#ed54c6', 7, 3, 5, 65], ['#b875ff', 0, 3, 9, 45]]) light(c, root, color, power, x, y, z);
+    for (const [color, x, y, z, power] of [['#ff2aaf', 0, 5, -5, 110], ['#61cfff', -8, 3, 1, 55], ['#ff247b', 7, 3, 5, 65], ['#b875ff', 0, 3, 9, 45]]) light(c, root, color, power * .065, x, y, z);
+    // Layered ceiling rigs and ribbed reflective wall panels follow the original club reference.
+    for (const z of [-5, 2, 9]) {
+      torus(c, root, 2.7, .065, 0, 5.8, z, chrome, true, 72);
+      torus(c, root, 2.63, .022, 0, 5.73, z, n('#ff249c'), true, 72);
+      for (const x of [-2.7, 2.7]) b(.07, 1.1, .07, x, 6.35, z, chrome);
+    }
+    for (const side of [-1, 1]) for (let z = -11; z <= 11; z += 2.2) {
+      b(.12, 4.8, 1.75, side * 12.78, 2.8, z, m('#221828', .85, .18));
+      b(.18, .055, 1.9, side * 12.65, 4.8, z, n(side < 0 ? '#ff26ae' : '#14cfff'));
+      for (let k = -2; k <= 2; k++) b(.2, .018, 1.55, side * 12.65, 2.6 + k * .46, z, chrome);
+    }
+    // Narrow magenta light rails above the bar, cyan on the far wall.
+    b(.06, .06, 24, -8.2, 4.4, 0, n('#ff2da9'));
+    b(.06, .06, 24, 8.2, 4.4, 0, n('#16bfff'));
+    light(c, root, '#f0bfd5', .3, 0, 4, 5, { directional: true });
     // One static mesh for floating dust, rather than 180 separate renderers.
     const vertices = [], indices = [];
     let seed = 42; const random = () => ((seed = (seed * 1664525 + 1013904223) >>> 0) / 4294967296);
@@ -115,10 +139,11 @@ export class ClubRenderer {
     const dust = new pc.Mesh(c.app.graphicsDevice); dust.setPositions(vertices); dust.setIndices(indices); dust.update();
     const dustMat = unlit('#cbb0ff', .5);
     mesh(c, root, dust, dustMat, 'dust');
+    for(const x of [-11.5,-5,5,11.5]) for(const z of [-7,-1,5])floorReflection(c,root,x<0?'#ff28ac':'#20ccff',x,z,1.2,5);
     // Static architecture shares materials and batches; articulated people stay separate.
     const batch = c.app.batcher.addGroup('architecture', false, 32);
     for (const e of root.findComponents('render')) {
-      if (e.entity.name === 'club-box' || e.entity.name === 'neon-ring' || e.entity.name === 'light-orb') e.batchGroupId = batch.id;
+      if (e.entity.name === 'club-box' || e.entity.name === 'neon-ring' || e.entity.name === 'light-orb' || e.entity.name === 'floor-reflection') e.batchGroupId = batch.id;
     }
     c.app.root.syncHierarchy(); c.app.batcher.generate([batch.id]);
   }
@@ -126,6 +151,8 @@ export class ClubRenderer {
     this.player.setLocalPosition(this.position); this.player.setLocalEulerAngles(0, yaw * degrees, 0);
     this.context.camera.setLocalEulerAngles(pitch * degrees, 0, 0);
     if (this.handModel) {
+      const heart = this.hands.userData.action === 'heart' && this.hands.userData.until > now && !!this.heartModel;
+      this.handModel.entity.enabled = !heart;if(this.heartModel)this.heartModel.entity.enabled = heart;
       this.handModel.entity.setLocalPosition(0, moving && !lowMotion ? Math.sin(t * 9) * .014 : 0, 0);
       this.handModel.parts.forEach((h, i) => {
         if (!h) return;

@@ -67,7 +67,7 @@ function mergeParts(parent){
 export function createFashionAvatar(index=0,{detail=true}={}){
  index=((index%looks.length)+looks.length)%looks.length;const style=[0,1,2,3,4,5,0,2,3,1][index],female=[0,3,4].includes(style),root=new THREE.Group();
  const materials={};const make=(name,color,rough=.6,metal=0)=>materials[name]=new THREE.MeshStandardMaterial({name,color,roughness:rough,metalness:metal,side:THREE.DoubleSide});
- const skin=make('skin',female?'#bf968c':'#c3a294',.62,.04),lip=make('lip','#835b61',.5),shadow=make('shadow','#573e43',.7),white=make('eye','#b9b6ae',.35),iris=make('iris','#424c45',.26),pupil=make('pupil','#0b0b11',.26),hair=make('hair',style===2?'#b4adb3':style===5?'#817b83':'#16131c',.53,.08),strand=make('strand',style===2?'#d2c7cc':style===5?'#b6a8b5':'#302734',.48,.15),cloth=make('cloth',looks[index][1],style===0?.35:.77,style===0?.28:.04),inner=make('inner',style===4?'#302033':'#18171f',.78,.04),leather=make('leather','#242029',.3,.24),rubber=make('rubber','#16151c',.7),metal=make('metal','#a0a3ad',.25,.82),seam=make('seam',style===4?'#786075':'#49424e',.76),accent=make('accent',style===3?(index===8?'#b98be1':'#b4c75c'):'#88828d',.45,.3);
+ const skin=make('skin',female?'#bf968c':'#c3a294',.62,.04),lip=make('lip','#835b61',.5),shadow=make('shadow','#573e43',.7),white=make('eye','#b9b6ae',.35),iris=make('iris','#424c45',.26),pupil=make('pupil','#0b0b11',.26),hair=make('hair',style===4?'#c5adb7':style===2?'#b4adb3':style===5?'#817b83':'#16131c',.53,.08),strand=make('strand',style===4?'#f0d3d5':style===2?'#d2c7cc':style===5?'#b6a8b5':'#302734',.48,.15),cloth=make('cloth',looks[index][1],style===0?.35:.77,style===0?.28:.04),inner=make('inner',style===4?'#302033':'#18171f',.78,.04),leather=make('leather','#242029',.3,.24),rubber=make('rubber','#16151c',.7),metal=make('metal','#a0a3ad',.25,.82),seam=make('seam',style===4?'#786075':'#49424e',.76),accent=make('accent',style===3?(index===8?'#b98be1':'#b4c75c'):'#88828d',.45,.3);
  const tex=textile();if(tex){cloth.bumpMap=tex;cloth.bumpScale=.002;inner.bumpMap=tex;inner.bumpScale=.0015}
  const D=detail?1:.65,S=detail?28:18;
  // Continuous, tapered torso and neck instead of primitive boxes.
@@ -80,7 +80,6 @@ export function createFashionAvatar(index=0,{detail=true}={}){
  for(const sign of [-1,1]){
   ellipsoid(root,skin,sign*.118,1.887,-.004,.018,.037,.022,12);
   tube(root,shadow,[[sign*.122,1.91,.009],[sign*.13,1.89,.017],[sign*.121,1.868,.013]],.003,10,5);
-  ellipsoid(root,skin,sign*.063,1.875,.087,.047,.033,.023,16);
   ellipsoid(root,white,sign*.049,1.929,.103,.026,.0095,.012,16);
   ellipsoid(root,iris,sign*.049,1.929,.114,.008,.008,.002,12);
   ellipsoid(root,pupil,sign*.049,1.929,.116,.0038,.0048,.001,10);
@@ -98,14 +97,25 @@ export function createFashionAvatar(index=0,{detail=true}={}){
  // Shaped scalp, separate locks and fine hair strands, not a helmet sphere.
  mesh(root,surface((u,v)=>{const a=u*Math.PI*2,theta=v*(1.47+.4*(1-Math.cos(a))*.5);return [Math.sin(theta)*Math.sin(a)*.128,1.94+Math.cos(theta)*.134,Math.sin(theta)*Math.cos(a)*.122-.012]},S,18),hair);
  const longHair=female&&style!==3,lockCount=detail?32:18;
+ mesh(root,surface((u,v)=>{const a=.95+u*(Math.PI*2-1.9),len=longHair?.49:.18,rx=.133+v*(longHair?.02:0),rz=.128+v*.004;return [Math.sin(a)*rx,1.995-v*len,Math.cos(a)*rz-.012]},detail?40:28,detail?30:20),hair);
  for(let i=0;i<lockCount;i++){
   const a=i/lockCount*Math.PI*2,front=Math.cos(a)>.4,side=Math.sin(a),back=Math.cos(a);
   const endY=front?1.965-(i%3)*.007:longHair?1.49+(i%5)*.035:1.79+(i%4)*.035;
   const points=[[side*.022,2.065,-.006+back*.018],[side*.10,2.028,back*.08],[side*.133,1.94,back*.124],[side*(longHair?.16:.135)+(front?.025:0),endY,back*.13]];
   tube(root,i%4===0?strand:hair,points,detail?.005:.008,detail?18:12,5);
+  if(!front)panel(root,hair,points.map(p=>[p[0]-Math.cos(a)*.015,p[1],p[2]+Math.sin(a)*.015]),points.map(p=>[p[0]+Math.cos(a)*.015,p[1],p[2]-Math.sin(a)*.015]),6,detail?24:16,.002);
   if(detail&&!front)tube(root,strand,points.map((p,j)=>[p[0]+.003,p[1]-.002,p[2]+.003]),.0009,20,4);
  }
  if(style===2||style===5)for(let i=0;i<10;i++)tube(root,i%3?hair:strand,[[-.065+i*.01,2.035,.04],[-.095+i*.012,1.99,.105],[-.1+i*.017,1.90-(i%3)*.025,.124]],.004,14,5);
+ if(female){
+  const lens=make('lens','#0b0911',.08,.35);
+  for(const sign of [-1,1]){
+   const glass=mesh(root,new THREE.BoxGeometry(.076,.034,.005),lens);glass.position.set(sign*.054,1.934,.124);glass.rotation.z=sign*.07;
+   tube(root,leather,[[sign*.016,1.95,.126],[sign*.093,1.953,.121],[sign*.09,1.916,.123],[sign*.016,1.917,.128],[sign*.016,1.95,.126]],.0035,24,6);
+   tube(root,leather,[[sign*.094,1.948,.12],[sign*.127,1.941,.065],[sign*.128,1.90,-.01]],.003,18,6);
+  }
+  tube(root,metal,[[-.017,1.943,.13],[0,1.948,.135],[.017,1.943,.13]],.0028,16,6);
+ }
  // Cloth limbs share anatomical joints, with separate palms and five fingers.
  const arms=[],legs=[];
  for(const sign of [-1,1]){
@@ -218,6 +228,30 @@ export function createFirstPersonHands(color){
   taper(a,skin,[[-sign*.035,.025,-.025],[-sign*.067,.046,-.043],[-sign*.076,.09,-.048]],[[.014,.013],[.012,.011],[.008,.008]],14,10);
   ringsMesh(a,metal,[[-.085,.047,.041,0,.035],[-.055,.045,.039,0,.022]],24,5);
   for(let i=0;i<2;i++)ring(a,metal,(i-.5)*.022,.12,-.047,.012,'flat');
+  mergeParts(a);root.add(a);
+ }
+ root.userData.braceletMaterials=[metal];return root;
+}
+
+// Dedicated articulated hand pose: curved index fingers and touching thumbs outline a heart.
+export function createHeartHands(color) {
+ const root=new THREE.Group(),skin=new THREE.MeshStandardMaterial({name:'skin',color:'#bd968c',roughness:.58,metalness:.03}),nail=new THREE.MeshStandardMaterial({name:'nail',color:'#30252e',roughness:.28}),metal=new THREE.MeshStandardMaterial({name:'bracelet',color,roughness:.2,metalness:.85});
+ for(const sign of [-1,1]){
+  const a=new THREE.Group();a.position.set(sign*.17,-.18,-.52);a.rotation.z=sign*.7;
+  taper(a,skin,[[0,-.55,.23],[0,-.32,.14],[0,-.1,.04],[0,0,0]],[[.067,.058],[.057,.05],[.042,.035],[.035,.029]],28,22);
+  ellipsoid(a,skin,0,.046,-.023,.046,.061,.026,24);
+  // The index bends inward above the thumb; the remaining fingers curl behind the palm.
+  taper(a,skin,[[-sign*.014,.08,-.029],[-sign*.005,.14,-.04],[-sign*.022,.19,-.05],[-sign*.06,.20,-.06]],[[.011,.01],[.01,.009],[.009,.008],[.007,.006]],16,22);
+  ellipsoid(a,nail,-sign*.057,.20,-.066,.009,.008,.002,12);
+  taper(a,skin,[[-sign*.032,.025,-.022],[-sign*.079,.03,-.048],[-sign*.12,.065,-.064],[-sign*.15,.09,-.065]],[[.015,.013],[.013,.012],[.011,.01],[.009,.008]],18,22);
+  ellipsoid(a,nail,-sign*.147,.091,-.074,.01,.007,.002,12);
+  for(let j=0;j<3;j++){
+   const x=sign*(.006+j*.019),y=.082-j*.009;
+   taper(a,skin,[[x,y,-.025],[x,y+.048,-.04],[x,y+.05,-.071],[x,y+.013,-.08]],[[.0105,.010],[.01,.009],[.008,.008],[.0065,.006]],12,16);
+   ellipsoid(a,nail,x,y+.016,-.085,.006,.009,.002,10);
+  }
+  for(const y of [-.075,-.105,-.145])ringsMesh(a,metal,[[y-.012,.045,.038,0,.03],[y+.012,.044,.037,0,.025]],28,5);
+  ring(a,metal,sign*.016,.1,-.036,.012,'flat');
   mergeParts(a);root.add(a);
  }
  root.userData.braceletMaterials=[metal];return root;

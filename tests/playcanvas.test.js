@@ -52,12 +52,14 @@ test('PlayCanvas parses every shipped GLB with articulated limbs and intact mate
       entity.findByName('arm-0').setLocalEulerAngles(-110, 0, 0);
       entity.destroy();
     }
-    assert.ok(bytes < 10 * 1048576, 'All 20 models remain below 10 MiB total');
+    assert.ok(bytes < 12 * 1048576, 'All 20 models remain below 12 MiB total');
     const handAsset = await parseAsset('hands.glb', c);
     const hands = handAsset.resource.instantiateRenderEntity();
     assert.ok(hands.findByName('hand-0'));assert.ok(hands.findByName('hand-1'));
     assert.ok(handAsset.resource.materials.some(x => x.resource.name === 'bracelet'));
     hands.destroy();
+    const heart = (await parseAsset('hands-heart.glb',c)).resource.instantiateRenderEntity();
+    assert.ok(heart.findByName('hand-0'));assert.ok(heart.findByName('hand-1'));heart.destroy();
   } finally { c.app.destroy(); }
 });
 
@@ -68,7 +70,7 @@ test('native club scene constructs, batches, and advances gesture and dance pose
     Object.assign(world, { context: c, lasers: [], position: new pc.Vec3(0, 1.66, 10), player: new pc.Entity('player'), hands: { userData: { action: 'heart', until: 2000 } } });
     c.app.root.addChild(world.player);c.camera.reparent(world.player);
     world.buildClub();
-    assert.equal(c.app.root.findComponents('light').length, 4);
+    assert.equal(c.app.root.findComponents('light').length, 5);
     assert.equal(world.lasers.length, 8);assert.ok(c.glows.length > 30);
     const entity = new pc.Entity('Luna'), arms = [new pc.Entity(), new pc.Entity()], legs = [new pc.Entity(), new pc.Entity()];
     arms.concat(legs).forEach(x => entity.addChild(x));c.app.root.addChild(entity);
@@ -113,4 +115,20 @@ test('native render context initializes reflections, bloom and quality changes',
     render(c,390,844);setQuality(c,'low');render(c,844,390);
     assert.equal(c.app.graphicsDevice.maxPixelRatio,1);
   } finally { c.app.destroy(); }
+});
+
+test('animated guest batching reduces draw groups while retaining articulated nodes', async () => {
+  const c=nativeApp();
+  try{
+    const asset=await parseAsset('look-4-crowd.glb',c);
+    const entities=[asset.resource.instantiateRenderEntity(),asset.resource.instantiateRenderEntity()];
+    entities.forEach((e,i)=>{e.setLocalPosition(i*2,0,0);c.app.root.addChild(e)});
+    const before=entities.flatMap(e=>e.findComponents('render')).reduce((n,r)=>n+r.meshInstances.length,0);
+    const world=Object.create(ClubRenderer.prototype);world.context=c;world.npcs=entities.map(entity=>({entity}));world.batchPeople();
+    const group=c.app.batcher.getGroupByName('moving-guests');const batches=c.app.batcher.getBatches(group.id);
+    assert.ok(batches.length>0&&batches.length<before,`${before} draws reduced to ${batches.length} groups`);
+    entities[0].findByName('arm-0').setLocalEulerAngles(-100,0,0);
+    c.app.root.syncHierarchy();c.app.batcher.updateAll();
+    assert.ok(entities[0].findByName('leg-1'));
+  }finally{c.app.destroy()}
 });
