@@ -77,6 +77,7 @@ function setVolume() { npcInteraction.setVolume(profile.volume); if (audio) audi
 function toggleAudio() {
   const instance = ensureAudio();
   const on = instance.toggle();
+  if (on) instance.setSilent(false);
   setVolume();
   $('#sound').style.color = on ? 'var(--acid)' : '';
   toast(on ? 'Музыка включена · ' + instance.trackLabel : 'Музыка выключена');
