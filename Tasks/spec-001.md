@@ -1,65 +1,65 @@
-# Спецификация 001: NEON ROOM — браузерная игра про ночной клуб
+# Specification 001: NEON ROOM — a browser nightclub game
 
-## 1. Проблематика и текущее состояние
+## 1. Problem and current state
 
-Нужна доступная из браузера игра про виртуальные вечеринки: пользователь собирает образ и оказывается в ночном клубе, где может свободно перемещаться, слушать музыку и взаимодействовать с персонажами. Целевое видение включает игру от первого лица, будущую поддержку VR и онлайн-вечеринки.
+We need a browser-accessible game about virtual parties: players put together an outfit and enter a nightclub where they can move freely, listen to music and interact with characters. The product vision includes first-person play, future VR support and online parties.
 
-Первая опубликованная версия — одиночный интерактивный прототип. Она содержит шоурум с выбором имени и десяти образов, один клуб NEON ROOM, стилизованные NPC, музыку и основные игровые действия. Серверной синхронизации игроков, друзей, текстового или голосового чата и VR-сессии пока нет.
+The first published version is an interactive single-player prototype. It includes a showroom with nickname selection and ten outfits, one NEON ROOM club, stylized NPCs, music and basic player actions. Server-side player synchronization, friends, text or voice chat and VR sessions are not yet implemented.
 
-## 2. Требуемое состояние
+## 2. Desired state
 
-Игра запускается в современном браузере на телефоне и компьютере, проводит пользователя через выбор ника, наряда и схемы управления, затем загружает интерактивный клуб.
+The game runs in a modern browser on phones and computers. Players choose a nickname, outfit and control scheme before entering the interactive club.
 
-Художественное направление — тёмный кислотный электро-клуб: чёрная основа, фиолетовый, розовый и голубой неон, отражающие материалы, хром, лучи, дымка и визуальные детали моды. В гардеробе доступны десять стилизованных образов в духе тёмной асимметричной моды, объёмного клубного streetwear, драпировок, многослойности, тяжёлой обуви и металла.
+The art direction is a dark acid-electro club: a black base, purple, pink and cyan neon, reflective materials, chrome, light beams, haze and fashion details. The wardrobe offers ten stylized looks inspired by dark asymmetric fashion, oversized club streetwear, draping, layers, heavy footwear and metal accessories.
 
-В клубе есть вход, танцпол, DJ-сцена, бар и лаунж. Музыка — процедурный тех-хаус, который запускается по действию пользователя и имеет управление громкостью и выбором трека. Для новых посетителей NPC служат персонажами сцены и реагируют на действия игрока.
+The club includes an entrance, dance floor, DJ stage, bar and lounge. Procedural tech-house music starts after a player action and supports volume and track selection. NPCs populate the scene and respond to player actions.
 
-## 3. Критерии приёмки
+## 3. Acceptance criteria
 
-### Пользовательский сценарий
+### User story
 
-> Как новый игрок, я хочу открыть игру, выбрать предложенное имя или ввести своё, выбрать наряд и управление, войти в клуб, свободно перемещаться и совершать действия под тех-хаус, чтобы оказаться на виртуальной вечеринке.
+> As a new player, I want to open the game, select a suggested nickname or enter my own, choose an outfit and controls, enter the club, move freely and perform actions to tech-house music so that I can experience a virtual party.
 
-- [x] Пользователь может выбрать предложенный ник или ввести собственный.
-- [x] Доступны десять нарядов; выбор сохраняется в локальном браузере.
-- [x] В гардеробе можно вращать 3D-модель и приближать лицо или одежду.
-- [x] Перед входом можно выбрать управление с телефона либо клавиатурой и мышью.
-- [x] На телефоне экранные джойстики позволяют одновременно идти и осматриваться; касания двух стиков обрабатываются независимо.
-- [x] На компьютере перемещение работает через WASD, обзор — через мышь, меню действий — через E.
-- [x] В клубе можно посетить танцпол, DJ-сцену, бар и лаунж.
-- [x] Доступны жесты, танец и напиток; NPC отвечают на действия.
-- [x] Процедурные тех-хаус-треки запускаются после действия игрока; можно переключать трек и менять громкость.
-- [x] Можно вернуться в гардероб и сменить образ без перезагрузки приложения.
-- [x] Браузерная сборка запускается без шага компиляции и внешнего сервера приложения.
-- [ ] Полноценный онлайн-мультиплеер, чат, система друзей и общие комнаты.
-- [ ] VR-режим и проверка на выбранной гарнитуре.
-- [ ] Проверка частоты кадров и качества на определённых эталонных телефонах.
+- [x] Players can select a suggested nickname or enter their own.
+- [x] Ten outfits are available, and the selection is saved in the local browser.
+- [x] The wardrobe supports rotating the 3D model and inspecting the face or clothing up close.
+- [x] Players can choose phone controls or keyboard and mouse before entering.
+- [x] On phones, independent multitouch joysticks support moving and looking around simultaneously.
+- [x] On computers, WASD moves the player, the mouse controls the view and E opens the action menu.
+- [x] Players can visit the dance floor, DJ stage, bar and lounge.
+- [x] Gestures, dancing and a drink are available; NPCs respond to player actions.
+- [x] Procedural tech-house tracks start after a player action; players can switch tracks and adjust the volume.
+- [x] Players can return to the wardrobe and change their outfit without reloading the app.
+- [x] The browser app runs without compilation or an application server.
+- [ ] Full online multiplayer, chat, friends and shared rooms.
+- [ ] VR mode and validation on a selected headset.
+- [ ] Frame-rate and visual-quality validation on specified reference phones.
 
-## 4. Анализ
+## 4. Analysis
 
-Приложение выполнено как buildless ES-модульный проект. Это позволяет раздавать одну и ту же статическую страницу с GitHub Pages и ChatGPT Sites, не поддерживая параллельные сборки. Three.js и служебный модуль геометрии находятся в репозитории и не загружаются с внешнего CDN.
+The app is a buildless ES-module project. The same static page can be served by GitHub Pages and ChatGPT Sites without maintaining separate builds. Three.js and the geometry utility module are vendored in the repository rather than loaded from an external CDN.
 
-Клуб построен на Three.js и WebGL 2. Персонажи создаются из детализированной процедурной геометрии. В примерке показываются детальные модели, а в толпе используется более лёгкая версия. Светящиеся материалы, ограниченное свечение, карты окружения, упрощённые отражения, запечённое окружение и уменьшенное качество на слабых устройствах сохраняют ощущение неона с разумной стоимостью рендера.
+The club uses Three.js and WebGL 2. Characters use detailed procedural geometry. The wardrobe displays detailed models, while the crowd uses a lighter version. Emissive materials, limited glow, environment maps, simplified reflections, a baked environment and reduced quality on weaker devices preserve the neon atmosphere at a reasonable rendering cost.
 
-Аудио синтезируется с Web Audio API, поэтому сцена не требует музыкальных файлов для запуска. Сначала игра работает как локальный прототип с NPC; настоящий онлайн потребует отдельного решения по серверу комнат, синхронизации позиций, голосу и безопасности пользователей.
+Audio is synthesized with the Web Audio API, so the scene does not require music files to start. The initial game is a local prototype with NPCs; real online play will require separate decisions about room servers, position synchronization, voice and user safety.
 
-## 5. Предлагаемое решение
+## 5. Proposed solution
 
-- **Клиент:** HTML, CSS и JavaScript ES-модули без фреймворка сборки.
-- **3D:** Three.js, WebGL 2, процедурные модели и сцена клуба.
-- **Звук:** Web Audio API и процедурные ритмические лупы тех-хауса.
-- **Управление:** виртуальные стики с независимым multitouch на телефоне; WASD, указатель и клавиатура на компьютере.
-- **Профиль:** ник, образ, настройки музыки и управление сохраняются локально.
-- **Исходники:** `src/` — каноническое приложение; тесты — `tests/`; задачи — `Tasks/`.
-- **GitHub Pages:** GitHub Actions запускает `npm test` (проверки и генерация `dist/`) и публикует `dist/`.
-- **ChatGPT Sites:** тот же проект поддерживает существующую статическую публикацию из `dist/`.
-- **Дальнейшее развитие:** отдельная спецификация и серверная архитектура для онлайна и VR после проверки интереса к основным механикам.
+- **Client:** HTML, CSS and JavaScript ES modules without a build framework.
+- **3D:** Three.js, WebGL 2, procedural character models and a club scene.
+- **Audio:** Web Audio API and procedural tech-house rhythm loops.
+- **Controls:** independent multitouch virtual sticks on phones; WASD, pointer input and keyboard on computers.
+- **Profile:** nickname, outfit, music settings and controls are saved locally.
+- **Source:** `src/` is the canonical app; tests live in `tests/`; task specifications live in `Tasks/`.
+- **GitHub Pages:** GitHub Actions runs `npm test`, including checks and `dist/` generation, then publishes `dist/`.
+- **ChatGPT Sites:** the same project supports the existing static publication from `dist/`.
+- **Future development:** define a separate specification and server architecture for online play and VR after validating interest in the core mechanics.
 
 ## 6. ToDo
 
-- [ ] Выбрать эталонные телефоны и проверить производительность, multitouch, нагрев и загрузку.
-- [ ] Подтвердить окончательные силуэты гардероба и доработать 3D-материалы по выбранным референсам.
-- [ ] Выбрать целевую VR-гарнитуру и схему перемещения.
-- [ ] Описать онлайн-комнаты, синхронизацию игроков, друзей, блокировку и голосовой чат.
-- [ ] Определить условия и бюджет интеграции запросов от стрим-зрителей.
-- [ ] Проверить публичную публикацию GitHub Pages после первого запуска workflow; если в настройках GitHub Pages не разрешена публикация через Actions, включить её в Settings → Pages → Build and deployment → Source: GitHub Actions.
+- [ ] Select reference phones and validate performance, multitouch, device temperature and loading.
+- [ ] Confirm the final wardrobe silhouettes and refine 3D materials against the selected references.
+- [ ] Select a target VR headset and locomotion scheme.
+- [ ] Specify online rooms, player synchronization, friends, blocking and voice chat.
+- [ ] Define the scope and budget for integrating requests from stream viewers.
+- [ ] Verify the public GitHub Pages deployment after the first workflow run. If Actions publication is not enabled, select Settings → Pages → Build and deployment → Source: GitHub Actions.
