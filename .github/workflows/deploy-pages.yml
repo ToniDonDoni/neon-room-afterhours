@@ -2,17 +2,19 @@ name: Test and deploy GitHub Pages
 
 on:
   push:
-    branches: [main]
+    branches: [main, codex/playcanvas-preserve-style]
     paths:
       - 'src/**'
       - 'tests/**'
       - 'package.json'
+      - 'package-lock.json'
       - 'README.md'
       - 'LICENSE'
       - 'Tasks/**'
       - 'scripts/**'
       - 'AGENTS.md'
       - '.github/workflows/deploy-pages.yml'
+  pull_request:
   workflow_dispatch:
 
 permissions:
@@ -21,7 +23,7 @@ permissions:
   id-token: write
 
 concurrency:
-  group: github-pages
+  group: github-pages-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
@@ -34,10 +36,12 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+      - run: npm ci
       - name: Run project checks and tests
         run: npm test
 
   deploy:
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
     needs: test
     runs-on: ubuntu-latest
     environment:
@@ -50,6 +54,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
+      - run: npm ci
       - name: Build static site
         run: npm run build
       - name: Configure GitHub Pages

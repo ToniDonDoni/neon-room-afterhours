@@ -1,0 +1,188 @@
+{
+  "looks": [
+    [
+      "Draped Noir",
+      "#24202b",
+      "Кожа · асимметричная юбка"
+    ],
+    [
+      "Shadow Tailor",
+      "#29262d",
+      "Деконструкция · широкие брюки"
+    ],
+    [
+      "Ritual",
+      "#24252b",
+      "Высокий воротник · платформы"
+    ],
+    [
+      "Acid Nomad",
+      "#30312c",
+      "Объёмный нейлон · acid green"
+    ],
+    [
+      "Violet Veil",
+      "#58304e",
+      "Фиолетовый · многослойность"
+    ],
+    [
+      "Night Mass",
+      "#24222c",
+      "Длинное пальто · цепи"
+    ],
+    [
+      "Silver Noir",
+      "#525260",
+      "Draped Noir · серебряная кожа"
+    ],
+    [
+      "Ash Ritual",
+      "#706a70",
+      "Ritual · пепельный хлопок"
+    ],
+    [
+      "Violet Nomad",
+      "#49334e",
+      "Acid Nomad · тёмная слива"
+    ],
+    [
+      "Midnight Tailor",
+      "#252b39",
+      "Shadow Tailor · чернильный"
+    ]
+  ],
+  "lookNotes": [
+    "Косая кожаная куртка, открытая талия, юбка с запахом и высокие платформы.",
+    "Плечи оверсайз, многослойная рубашка, широкие брюки и тяжёлая обувь.",
+    "Скульптурный воротник, вытянутый жилет, кольца и высокие ботинки.",
+    "Объёмный бомбер, капюшон, карго и кислотные шнуры.",
+    "Тонкий фиолетовый трикотаж, многослойная юбка, высокие ботинки и манжеты.",
+    "Архитектурное пальто, перекрёстные ремни, свободные брюки и цепи.",
+    "Серебряная версия асимметричного кожаного образа.",
+    "Пепельная версия вытянутого силуэта с высоким воротником.",
+    "Тёмно-фиолетовая версия рейв-карго с металлической фурнитурой.",
+    "Чернильная версия деконструированного костюма."
+  ],
+  "models": [
+    {
+      "index": 0,
+      "detail": true,
+      "file": "look-0-detail.glb",
+      "bytes": 572260
+    },
+    {
+      "index": 0,
+      "detail": false,
+      "file": "look-0-crowd.glb",
+      "bytes": 336464
+    },
+    {
+      "index": 1,
+      "detail": true,
+      "file": "look-1-detail.glb",
+      "bytes": 559988
+    },
+    {
+      "index": 1,
+      "detail": false,
+      "file": "look-1-crowd.glb",
+      "bytes": 327380
+    },
+    {
+      "index": 2,
+      "detail": true,
+      "file": "look-2-detail.glb",
+      "bytes": 456188
+    },
+    {
+      "index": 2,
+      "detail": false,
+      "file": "look-2-crowd.glb",
+      "bytes": 279460
+    },
+    {
+      "index": 3,
+      "detail": true,
+      "file": "look-3-detail.glb",
+      "bytes": 563028
+    },
+    {
+      "index": 3,
+      "detail": false,
+      "file": "look-3-crowd.glb",
+      "bytes": 323356
+    },
+    {
+      "index": 4,
+      "detail": true,
+      "file": "look-4-detail.glb",
+      "bytes": 621220
+    },
+    {
+      "index": 4,
+      "detail": false,
+      "file": "look-4-crowd.glb",
+      "bytes": 362840
+    },
+    {
+      "index": 5,
+      "detail": true,
+      "file": "look-5-detail.glb",
+      "bytes": 619800
+    },
+    {
+      "index": 5,
+      "detail": false,
+      "file": "look-5-crowd.glb",
+      "bytes": 366196
+    },
+    {
+      "index": 6,
+      "detail": true,
+      "file": "look-6-detail.glb",
+      "bytes": 572260
+    },
+    {
+      "index": 6,
+      "detail": false,
+      "file": "look-6-crowd.glb",
+      "bytes": 336464
+    },
+    {
+      "index": 7,
+      "detail": true,
+      "file": "look-7-detail.glb",
+      "bytes": 456188
+    },
+    {
+      "index": 7,
+      "detail": false,
+      "file": "look-7-crowd.glb",
+      "bytes": 279460
+    },
+    {
+      "index": 8,
+      "detail": true,
+      "file": "look-8-detail.glb",
+      "bytes": 563028
+    },
+    {
+      "index": 8,
+      "detail": false,
+      "file": "look-8-crowd.glb",
+      "bytes": 323356
+    },
+    {
+      "index": 9,
+      "detail": true,
+      "file": "look-9-detail.glb",
+      "bytes": 559984
+    },
+    {
+      "index": 9,
+      "detail": false,
+      "file": "look-9-crowd.glb",
+      "bytes": 327376
+    }
+  ]
+}

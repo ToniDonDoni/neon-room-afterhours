@@ -7,7 +7,7 @@
 - **ChatGPT Sites:** [Open the published prototype](https://neon-room-afterhours.jazzyknoll3.chatgpt.site)
 - **GitHub Pages:** deployment workflow is included; the target URL after first-time setup is https://tonidondoni.github.io/neon-room-afterhours/.
 
-The published site runs as a static browser application. Both hosting targets publish the same application. The canonical source lives in `src/`; the build script copies it to `dist/`. GitHub Actions tests and builds the project before publishing `dist/` to GitHub Pages. ChatGPT Sites also publishes `dist/`.
+The published site runs as a static browser application. Both hosting targets publish the same application. The canonical source lives in `src/`; esbuild bundles PlayCanvas and application JavaScript into `dist/`, alongside local models, images and audio. GitHub Actions tests and builds the project before publishing `dist/` to GitHub Pages. ChatGPT Sites also publishes `dist/`.
 
 ## Current prototype
 
@@ -25,32 +25,44 @@ The initial GitHub Actions test job passed; publication was blocked because GitH
 
 ## Run locally
 
-Serve `src/` with any local static web server; ES modules and WebGL require HTTP(S).
+Install Node.js 20 or newer, then build and serve the static output:
 
 ```sh
-npx serve src
+npm ci
+npm test
+npx serve dist
 ```
 
-Open the local URL shown by the server. No build step or dependency installation is required. To run the project checks with Node.js 20 or newer:
+After source edits, run `npm run build` again. All runtime URLs are relative to `dist/app.js`, including on GitHub Pages' project subpath. No external engine CDN or model service is required.
+
+## PlayCanvas experiment
+
+This branch, `codex/playcanvas-preserve-style`, ports main commit `90a1755141288e5d538367db8ff03b96dabcf4e7` to **PlayCanvas 2.23.1**. The original neon club reference, UI, ten outfit designs, club layout, controls, three music loops and recorded NPC voice remain the target. Cyber City is not used as a visual reference. See [`Tasks/spec-003.md`](Tasks/spec-003.md).
+
+The browser uses native PlayCanvas entities, render components, cameras, PBR materials, environment reflections and bloom. The existing detailed avatars and first-person hands are baked into GLBs with named moving limbs. A woven fabric normal map is recreated at runtime. Three.js is an offline authoring dependency only, and the build rejects it in the browser dependency graph.
+
+To regenerate models after an authoring change:
 
 ```sh
+npm run bake:avatars
 npm test
 ```
 
-The optional build command refreshes `dist/` from the canonical source:
+All twenty avatar variants occupy about 8.4 MiB together; the wardrobe loads only the selected detailed model, while the club caches ten lighter crowd models for twelve guests and the DJ. The scene batches static architecture and caps pixel ratio. The low-quality setting lowers pixel ratio and bloom. This does not establish a measured frame-rate target.
 
-```sh
-npm run build
-```
+Tests cover simultaneous touch sticks, voice playback through the shipped action buttons, music ducking/cancellation, native parsing of every GLB, articulated poses, scene construction/frame submission, collision boundaries and relative asset URLs. Native graphics tests use PlayCanvas's NullGraphicsDevice, so GPU appearance and physical phone performance still require browser/device review.
+
+The managed browser preview was unavailable during implementation (`bwrap: Can't mount proc on /newroot/proc`). The experiment is isolated from the original published game and main remains unchanged. Branch CI runs checks; GitHub Pages deployment is restricted to `main`.
 
 ## Project layout
 
-- `src/` — browser application, 3D assets and bundled Three.js runtime.
+- `src/` — browser UI/audio/input modules, native PlayCanvas rendering and GLB assets.
 - `Tasks/` — numbered product specifications; read `Tasks/spec-001.md` first.
-- `tests/` — automated tests for input behavior.
+- `tests/` — input, game/audio and native PlayCanvas regression tests.
 - `.github/workflows/deploy-pages.yml` — checks and GitHub Pages deployment.
 - `dist/` — generated static output for both hosting targets.
-- `scripts/build-site.js` — copies the source into the static output directory.
+- `scripts/build-site.js` — bundles the engine/app and copies static assets.
+- `scripts/avatar-source/` and `scripts/bake-avatars.mjs` — reproducible offline avatar authoring and optimization.
 - `AGENTS.md` — project instructions and the spec-driven workflow.
 
 See [`AGENTS.md`](AGENTS.md) for contributor instructions and [`Tasks/spec-001.md`](Tasks/spec-001.md) for the first specification.
