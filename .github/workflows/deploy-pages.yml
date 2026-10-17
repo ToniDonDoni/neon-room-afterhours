@@ -1,4 +1,5 @@
 name: Test and deploy GitHub Pages
+# Publishing target: https://tonidondoni.github.io/neon-room-afterhours/
 
 on:
   push:
