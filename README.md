@@ -99,3 +99,7 @@ node scripts/compare-reference.cjs /path/to/reference.png
 `PLAYWRIGHT_CHROMIUM_EXECUTABLE` optionally selects an already installed Chromium binary. The visual scripts serve `dist/` on loopback only and close their servers/browsers when finished. The final action capture pauses Playwright's game clock to capture the brief hand pose.
 
 The game interface is now entirely in English, including onboarding, all ten outfit descriptions, controls, settings, NPC panels, notifications and accessible labels. See [`Tasks/spec-005.md`](Tasks/spec-005.md). Player-entered names and the original prerecorded voice are preserved.
+
+## Unity WebGL port
+
+This branch also contains the Unity port in [`unity/`](unity/), documented in [`tasks/spec-006.md`](tasks/spec-006.md). Its WebGL build is produced separately from the PlayCanvas static site.
