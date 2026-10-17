@@ -2,9 +2,12 @@ name: Test and deploy GitHub Pages
 
 on:
   push:
-    branches: [main]
+    # The PlayCanvas experiment branch publishes its own build for comparison.
+    branches: [main, codex/playcanvas-port]
     paths:
       - 'src/**'
+      # PlayCanvas port experiment
+      - 'playcanvas/**'
       - 'tests/**'
       - 'package.json'
       - 'README.md'
