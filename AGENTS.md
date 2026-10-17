@@ -18,4 +18,4 @@
 
 ## Product boundary
 
-The shipped prototype is a local single-player browser scene with NPCs. Do not describe the NPC scene as online multiplayer. Treat multiplayer, friends, chat, voice, VR, streaming integrations and monetization as future work unless a new task explicitly brings them into scope.
+The shipped prototype is a local single-player browser scene with NPCs and prerecorded voice replies described in `Tasks/spec-002.md`. Do not describe the NPC scene as online multiplayer. Treat multiplayer, friends, chat, live voice chat, VR, streaming integrations and monetization as future work unless a new task explicitly brings them into scope.

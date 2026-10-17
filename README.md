@@ -15,6 +15,8 @@ Choose a nickname and one of ten looks, select a control scheme, then enter the 
 
 The current build is a local prototype: its club characters are NPCs. Online multiplayer, friends, voice chat and VR are future work.
 
+Near a character, open Actions and choose **Поговорить / Talk**, heart, wave or high-five to hear the supplied recorded voice reply. Club music continues and briefly becomes quieter during speech. Repeated taps do not overlap replies; the speaking indicator includes a Stop button. See [`Tasks/spec-002.md`](Tasks/spec-002.md).
+
 ## First-time GitHub Pages setup
 
 The repository must have Pages enabled before the workflow can publish. In **Settings → Pages → Build and deployment**, set **Source** to **GitHub Actions**. Then open **Actions → Test and deploy GitHub Pages → Run workflow**, or re-run the failed deployment. Future changes to `main` are published automatically by the workflow.
