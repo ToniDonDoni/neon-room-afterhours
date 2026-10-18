@@ -73,6 +73,7 @@ namespace NeonRoom
         private float pitch;
         private float reducedMotion;
         private bool inClub;
+        private bool musicInitialized;
         private bool dancing;
         private bool drinking;
         private bool mobileMoveHeld;
@@ -670,6 +671,12 @@ namespace NeonRoom
             yaw = 180f;
             pitch = 0f;
             inClub = true;
+            if (!musicInitialized)
+            {
+                musicInitialized = true;
+                musicSource.Play();
+            }
+            UpdateMusicButtonLabel();
             if (firstPersonHands != null) firstPersonHands.gameObject.SetActive(true);
             ApplyControls();
             ShowScreen("club-hud");
@@ -803,10 +810,16 @@ namespace NeonRoom
 
         private void ToggleMusic()
         {
+            musicInitialized = true;
             if (musicSource.isPlaying) musicSource.Pause();
             else musicSource.Play();
             ApplyMusicVolume();
-            var button = GameObject.Find("music-toggle-button");
+            UpdateMusicButtonLabel();
+        }
+
+        private void UpdateMusicButtonLabel()
+        {
+            var button = canvas.GetComponentsInChildren<Button>(true).FirstOrDefault(candidate => candidate.name == "music-toggle-button");
             if (button != null) button.GetComponentInChildren<Text>().text = musicSource.isPlaying ? "STOP MUSIC" : "START MUSIC";
         }
 

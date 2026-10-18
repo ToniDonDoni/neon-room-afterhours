@@ -206,6 +206,18 @@ namespace NeonRoom.Tests
         }
 
         [UnityTest]
+        public IEnumerator EnteringClub_StartsTheOriginalMusicWithoutOpeningSettings()
+        {
+            yield return EnterClub();
+
+            var music = GameObject.Find("club-music-source").GetComponent<AudioSource>();
+            Assert.That(music.isPlaying, Is.True, "The selected club music must start when the player enters the club.");
+            Assert.That(music.clip.name, Does.Contain("Acid afterglow"), "The default original club track must remain selected on entry.");
+            Assert.That(music.volume, Is.EqualTo(PlayerPrefs.GetFloat("neon-room.volume", .35f)).Within(.01f), "Club music must use the saved sound level immediately.");
+            Assert.That(FindAny("music-toggle-button").GetComponentInChildren<Text>().text, Is.EqualTo("STOP MUSIC"), "The visible music control must reflect that club music started automatically.");
+        }
+
+        [UnityTest]
         public IEnumerator ActionMenu_UsesRoundRadialButtonsForAllExistingActions()
         {
             yield return EnterClub();
@@ -353,7 +365,6 @@ namespace NeonRoom.Tests
             yield return EnterClub();
             Click("settings-button");
             yield return null;
-            Click("music-toggle-button");
             Click("control-mode-desktop");
             var clubMusicForContinuity = GameObject.Find("club-music-source").GetComponent<AudioSource>();
             Assert.That(clubMusicForContinuity.isPlaying, Is.True, "The club track must be playing before testing an NPC reply.");
@@ -471,9 +482,14 @@ namespace NeonRoom.Tests
             AssertVisible("move-stick");
             AssertVisible("look-stick");
 
-            Click("music-toggle-button");
             var music = GameObject.Find("club-music-source").GetComponent<AudioSource>();
+            var musicToggle = GameObject.Find("music-toggle-button").GetComponentInChildren<Text>();
+            Click("music-toggle-button");
+            Assert.That(music.isPlaying, Is.False, "The music control must stop the automatically started club track.");
+            Assert.That(musicToggle.text, Is.EqualTo("START MUSIC"), "The music control must show its start action after stopping playback.");
+            Click("music-toggle-button");
             Assert.That(music.isPlaying, Is.True, "Starting music from a user action must start real AudioSource playback.");
+            Assert.That(musicToggle.text, Is.EqualTo("STOP MUSIC"), "The music control must show its stop action during playback.");
             Assert.That(music.clip, Is.Not.Null);
             Assert.That(music.clip.samples, Is.GreaterThan(1000), "A track must contain generated or imported audio samples, not a metadata-only placeholder.");
             var samples = new float[Mathf.Min(music.clip.samples, music.clip.channels * 2048)];

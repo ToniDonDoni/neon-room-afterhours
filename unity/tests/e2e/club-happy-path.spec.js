@@ -85,6 +85,8 @@ test('player chooses a look and club, walks to an NPC, talks, and hears the reco
   await clickUi(0, -300);
   await expect(state).toHaveAttribute('data-screen', 'club-hud');
   await expectVisibleEnglishUi(page, 'NEON ROOM');
+  await page.evaluate(() => { window.__neonRoomPeakRms = 0; });
+  await page.waitForFunction(() => window.__neonRoomPeakRms > 0.0001, null, { timeout: 15_000 });
   await page.screenshot({ path: 'test-results/03-club.png' });
 
   await page.keyboard.down('w');
