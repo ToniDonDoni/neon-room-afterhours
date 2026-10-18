@@ -115,6 +115,7 @@ namespace NeonRoom.Tests
             Click("control-mode-mobile");
             Assert.That(PlayerPrefs.GetString("neon-room.control-mode", ""), Is.EqualTo("mobile"), "The player chooses a control scheme before entering the club.");
             Click("location-neon-room");
+            Assert.That(GameObject.Find("club-title").GetComponent<Text>().text, Does.Contain("DANCE FLOOR"), "All visible location names and descriptions must be in English.");
             Click("enter-club-button");
             yield return null;
             AssertVisible("club-hud");

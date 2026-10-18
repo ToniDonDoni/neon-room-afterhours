@@ -56,6 +56,7 @@ test('player chooses a look and club, walks to an NPC, talks, and hears the reco
   await clickUi(435, -225);
   await expect(state).toHaveAttribute('data-screen', 'locations-screen');
   await expectVisibleEnglishUi(page, 'FOLLOW THE FREQUENCY');
+  await expectVisibleEnglishUi(page, 'DANCE FLOOR');
   await clickUi(-300, -100);
   await expect(state).toHaveAttribute('data-location', 'neon-room');
   await clickUi(145, -220);
