@@ -312,6 +312,8 @@ namespace NeonRoom.Tests
                 var voice = GameObject.Find("npc-voice-source").GetComponent<AudioSource>();
                 var music = GameObject.Find("club-music-source").GetComponent<AudioSource>();
                 Assert.That(voice.isPlaying, Is.True, action + " must play the bundled NPC recording.");
+                Assert.That(voice.spatialBlend, Is.EqualTo(0f), "The spoken reply must use non-spatial audio so it stays audible in the WebGL browser mix.");
+                Assert.That(voice.transform.IsChildOf(GameObject.Find("player").transform), Is.True, "The reply source must follow the player listener so its voice is audible at the conversation distance.");
                 Assert.That(voice.clip.name, Is.EqualTo("npc-voice"), "Every gesture must use the supplied recorded reply asset.");
                 Assert.That(voice.clip.length, Is.EqualTo(6.4f).Within(.15f), "The bundled NPC recording must be the supplied 6.4 second one-shot.");
                 Assert.That(music.isPlaying, Is.True, "NPC speech must not stop club music.");
