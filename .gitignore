@@ -3,3 +3,5 @@ node_modules/
 build-meta.json
 .DS_Store
 skills/unity/
+/unity/tests/e2e/test-results/
+/unity/tests/e2e/playwright-report/
