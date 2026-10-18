@@ -32,7 +32,11 @@ test('player chooses a look and club, walks to an NPC, talks, and hears the reco
   const bounds = await canvas.boundingBox();
   expect(bounds).not.toBeNull();
   const scale = Math.sqrt((bounds.width / 1600) * (bounds.height / 900));
-  const clickUi = (x, y) => page.mouse.click(bounds.x + bounds.width / 2 + x * scale, bounds.y + bounds.height / 2 - y * scale);
+  const clickUi = async (x, y) => {
+    await canvas.evaluate(element => element.focus());
+    await canvas.click({ position: { x: bounds.width / 2 + x * scale, y: bounds.height / 2 - y * scale } });
+    await page.waitForTimeout(100);
+  };
   await page.screenshot({ path: 'test-results/01-start-screen.png' });
   await expectVisibleEnglishUi(page, 'ENTER THE NIGHT');
 

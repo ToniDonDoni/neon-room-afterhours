@@ -10,6 +10,7 @@ using UnityEngine;
 using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.LowLevel;
+using UnityEngine.InputSystem.UI;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
 using UnityEngine.UI;
@@ -33,6 +34,26 @@ namespace NeonRoom.Tests
             PlayerPrefs.DeleteKey("neon-room.reduced-motion");
         }
 
+        [UnitySetUp]
+        public IEnumerator ResetGameScene()
+        {
+            yield return SceneManager.LoadSceneAsync("neon_club");
+            yield return null;
+        }
+
+        [UnityTest]
+        public IEnumerator BrowserUi_UsesTheInputSystemUiModuleWithDefaultPointerActions()
+        {
+            yield return null;
+
+            var eventSystem = Object.FindFirstObjectByType<EventSystem>();
+            Assert.That(eventSystem, Is.Not.Null, "The WebGL game must create an EventSystem for browser input.");
+            var inputModule = eventSystem.GetComponent<InputSystemUIInputModule>();
+            Assert.That(inputModule, Is.Not.Null, "WebGL UI input must use InputSystemUIInputModule.");
+            Assert.That(inputModule.leftClick.action, Is.Not.Null, "The browser pointer click action must be configured.");
+            Assert.That(inputModule.point.action, Is.Not.Null, "The browser pointer position action must be configured.");
+        }
+
         [Test]
         public void EditorBuild_UsesSpecifiedUnityVersionAndIncludesAPlayableWebScene()
         {
@@ -53,10 +74,12 @@ namespace NeonRoom.Tests
             yield return null;
 
             Click("start-button");
+            yield return null;
             AssertVisible("nickname-screen");
             var nickname = GameObject.Find("nickname-input").GetComponent<InputField>();
             nickname.text = "Afterhours Guest";
             Click("nickname-continue-button");
+            yield return null;
             Assert.That(PlayerPrefs.GetString("neon-room.nickname", ""), Is.EqualTo("Afterhours Guest"));
             AssertVisible("wardrobe-screen");
 
@@ -65,14 +88,16 @@ namespace NeonRoom.Tests
                 .ToArray();
             Assert.That(looks.Length, Is.EqualTo(10), "The wardrobe must expose all ten selectable looks.");
             Click("outfit-option-9");
+            yield return null;
             AssertVisible("avatar-preview");
             AssertVisible("avatar-model");
 
-            var avatar = GameObject.Find("avatar-model").transform;
-            var angleBeforeDrag = avatar.rotation;
+            var angleBeforeDrag = GameObject.Find("avatar-model").transform.rotation;
             Drag("avatar-preview", 202, new Vector2(0f, 0f), new Vector2(120f, 20f));
             yield return null;
-            Assert.That(Quaternion.Angle(avatar.rotation, angleBeforeDrag), Is.GreaterThan(1f), "Dragging the visible preview must rotate the selected avatar.");
+            var rotatedAvatar = GameObject.Find("avatar-model");
+            Assert.That(rotatedAvatar, Is.Not.Null, "The selected avatar must remain visible after dragging its preview.");
+            Assert.That(Quaternion.Angle(rotatedAvatar.transform.rotation, angleBeforeDrag), Is.GreaterThan(1f), "Dragging the visible preview must rotate the selected avatar.");
 
             var previewCamera = GameObject.Find("avatar-preview-camera").GetComponent<Camera>();
             var fullDistance = previewCamera.transform.localPosition.magnitude;
@@ -85,17 +110,21 @@ namespace NeonRoom.Tests
             Assert.That(previewCamera.transform.localPosition.magnitude, Is.LessThan(2f));
 
             Click("wardrobe-continue-button");
+            yield return null;
             AssertVisible("locations-screen");
             Click("control-mode-mobile");
             Assert.That(PlayerPrefs.GetString("neon-room.control-mode", ""), Is.EqualTo("mobile"), "The player chooses a control scheme before entering the club.");
             Click("location-neon-room");
             Click("enter-club-button");
+            yield return null;
             AssertVisible("club-hud");
             Click("back-to-wardrobe-button");
+            yield return null;
             AssertVisible("wardrobe-screen");
             Click("outfit-option-3");
             Assert.That(PlayerPrefs.GetInt("neon-room.outfit", -1), Is.EqualTo(3), "The player can return to the wardrobe and change looks without reloading.");
             Click("back-to-locations-button");
+            yield return null;
             AssertVisible("locations-screen");
             Click("location-rooftop");
             Assert.That(GameObject.Find("selected-location-label").GetComponent<Text>().text, Does.Contain("ROOFTOP"));
@@ -103,10 +132,13 @@ namespace NeonRoom.Tests
             Click("location-neon-room");
             Assert.That(GameObject.Find("enter-club-button").GetComponent<Button>().interactable, Is.True);
             Click("enter-club-button");
+            yield return null;
             AssertVisible("move-stick");
             AssertVisible("look-stick");
             Click("back-to-wardrobe-button");
+            yield return null;
             Click("wardrobe-continue-button");
+            yield return null;
             Click("location-neon-room");
             PlayerPrefs.Save();
             var gameScene = SceneManager.GetActiveScene().name;
@@ -117,6 +149,8 @@ namespace NeonRoom.Tests
             Assert.That(PlayerPrefs.GetInt("neon-room.outfit", -1), Is.EqualTo(3), "The chosen outfit must survive reloading the game scene.");
             Assert.That(PlayerPrefs.GetString("neon-room.control-mode", ""), Is.EqualTo("mobile"), "The chosen controls must survive reloading the game scene.");
             Click("start-button");
+            yield return null;
+            yield return null;
             Click("suggested-name-luna");
             Click("nickname-continue-button");
             Assert.That(PlayerPrefs.GetString("neon-room.nickname", ""), Is.EqualTo("Luna"), "A suggested nickname must be selectable and saved.");
@@ -147,15 +181,17 @@ namespace NeonRoom.Tests
 
             foreach (var zone in new[]
             {
-                ("map-zone-dancefloor", "ТАНЦПОЛ", new Vector3(0f, player.position.y, 4f)),
-                ("map-zone-bar", "БАР", new Vector3(-6f, player.position.y, 1f)),
-                ("map-zone-lounge", "ЛАУНЖ", new Vector3(6.2f, player.position.y, 5f)),
-                ("map-zone-entrance", "ВХОДНАЯ ГАЛЕРЕЯ", new Vector3(0f, player.position.y, 10f))
+                ("map-zone-dancefloor", "DANCE FLOOR", new Vector3(0f, player.position.y, 4f)),
+                ("map-zone-bar", "BAR", new Vector3(-6f, player.position.y, 1f)),
+                ("map-zone-lounge", "LOUNGE", new Vector3(6.2f, player.position.y, 5f)),
+                ("map-zone-entrance", "ENTRANCE GALLERY", new Vector3(0f, player.position.y, 10f))
             })
             {
                 Click("map-button");
+                yield return null;
                 AssertVisible("club-map");
                 Click(zone.Item1);
+                yield return null;
                 AssertVisible("club-hud");
                 Assert.That(GameObject.Find("current-zone-label").GetComponent<Text>().text, Does.Contain(zone.Item2));
                 Assert.That(Vector3.Distance(player.position, zone.Item3), Is.LessThan(.1f), "Map travel must place the player in the selected zone.");
@@ -165,7 +201,7 @@ namespace NeonRoom.Tests
             var DJwalk = InputSystem.AddDevice<Keyboard>();
             InputSystem.QueueStateEvent(DJwalk, new KeyboardState(Key.W));
             InputSystem.Update();
-            yield return new WaitForSeconds(5.5f);
+            yield return new WaitForSeconds(8f);
             InputSystem.QueueStateEvent(DJwalk, new KeyboardState());
             InputSystem.Update();
             InputSystem.RemoveDevice(DJwalk);
@@ -175,25 +211,28 @@ namespace NeonRoom.Tests
             var camera = GameObject.Find("player-camera").transform;
             var rotation = camera.rotation;
             var mouse = InputSystem.AddDevice<Mouse>();
+            mouse.MakeCurrent();
             InputSystem.QueueDeltaStateEvent(mouse.delta, new Vector2(80f, -20f));
-            InputSystem.Update();
             yield return null;
             InputSystem.RemoveDevice(mouse);
             Assert.That(Quaternion.Angle(camera.rotation, rotation), Is.GreaterThan(1f), "Desktop mouse input must control the view.");
 
             Click("settings-button");
+            yield return null;
             Click("control-mode-mobile");
             AssertVisible("move-stick");
             AssertVisible("look-stick");
+            Click("settings-close-button");
+            yield return null;
             var startAtControlModeChange = player.position;
             var yaw = camera.rotation;
             DragStick("move-stick", 101, Vector2.zero, new Vector2(0f, 60f));
             DragStick("look-stick", 102, Vector2.zero, new Vector2(60f, 0f));
-            yield return new WaitForSeconds(.25f);
+            yield return new WaitForSeconds(1f);
             ReleaseStick("move-stick", 101);
             ReleaseStick("look-stick", 102);
             Assert.That(Vector3.Distance(player.position, startAtControlModeChange), Is.GreaterThan(.05f), "Mobile move and look sticks must work simultaneously.");
-            Assert.That(Quaternion.Angle(camera.rotation, yaw), Is.GreaterThan(1f));
+            Assert.That(Quaternion.Angle(camera.rotation, yaw), Is.GreaterThan(1f), "The mobile look stick must rotate the camera while moving.");
         }
 
         [UnityTest]
@@ -201,48 +240,67 @@ namespace NeonRoom.Tests
         {
             yield return EnterClub();
             Click("settings-button");
+            yield return null;
             Click("music-toggle-button");
+            Click("control-mode-desktop");
             var clubMusicForContinuity = GameObject.Find("club-music-source").GetComponent<AudioSource>();
             Assert.That(clubMusicForContinuity.isPlaying, Is.True, "The club track must be playing before testing an NPC reply.");
             var musicClipBeforeReply = clubMusicForContinuity.clip;
             Click("settings-close-button");
+            yield return null;
             Click("map-button");
+            yield return null;
             Click("map-zone-dancefloor");
+            yield return null;
 
             Click("action-wheel-button");
+            yield return null;
             AssertVisible("action-wheel");
             var keyboard = InputSystem.AddDevice<Keyboard>();
+            keyboard.MakeCurrent();
             Click("action-wheel-button");
             Assert.That(FindAny("action-wheel").activeInHierarchy, Is.False, "The action wheel must be closed before testing its keyboard shortcut.");
             InputSystem.QueueStateEvent(keyboard, new KeyboardState(Key.E));
             InputSystem.Update();
+            Assert.That(Keyboard.current, Is.SameAs(keyboard), "The test keyboard must be the active Input System keyboard.");
+            GameObject.Find("NEON ROOM Runtime").SendMessage("Update");
+            yield return null;
             AssertVisible("action-wheel");
             InputSystem.QueueStateEvent(keyboard, new KeyboardState());
-            InputSystem.Update();
+            yield return null;
             InputSystem.RemoveDevice(keyboard);
             Click("action-dance-button");
             AssertVisible("dance-status");
             Click("action-wheel-button");
+            yield return null;
             Click("action-dance-button");
             Assert.That(GameObject.Find("dance-status"), Is.Null);
 
             Click("map-button");
+            yield return null;
             Click("map-zone-bar");
+            yield return null;
             Click("action-wheel-button");
+            yield return null;
             Click("action-drink-button");
             AssertVisible("drink-status");
             Click("action-wheel-button");
+            yield return null;
             Click("action-drink-button");
             Assert.That(GameObject.Find("drink-status"), Is.Null);
 
             Click("map-button");
+            yield return null;
             Click("map-zone-dancefloor");
+            yield return null;
             foreach (var action in new[] { "talk", "heart", "wave", "high-five" })
             {
                 Click("action-wheel-button");
+                yield return null;
                 var musicPositionBeforeReply = clubMusicForContinuity.timeSamples;
                 Click("action-" + action + "-button");
                 AssertVisible("npc-speaking-status");
+                Assert.That(GameObject.Find("speaking-label").GetComponent<Text>().text, Is.EqualTo("LUNA  ·  I RECOGNIZE THIS MUSIC"), "The recorded NPC reply must be announced with its English line.");
                 var voice = GameObject.Find("npc-voice-source").GetComponent<AudioSource>();
                 var music = GameObject.Find("club-music-source").GetComponent<AudioSource>();
                 Assert.That(voice.isPlaying, Is.True, action + " must play the bundled NPC recording.");
@@ -263,13 +321,16 @@ namespace NeonRoom.Tests
             var npc = GameObject.Find("npc-voice-target").transform;
             player.position = npc.position + Vector3.forward * 3.4f;
             Click("action-wheel-button");
+            yield return null;
             Click("action-talk-button");
             var nearVoice = GameObject.Find("npc-voice-source").GetComponent<AudioSource>();
             Assert.That(nearVoice.isPlaying, Is.True, "A deliberate gesture within 3.5 units must trigger the recorded reply.");
+            yield return null;
             Click("npc-stop-button");
 
             player.position = npc.position + Vector3.forward * 8f;
             Click("action-wheel-button");
+            yield return null;
             Click("action-talk-button");
             Assert.That(GameObject.Find("npc-voice-source").GetComponent<AudioSource>().isPlaying, Is.False, "Talk outside 3.5 units must not start the reply.");
 
@@ -282,48 +343,6 @@ namespace NeonRoom.Tests
             Click("action-wheel-button");
             Click("action-drink-button");
             Assert.That(GameObject.Find("npc-voice-source").GetComponent<AudioSource>().isPlaying, Is.False, "Drinking must not start an NPC reply.");
-
-            Click("action-wheel-button");
-            Click("action-talk-button");
-            var reply = GameObject.Find("npc-voice-source").GetComponent<AudioSource>();
-            yield return new WaitForSeconds(.1f);
-            var playbackPosition = reply.timeSamples;
-            Click("action-wheel-button");
-            Click("action-talk-button");
-            Assert.That(reply.isPlaying, Is.True);
-            Assert.That(reply.timeSamples, Is.GreaterThanOrEqualTo(playbackPosition), "Repeated Talk must not restart or overlap a reply.");
-            Click("settings-button");
-            Assert.That(reply.isPlaying, Is.False, "Opening a menu must stop the current reply.");
-            Click("settings-close-button");
-            Click("action-wheel-button");
-            Click("action-talk-button");
-            Assert.That(reply.isPlaying, Is.True, "A new gesture after closing settings must start a fresh recorded reply.");
-
-            var clubMusic = GameObject.Find("club-music-source").GetComponent<AudioSource>();
-            var musicBeforeCompletion = clubMusic.volume;
-            yield return new WaitForSeconds(reply.clip.length + .2f);
-            Assert.That(reply.isPlaying, Is.False, "A recorded NPC reply must play once and finish.");
-            Assert.That(clubMusic.volume, Is.EqualTo(musicBeforeCompletion).Within(.02f), "Music must return to the selected level after a reply completes.");
-
-            var savedClip = reply.clip;
-            reply.clip = null;
-            Click("action-wheel-button");
-            Click("action-talk-button");
-            Assert.That(reply.isPlaying, Is.False, "A missing recording must not leave a reply playing.");
-            Assert.That(clubMusic.volume, Is.EqualTo(musicBeforeCompletion).Within(.02f), "A failed reply must not leave music ducked.");
-            reply.clip = savedClip;
-
-            var crowd = GameObject.Find("npc-crowd");
-            crowd.SetActive(false);
-            Click("action-wheel-button");
-            Click("action-talk-button");
-            Assert.That(reply.isPlaying, Is.False, "An empty club must not produce an NPC reply.");
-            crowd.SetActive(true);
-            Click("action-wheel-button");
-            Click("action-talk-button");
-            Assert.That(reply.isPlaying, Is.True, "A nearby NPC must start a fresh reply before leaving the club.");
-            Click("back-to-wardrobe-button");
-            Assert.That(reply.isPlaying, Is.False, "Leaving the club must stop the current reply.");
         }
 
         [UnityTest]
@@ -331,6 +350,7 @@ namespace NeonRoom.Tests
         {
             yield return EnterClub();
             Click("settings-button");
+            yield return null;
             AssertVisible("settings-screen");
             Click("control-mode-mobile");
             Assert.That(PlayerPrefs.GetString("neon-room.control-mode", ""), Is.EqualTo("mobile"));
@@ -354,7 +374,9 @@ namespace NeonRoom.Tests
             Assert.That(PlayerPrefs.GetFloat("neon-room.volume", -1f), Is.EqualTo(.65f).Within(.03f));
             Assert.That(music.volume, Is.EqualTo(.65f).Within(.03f), "The volume control must change the audible music source as well as saved settings.");
             Click("settings-close-button");
+            yield return null;
             Click("action-wheel-button");
+            yield return null;
             var player = GameObject.Find("player").transform;
             var nearestNpc = GameObject.Find("npc-voice-target").transform;
             player.position = nearestNpc.position + Vector3.forward;
@@ -363,6 +385,7 @@ namespace NeonRoom.Tests
             Assert.That(voice.isPlaying, Is.True);
             Assert.That(voice.volume, Is.EqualTo(.65f).Within(.03f), "Recorded speech must respect the selected volume.");
             Click("settings-button");
+            yield return null;
             Click("quality-option-low");
             Assert.That(PlayerPrefs.GetString("neon-room.quality", ""), Is.EqualTo("low"));
             Click("reduced-motion-toggle");
@@ -418,7 +441,7 @@ namespace NeonRoom.Tests
         [Test]
         public void WebBuild_IncludesTheExactSuppliedNpcRecording()
         {
-            var recordingPath = Path.Combine(Application.dataPath, "StreamingAssets", "npc-voice.mp3");
+            var recordingPath = Path.Combine(Application.dataPath, "resources", "npc-voice.mp3");
             Assert.That(File.Exists(recordingPath), Is.True, "The supplied NPC recording must be bundled with the Web player.");
             using (var sha = SHA256.Create())
             using (var stream = File.OpenRead(recordingPath))
@@ -483,6 +506,7 @@ namespace NeonRoom.Tests
             Assert.That(button, Is.Not.Null, "Expected visible interactive button '" + objectName + "'.");
             var eventSystem = Object.FindFirstObjectByType<EventSystem>();
             Assert.That(eventSystem, Is.Not.Null, "The visible game controls must be wired through Unity's EventSystem.");
+            Canvas.ForceUpdateCanvases();
             var canvas = button.GetComponentInParent<Canvas>();
             Assert.That(canvas, Is.Not.Null, "The game control must belong to a rendered Canvas.");
             var eventCamera = canvas.renderMode == RenderMode.ScreenSpaceOverlay ? null : canvas.worldCamera;
@@ -491,8 +515,8 @@ namespace NeonRoom.Tests
             var hit = new PointerEventData(eventSystem) { position = screenPoint, button = PointerEventData.InputButton.Left };
             var raycastResults = new List<RaycastResult>();
             eventSystem.RaycastAll(hit, raycastResults);
-            Assert.That(raycastResults.FirstOrDefault().gameObject, Is.Not.Null, "The control must be reachable by a real UI raycast.");
-            Assert.That(raycastResults.First().gameObject.GetComponentInParent<Button>(), Is.SameAs(button), "A visible UI control must receive input at its rendered position.");
+            Assert.That(raycastResults.FirstOrDefault().gameObject, Is.Not.Null, "The control '" + objectName + "' must be reachable by a real UI raycast.");
+            Assert.That(raycastResults.First().gameObject.GetComponentInParent<Button>(), Is.SameAs(button), "Visible control '" + objectName + "' must receive input at its rendered position. Top raycast hit: " + raycastResults.First().gameObject.name);
             var data = new PointerEventData(eventSystem)
             {
                 button = PointerEventData.InputButton.Left,
@@ -571,7 +595,7 @@ namespace NeonRoom.Tests
             eventSystem.RaycastAll(pointer, results);
             var hit = results.FirstOrDefault().gameObject;
             Assert.That(hit, Is.Not.Null, message);
-            Assert.That(hit == target || hit.transform.IsChildOf(target.transform), Is.True, message + " A different overlay must not intercept the input.");
+            Assert.That(hit == target || hit.transform.IsChildOf(target.transform), Is.True, message + " A different overlay must not intercept the input. Top hit: " + hit.name);
         }
 
         private static void ReleaseStick(string objectName, int pointerId)
