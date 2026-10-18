@@ -11,6 +11,7 @@ using UnityEngine.EventSystems;
 using UnityEngine.InputSystem;
 using UnityEngine.InputSystem.LowLevel;
 using UnityEngine.InputSystem.UI;
+using UnityEngine.Rendering;
 using UnityEngine.SceneManagement;
 using UnityEngine.TestTools;
 using UnityEngine.UI;
@@ -60,6 +61,8 @@ namespace NeonRoom.Tests
 #if UNITY_EDITOR
             Assert.That(Application.unityVersion, Is.EqualTo("6000.3.6f1"), "The project must run in the specified Unity Editor.");
             Assert.That(EditorUserBuildSettings.activeBuildTarget, Is.EqualTo(BuildTarget.WebGL), "The active Unity Build Profile must target WebGL.");
+            Assert.That(GraphicsSettings.currentRenderPipeline, Is.Not.Null, "The scene's URP materials require an active Universal Render Pipeline asset.");
+            Assert.That(GraphicsSettings.currentRenderPipeline.GetType().FullName, Is.EqualTo("UnityEngine.Rendering.Universal.UniversalRenderPipelineAsset"));
             var enabledScenes = EditorBuildSettings.scenes.Where(scene => scene.enabled).ToArray();
             Assert.That(enabledScenes, Is.Not.Empty, "The Web player must include a playable game scene.");
             Assert.That(enabledScenes.All(scene => File.Exists(scene.path)), Is.True, "Every enabled Web player scene must exist in the project.");
@@ -170,6 +173,9 @@ namespace NeonRoom.Tests
             AssertVisible("lounge");
 
             var player = GameObject.Find("player").transform;
+            var camera = GameObject.Find("player-camera").transform;
+            var npcDirection = GameObject.Find("npc-voice-target").transform.position - camera.position;
+            Assert.That(Vector3.Dot(camera.forward, npcDirection.normalized), Is.GreaterThan(.5f), "The club entrance camera must face into the club toward its guests.");
             var start = player.position;
             var keyboard = InputSystem.AddDevice<Keyboard>();
             InputSystem.QueueStateEvent(keyboard, new KeyboardState(Key.W));
@@ -179,6 +185,8 @@ namespace NeonRoom.Tests
             InputSystem.Update();
             InputSystem.RemoveDevice(keyboard);
             Assert.That(Vector3.Distance(player.position, start), Is.GreaterThan(.1f), "WASD must move the player in the rendered club.");
+            var cameraForward = Vector3.ProjectOnPlane(camera.forward, Vector3.up).normalized;
+            Assert.That(Vector3.Dot(player.position - start, cameraForward), Is.GreaterThan(.1f), "Forward movement must follow the direction the player sees.");
 
             foreach (var zone in new[]
             {
@@ -209,7 +217,6 @@ namespace NeonRoom.Tests
             Assert.That(player.position.z, Is.LessThan(DJstageStart.z - 5f), "Walking must reach the DJ stage without map teleportation.");
             Assert.That(GameObject.Find("current-zone-label").GetComponent<Text>().text, Does.Contain("DJ"));
 
-            var camera = GameObject.Find("player-camera").transform;
             var rotation = camera.rotation;
             var mouse = InputSystem.AddDevice<Mouse>();
             mouse.MakeCurrent();
