@@ -1,29 +1,29 @@
 // Pure, engine-independent logic shared by the PlayCanvas port and its tests.
 
 export const looks = [
-  ['Draped Noir', '#24202b', 'Кожа · асимметричная юбка'],
-  ['Shadow Tailor', '#29262d', 'Деконструкция · широкие брюки'],
-  ['Ritual', '#24252b', 'Высокий воротник · платформы'],
-  ['Acid Nomad', '#30312c', 'Объёмный нейлон · acid green'],
-  ['Violet Veil', '#58304e', 'Фиолетовый · многослойность'],
-  ['Night Mass', '#24222c', 'Длинное пальто · цепи'],
-  ['Silver Noir', '#525260', 'Draped Noir · серебряная кожа'],
-  ['Ash Ritual', '#706a70', 'Ritual · пепельный хлопок'],
-  ['Violet Nomad', '#49334e', 'Acid Nomad · тёмная слива'],
-  ['Midnight Tailor', '#252b39', 'Shadow Tailor · чернильный']
+  ['Draped Noir', '#24202b', 'Leather · asymmetric skirt'],
+  ['Shadow Tailor', '#29262d', 'Deconstruction · wide trousers'],
+  ['Ritual', '#24252b', 'High collar · platforms'],
+  ['Acid Nomad', '#30312c', 'Oversized nylon · acid green'],
+  ['Violet Veil', '#58304e', 'Violet · layering'],
+  ['Night Mass', '#24222c', 'Long coat · chains'],
+  ['Silver Noir', '#525260', 'Draped Noir · silver leather'],
+  ['Ash Ritual', '#706a70', 'Ritual · ash cotton'],
+  ['Violet Nomad', '#49334e', 'Acid Nomad · dark plum'],
+  ['Midnight Tailor', '#252b39', 'Shadow Tailor · ink']
 ];
 
 export const lookNotes = [
-  'Косая кожаная куртка, открытая талия, юбка с запахом и высокие платформы.',
-  'Плечи оверсайз, многослойная рубашка, широкие брюки и тяжёлая обувь.',
-  'Скульптурный воротник, вытянутый жилет, кольца и высокие ботинки.',
-  'Объёмный бомбер, капюшон, карго и кислотные шнуры.',
-  'Тонкий фиолетовый трикотаж, многослойная юбка, высокие ботинки и манжеты.',
-  'Архитектурное пальто, перекрёстные ремни, свободные брюки и цепи.',
-  'Серебряная версия асимметричного кожаного образа.',
-  'Пепельная версия вытянутого силуэта с высоким воротником.',
-  'Тёмно-фиолетовая версия рейв-карго с металлической фурнитурой.',
-  'Чернильная версия деконструированного костюма.'
+  'Asymmetric leather jacket, open midriff, wrap skirt and high platforms.',
+  'Oversized shoulders, a layered shirt, wide trousers and heavy boots.',
+  'Sculptural collar, elongated vest, rings and high boots.',
+  'Oversized bomber, hood, cargo and acid drawcords.',
+  'Fine violet knit, layered skirt, high boots and cuffs.',
+  'Architectural coat, crossed straps, loose trousers and chains.',
+  'Silver take on the asymmetric leather look.',
+  'Ash take on the elongated silhouette with a high collar.',
+  'Deep-violet take on rave cargo with metal hardware.',
+  'Ink take on the deconstructed tailoring.'
 ];
 
 // Silhouette family per look, mirroring the Three.js avatar builder.
@@ -40,11 +40,11 @@ export const npcPositions = [[-3, -3], [2, -4], [0, -1], [3, 1], [-2, 2], [4, -6
 export const dancingNpcCount = 7;
 
 export const zoneLabels = {
-  entry: 'ВХОДНАЯ ГАЛЕРЕЯ',
-  bar: 'БАР / RECHARGE',
-  lounge: 'ЛАУНЖ / SLOW DOWN',
-  stage: 'DJ-СЦЕНА',
-  dancefloor: 'ТАНЦПОЛ'
+  entry: 'ENTRANCE GALLERY',
+  bar: 'BAR / RECHARGE',
+  lounge: 'LOUNGE / SLOW DOWN',
+  stage: 'DJ STAGE',
+  dancefloor: 'DANCEFLOOR'
 };
 
 export function zoneForPosition(x, z) {

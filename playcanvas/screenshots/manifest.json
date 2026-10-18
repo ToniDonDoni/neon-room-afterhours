@@ -17,73 +17,73 @@
     {
       "file": "10-entrance.jpg",
       "note": "entrance gallery looking into the club",
-      "zone": "ВХОДНАЯ ГАЛЕРЕЯ",
+      "zone": "ENTRANCE GALLERY",
       "npcs": 12
     },
     {
       "file": "20-dancefloor.jpg",
       "note": "dancefloor towards the DJ stage",
-      "zone": "ТАНЦПОЛ",
+      "zone": "DANCEFLOOR",
       "npcs": 12
     },
     {
       "file": "21-crowd.jpg",
       "note": "dancing crowd close up",
-      "zone": "ТАНЦПОЛ",
+      "zone": "DANCEFLOOR",
       "npcs": 12
     },
     {
       "file": "30-bar.jpg",
       "note": "bar and recharge counter",
-      "zone": "БАР / RECHARGE",
+      "zone": "BAR / RECHARGE",
       "npcs": 12
     },
     {
       "file": "31-drink.jpg",
       "note": "neon tonic in hand at the bar",
-      "zone": "БАР / RECHARGE",
+      "zone": "BAR / RECHARGE",
       "npcs": 12
     },
     {
       "file": "40-stage.jpg",
       "note": "DJ stage and rings",
-      "zone": "ТАНЦПОЛ",
+      "zone": "DANCEFLOOR",
       "npcs": 12
     },
     {
       "file": "41-lounge.jpg",
       "note": "lounge booths",
-      "zone": "ТАНЦПОЛ",
+      "zone": "DANCEFLOOR",
       "npcs": 12
     },
     {
       "file": "50-meeting-wheel.jpg",
       "note": "NPC meeting with the action wheel open",
-      "zone": "ТАНЦПОЛ",
+      "zone": "DANCEFLOOR",
       "npcs": 12
     },
     {
       "file": "51-meeting-heart.jpg",
       "note": "heart gesture and NPC reply with wheel open",
-      "zone": "ТАНЦПОЛ",
+      "zone": "DANCEFLOOR",
       "npcs": 12
     },
     {
       "file": "52-meeting-wave.jpg",
       "note": "wave gesture close up",
-      "zone": "ТАНЦПОЛ",
+      "zone": "DANCEFLOOR",
       "npcs": 12
     },
     {
       "file": "60-people.jpg",
       "note": "people list modal",
-      "zone": "ТАНЦПОЛ",
+      "zone": "DANCEFLOOR",
       "npcs": 12
     },
     {
       "file": "61-map.jpg",
       "note": "club map modal",
-      "zone": "ТАНЦПОЛ",
+      "zone": "DANCEFLOOR",
       "npcs": 12
     }
   ]

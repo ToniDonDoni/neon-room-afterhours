@@ -68,7 +68,7 @@ const npcInteraction = createNpcInteraction({
     if (audio) audio.setDucked(speaking);
     setVolume();
   },
-  onError: () => toast('Не удалось воспроизвести голос. Попробуй ещё раз.')
+  onError: () => toast('Could not play the voice reply. Try again.')
 });
 $('#stop-npc-voice').onclick = () => npcInteraction.stop();
 
@@ -85,9 +85,9 @@ function toggleAudio() {
     if (on) instance.setSilent(false);
     setVolume();
     $('#sound').style.color = on ? 'var(--acid)' : '';
-    toast(on ? 'Музыка включена · ' + instance.trackLabel : 'Музыка выключена');
+    toast(on ? 'Music on · ' + instance.trackLabel : 'Music off');
   } catch (e) {
-    toast('Браузер не разрешил воспроизведение звука');
+    toast('The browser blocked audio playback');
   }
 }
 $('#sound').onclick = toggleAudio;
@@ -96,12 +96,12 @@ $('#game-music').onclick = toggleAudio;
 function nameScreen() {
   const suggestions = ['Luna', 'Void', 'Neon Kid', 'Kira', 'Acid Soul']
     .map(n => '<button data-name="' + n + '">' + n + '</button>').join('');
-  openModal('<div class="name-screen"><span class="step-label">01 / ТВОЁ НОВОЕ Я</span><h2>Как тебя называют<br>после полуночи?</h2><p>Имя для этой ночи. Настоящее или то, которое всегда хотелось.</p><input id="nickname" aria-label="Твоё имя" maxlength="24" placeholder="Твоё имя" autocomplete="nickname"><div class="suggestions">' + suggestions + '</div><button id="next-name" class="primary full">ВЫБРАТЬ ОБРАЗ <span>→</span></button><p style="font-size:10px">Без регистрации. Твой образ сохранится в этом браузере.</p></div>', 'name');
+  openModal('<div class="name-screen"><span class="step-label">01 / YOUR NEW SELF</span><h2>What do they call you<br>after midnight?</h2><p>A name for tonight. Your real one, or the one you always wanted.</p><input id="nickname" aria-label="Your name" maxlength="24" placeholder="Your name" autocomplete="nickname"><div class="suggestions">' + suggestions + '</div><button id="next-name" class="primary full">CHOOSE A LOOK <span>→</span></button><p style="font-size:10px">No sign-up. Your look is saved in this browser.</p></div>', 'name');
   $('#nickname').value = profile.name;
   $$('[data-name]').forEach(b => b.onclick = () => $('#nickname').value = b.dataset.name);
   $('#next-name').onclick = () => {
     const name = $('#nickname').value.trim();
-    if (!name) { toast('Выбери имя или введи своё'); $('#nickname').focus(); return; }
+    if (!name) { toast('Pick a name or type your own'); $('#nickname').focus(); return; }
     profile.name = name;
     save();
     wardrobe();
@@ -111,7 +111,7 @@ function nameScreen() {
 
 function wardrobe() {
   const list = outfits.map((o, i) => '<button class="outfit-item ' + (i === profile.outfit ? 'selected' : '') + '" data-outfit="' + i + '"><span class="swatch" style="background:' + o[1] + '"></span><span><strong>' + o[0] + '</strong><small>' + o[2] + '</small></span></button>').join('');
-  openModal('<span class="step-label">02 / DRESS FOR YOURSELF</span><h2>Найди своё отражение.</h2><div class="outfit-layout"><div class="avatar-preview" id="avatar-preview"><div class="model-views"><button data-view="full" class="active">Во весь рост</button><button data-view="face">Лицо</button><button data-view="fabric">Одежда</button></div><div class="model-zoom"><button id="zoom-in" aria-label="Приблизить модель">+</button><button id="zoom-out" aria-label="Отдалить модель">−</button></div><span class="avatar-caption">ПРОВЕДИ ДЛЯ ВРАЩЕНИЯ ↔</span></div><div><p>AFTER DARK — шесть силуэтов и четыре вариации.<br>Асимметрия, драпировки, объём и металл.</p><div class="outfit-list">' + list + '</div><div class="wardrobe-info" id="outfit-info">' + lookNotes[profile.outfit] + '</div><button class="primary full" id="next-outfit">НАЙТИ ВЕЧЕРИНКУ <span>→</span></button></div></div>', 'wardrobe');
+  openModal('<span class="step-label">02 / DRESS FOR YOURSELF</span><h2>Find your reflection.</h2><div class="outfit-layout"><div class="avatar-preview" id="avatar-preview"><div class="model-views"><button data-view="full" class="active">Full body</button><button data-view="face">Face</button><button data-view="fabric">Garment</button></div><div class="model-zoom"><button id="zoom-in" aria-label="Zoom in">+</button><button id="zoom-out" aria-label="Zoom out">−</button></div><span class="avatar-caption">DRAG TO ROTATE ↔</span></div><div><p>AFTER DARK — six silhouettes, four variations.<br>Asymmetry, drape, volume and metal.</p><div class="outfit-list">' + list + '</div><div class="wardrobe-info" id="outfit-info">' + lookNotes[profile.outfit] + '</div><button class="primary full" id="next-outfit">FIND THE PARTY <span>→</span></button></div></div>', 'wardrobe');
   initPreview();
   $$('[data-outfit]').forEach(b => b.onclick = () => {
     profile.outfit = +b.dataset.outfit;
@@ -124,7 +124,7 @@ function wardrobe() {
 }
 
 function locations() {
-  openModal('<span class="step-label">03 / FOLLOW THE FREQUENCY</span><h2>Куда отправимся?</h2><p>Одна дверь. Целая ночь впереди.</p><div class="location-card"><span class="chip">ОТКРЫТО · ЛОКАЛЬНЫЙ КЛУБ</span><span class="step-label">TECHNO / ACID HOUSE</span><h3>NEON ROOM</h3><p>Танцпол · DJ-сцена · бар · лаунж</p></div><div class="coming-soon"><div>ROOFTOP<small>СЛЕДУЮЩАЯ ГЛАВА</small></div><div>FOREST RAVE<small>СЛЕДУЮЩАЯ ГЛАВА</small></div><div>SPACE CLUB<small>СЛЕДУЮЩАЯ ГЛАВА</small></div></div><button class="primary full" id="enter-club">Я В ДЕЛЕ <span>↗</span></button><p style="font-size:10px">Интерактивная 3D-сцена со стилизованными персонажами. Онлайн и VR — в следующих версиях.</p>', 'locations');
+  openModal('<span class="step-label">03 / FOLLOW THE FREQUENCY</span><h2>Where are we going?</h2><p>One door. A whole night ahead.</p><div class="location-card"><span class="chip">OPEN · LOCAL CLUB</span><span class="step-label">TECHNO / ACID HOUSE</span><h3>NEON ROOM</h3><p>Dancefloor · DJ stage · bar · lounge</p></div><div class="coming-soon"><div>ROOFTOP<small>NEXT CHAPTER</small></div><div>FOREST RAVE<small>NEXT CHAPTER</small></div><div>SPACE CLUB<small>NEXT CHAPTER</small></div></div><button class="primary full" id="enter-club">I AM IN <span>↗</span></button><p style="font-size:10px">An interactive 3D scene with stylized characters. Online and VR are coming in later versions.</p>', 'locations');
   $('#enter-club').onclick = () => profile.name ? controlScreen() : nameScreen();
 }
 
@@ -154,12 +154,12 @@ function setControlMode(mode) {
   save();
   document.body.classList.toggle('mobile-controls', mode === 'mobile');
   $('#game-help').textContent = mode === 'mobile'
-    ? 'Слева — идти · справа — смотреть · можно одновременно'
-    : 'Клик по сцене — обзор · WASD — идти · E — действия · Esc — курсор';
+    ? 'Left to move · right to look · you can do both at once'
+    : 'Click the scene to look · WASD to move · E for actions · Esc for cursor';
 }
 
 function controlScreen() {
-  openModal('<span class="step-label">04 / ТВОЁ УПРАВЛЕНИЕ</span><h2>Как будешь играть?</h2><p>Выбери удобный способ. Его всегда можно сменить в настройках.</p><div class="control-choices"><button data-control="mobile" class="control-choice ' + (controlMode === 'mobile' ? 'selected' : '') + '"><span class="control-icon">▣</span><strong>С телефона</strong><small>Левый джойстик — движение.<br>Правый — поворот и обзор.<br>Все действия — на экране.</small></button><button data-control="desktop" class="control-choice ' + (controlMode === 'desktop' ? 'selected' : '') + '"><span class="control-icon">⌨</span><strong>Клавиатура и мышь</strong><small>WASD — движение.<br>Мышь — поворот и обзор.<br>E — меню действий.</small></button></div><button id="confirm-controls" class="primary full">ВОЙТИ В КЛУБ <span>↗</span></button>', 'controls');
+  openModal('<span class="step-label">04 / YOUR CONTROLS</span><h2>How will you play?</h2><p>Pick what feels right. You can always change it in settings.</p><div class="control-choices"><button data-control="mobile" class="control-choice ' + (controlMode === 'mobile' ? 'selected' : '') + '"><span class="control-icon">▣</span><strong>On a phone</strong><small>Left stick moves.<br>Right stick turns and looks.<br>All actions are on screen.</small></button><button data-control="desktop" class="control-choice ' + (controlMode === 'desktop' ? 'selected' : '') + '"><span class="control-icon">⌨</span><strong>Keyboard and mouse</strong><small>WASD moves.<br>Mouse turns and looks.<br>E opens the action menu.</small></button></div><button id="confirm-controls" class="primary full">ENTER THE CLUB <span>↗</span></button>', 'controls');
   $$('[data-control]').forEach(b => b.onclick = () => {
     setControlMode(b.dataset.control);
     $$('[data-control]').forEach(v => v.classList.toggle('selected', v === b));
@@ -169,7 +169,7 @@ function controlScreen() {
 
 function settings() {
   const trackOptions = tracks.map((t, i) => '<option value="' + i + '">' + t.label + '</option>').join('');
-  openModal('<span class="step-label">MAKE IT YOURS</span><h2>Твоя частота.</h2><div class="settings-row"><label for="control-mode">Управление</label><select id="control-mode"><option value="mobile">Телефон · джойстики</option><option value="desktop">Клавиатура и мышь</option></select></div><div class="settings-row"><label for="volume">Громкость</label><input id="volume" type="range" min="0" max="100" value="' + profile.volume * 100 + '"></div><div class="settings-row"><label for="quality">Графика</label><select id="quality"><option value="low">Экономичная</option><option value="high">Высокая</option></select></div><div class="settings-row"><label for="motion">Спокойный свет</label><input id="motion" type="checkbox" ' + (calmMotion() ? 'checked' : '') + '></div><div class="settings-row"><label for="track">Трек</label><select id="track">' + trackOptions + '</select></div><p>Оригинальные процедурные лупы. Музыка запускается только по твоему нажатию.</p><button class="primary" id="audio-toggle">' + (audio && audio.enabled ? 'ВЫКЛЮЧИТЬ' : 'ВКЛЮЧИТЬ') + ' МУЗЫКУ</button><p style="font-size:10px">Телефон: двигай два джойстика одновременно, чтобы идти и осматриваться. ПК: WASD + мышь.</p>', 'settings');
+  openModal('<span class="step-label">MAKE IT YOURS</span><h2>Your frequency.</h2><div class="settings-row"><label for="control-mode">Controls</label><select id="control-mode"><option value="mobile">Phone · joysticks</option><option value="desktop">Keyboard and mouse</option></select></div><div class="settings-row"><label for="volume">Volume</label><input id="volume" type="range" min="0" max="100" value="' + profile.volume * 100 + '"></div><div class="settings-row"><label for="quality">Graphics</label><select id="quality"><option value="low">Efficient</option><option value="high">High</option></select></div><div class="settings-row"><label for="motion">Calm light</label><input id="motion" type="checkbox" ' + (calmMotion() ? 'checked' : '') + '></div><div class="settings-row"><label for="track">Track</label><select id="track">' + trackOptions + '</select></div><p>Original procedural loops. Music only starts when you tap.</p><button class="primary" id="audio-toggle">' + (audio && audio.enabled ? 'TURN OFF' : 'TURN ON') + ' MUSIC</button><p style="font-size:10px">Phone: move both sticks at once to walk and look around. Desktop: WASD + mouse.</p>', 'settings');
   $('#control-mode').value = controlMode;
   $('#control-mode').onchange = e => setControlMode(e.target.value);
   $('#quality').value = quality;
@@ -187,11 +187,11 @@ function settings() {
     pendingTrack = +e.target.value;
     if (audio) audio.setTrack(pendingTrack);
     $('#track-label').textContent = tracks[pendingTrack].label;
-    toast('Новая частота выбрана');
+    toast('New frequency selected');
   };
   $('#audio-toggle').onclick = () => {
     toggleAudio();
-    $('#audio-toggle').textContent = (audio && audio.enabled ? 'ВЫКЛЮЧИТЬ' : 'ВКЛЮЧИТЬ') + ' МУЗЫКУ';
+    $('#audio-toggle').textContent = (audio && audio.enabled ? 'TURN OFF' : 'TURN ON') + ' MUSIC';
   };
 }
 
@@ -245,7 +245,7 @@ function initPreview() {
     try {
       previewApp = new pc.Application(canvas, { graphicsDeviceOptions: { antialias: true, alpha: true } });
     } catch (e) {
-      toast('3D-превью недоступно в этом браузере');
+      toast('3D preview is unavailable in this browser');
       return;
     }
     previewApp.setCanvasFillMode(pc.FILLMODE_NONE);
@@ -315,7 +315,7 @@ function initWorld() {
     const shotMode = /[?&]shots=1/.test(location.search);
     app = new pc.Application(worldCanvas, { graphicsDeviceOptions: { antialias: quality === 'high', alpha: false, preserveDrawingBuffer: shotMode } });
   } catch (e) {
-    toast('Не удалось запустить WebGL. Попробуй браузер с поддержкой 3D.');
+    toast('Could not start WebGL. Try a browser with 3D support.');
     throw e;
   }
   app.setCanvasFillMode(pc.FILLMODE_FILL_WINDOW);
@@ -479,9 +479,9 @@ function enterClub() {
     setControlMode(controlMode);
     if (!audio) toggleAudio();
     else { audio.setSilent(false); audio.resume(); setVolume(); }
-    toast('Добро пожаловать, ' + profile.name + '. Ночь твоя.');
+    toast('Welcome, ' + profile.name + '. The night is yours.');
   } catch (e) {
-    toast('Не удалось запустить WebGL. Попробуй браузер с поддержкой 3D.');
+    toast('Could not start WebGL. Try a browser with 3D support.');
     console.error(e);
   }
 }
@@ -520,23 +520,23 @@ function action(type) {
   if (type === 'dance') {
     dancing = !dancing;
     $('#dance-state').hidden = !dancing;
-    toast(dancing ? 'Поймай ритм. Движение остановит танец.' : 'Танец остановлен');
+    toast(dancing ? 'Catch the rhythm. Moving will stop the dance.' : 'Dance stopped');
     return;
   }
   if (type === 'drink') {
-    if (drink) { drink = false; $('#drink-view').hidden = true; toast('Напиток убран'); return; }
+    if (drink) { drink = false; $('#drink-view').hidden = true; toast('Drink put away'); return; }
     const cp = camera.getPosition();
-    if (!canTakeDrink(cp.x, cp.z)) { toast('Подойди к бару слева от танцпола'); return; }
+    if (!canTakeDrink(cp.x, cp.z)) { toast('Go to the bar left of the dancefloor'); return; }
     drink = true;
     $('#drink-view').hidden = false;
     effect('✧');
-    toast('Твой Neon tonic. За эту ночь!');
+    toast('Your Neon tonic. To this night!');
     return;
   }
   if (!['talk', 'heart', 'wave', 'five'].includes(type)) return;
   const reply = npcInteraction.interact(near, profile.volume);
-  if (reply === 'out-of-range') { toast('Подойди ближе к персонажу, чтобы поговорить'); return; }
-  if (reply === 'busy') { toast('Персонаж ещё говорит. Дослушай реплику.'); return; }
+  if (reply === 'out-of-range') { toast('Get closer to the character to talk'); return; }
+  if (reply === 'busy') { toast('The character is still talking. Let them finish.'); return; }
   if (reply === 'unavailable') return;
   drink = false;
   $('#drink-view').hidden = true;
@@ -545,19 +545,19 @@ function action(type) {
   const np = near.npc.getPosition();
   near.npc.baseYaw = Math.atan2(cp.x - np.x, cp.z - np.z) * 180 / Math.PI;
   effect({ talk: '💬', heart: '♡', wave: '✋', five: '✦' }[type]);
-  toast(near.npc.npcName + ({ talk: ' отвечает тебе', heart: ' отвечает сердечком ♡', wave: ' машет тебе в ответ', five: ' даёт тебе пять!' }[type]));
+  toast(near.npc.npcName + ({ talk: ' replies to you', heart: ' replies with a heart ♡', wave: ' waves back at you', five: ' high-fives you!' }[type]));
   if (hands) { hands.action = type; hands.until = performance.now() + 1800; }
 }
 
 $$('[data-action]').forEach(b => b.onclick = () => action(b.dataset.action));
 
 $('#people').onclick = () => {
-  const list = club ? club.npcs.map(n => '<div class="person"><span class="person-icon" style="background:' + outfits[n.lookIndex][1] + '">' + n.npcName[0] + '</span><div><b>' + n.npcName + '</b><small>NPC · ' + (n.dance ? 'На танцполе' : 'Отдыхает в клубе') + '</small></div></div>').join('') : '';
-  openModal('<span class="step-label">AROUND YOU</span><h2>На одной волне.</h2><p>Персонажи этой сцены — NPC. Подойди, выбери «Поговорить» или отправь жест — персонаж ответит голосом. Друзья и чат появятся вместе с онлайном.</p>' + list, 'people');
+  const list = club ? club.npcs.map(n => '<div class="person"><span class="person-icon" style="background:' + outfits[n.lookIndex][1] + '">' + n.npcName[0] + '</span><div><b>' + n.npcName + '</b><small>NPC · ' + (n.dance ? 'On the dancefloor' : 'Chilling in the club') + '</small></div></div>').join('') : '';
+  openModal('<span class="step-label">AROUND YOU</span><h2>On the same wavelength.</h2><p>The characters in this scene are NPCs. Walk up, pick “Talk” or send a gesture — they reply with voiced lines. Friends and chat arrive with online play.</p>' + list, 'people');
 };
 
 $('#map').onclick = () => {
-  openModal('<span class="step-label">FIND YOUR SPACE</span><h2>Внутри ночи.</h2><p>Можно дойти пешком или перейти к зоне.</p><div class="map-grid"><button data-zone="0">◉ Танцпол</button><button data-zone="1">♧ Бар</button><button data-zone="2">☾ Лаунж</button><button data-zone="3">↗ Вход</button></div>', 'map');
+  openModal('<span class="step-label">FIND YOUR SPACE</span><h2>Inside the night.</h2><p>Walk there or jump straight to a zone.</p><div class="map-grid"><button data-zone="0">◉ Dancefloor</button><button data-zone="1">♧ Bar</button><button data-zone="2">☾ Lounge</button><button data-zone="3">↗ Entrance</button></div>', 'map');
   $$('[data-zone]').forEach(b => b.onclick = () => {
     const target = mapTargets[+b.dataset.zone];
     if (camera) {

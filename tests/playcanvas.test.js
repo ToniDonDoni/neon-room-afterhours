@@ -6,7 +6,7 @@ import { dirname, join } from 'node:path';
 
 import {
   looks, lookNotes, lookStyles, tracks, zoneForPosition, isBlocked,
-  sanitizeProfile, defaultControlMode, nearestNpc, canTakeDrink, mapTargets,
+  sanitizeProfile, defaultControlMode, nearestNpc, canTakeDrink, mapTargets, zoneLabels,
   npcNames, npcPositions, dancingNpcCount, defaultProfile
 } from '../playcanvas/logic.js';
 
@@ -26,8 +26,9 @@ test('the PlayCanvas look table matches the canonical Three.js source', () => {
   const end = source.indexOf('];', start);
   const block = source.slice(start, end);
   const canonical = [...block.matchAll(/\[\s*'([^']+)'\s*,\s*'(#[0-9a-fA-F]+)'\s*,\s*'([^']+)'\s*\]/g)]
-    .map(match => [match[1], match[2], match[3]]);
-  assert.deepEqual(looks, canonical);
+    .map(match => [match[1], match[2]]);
+  assert.deepEqual(looks.map(([name, hex]) => [name, hex]), canonical);
+  assert.ok(looks.every(([, , note]) => typeof note === 'string' && note.length > 0));
 });
 
 test('three procedural tracks are available', () => {
@@ -144,4 +145,15 @@ test('the brief reference and the screenshot automation are committed', () => {
   assert.match(shots, /shots=1/);
   assert.match(shots, /focus\(/);
   assert.ok(read('playcanvas/app.js').includes('preserveDrawingBuffer'));
+});
+
+test('the PlayCanvas interface ships in English only', () => {
+  for (const file of ['playcanvas/index.html', 'playcanvas/app.js', 'playcanvas/logic.js']) {
+    assert.ok(!/[\u0400-\u04FF]/.test(read(file)), file + ' still contains Cyrillic text');
+  }
+  for (const label of Object.values(zoneLabels)) {
+    assert.ok(!/[\u0400-\u04FF]/.test(label), 'zone label is not English: ' + label);
+  }
+  assert.ok(looks.every(([, , note]) => !/[\u0400-\u04FF]/.test(note)));
+  assert.ok(lookNotes.every(note => !/[\u0400-\u04FF]/.test(note)));
 });
