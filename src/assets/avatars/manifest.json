@@ -1,0 +1,188 @@
+{
+  "looks": [
+    [
+      "Draped Noir",
+      "#24202b",
+      "Leather · asymmetric skirt"
+    ],
+    [
+      "Shadow Tailor",
+      "#29262d",
+      "Deconstructed tailoring · wide-leg trousers"
+    ],
+    [
+      "Ritual",
+      "#24252b",
+      "High collar · platform boots"
+    ],
+    [
+      "Acid Nomad",
+      "#30312c",
+      "Oversized nylon · acid green"
+    ],
+    [
+      "Violet Veil",
+      "#58304e",
+      "Violet · layered silhouette"
+    ],
+    [
+      "Night Mass",
+      "#24222c",
+      "Long coat · chains"
+    ],
+    [
+      "Silver Noir",
+      "#525260",
+      "Draped Noir · silver leather"
+    ],
+    [
+      "Ash Ritual",
+      "#706a70",
+      "Ritual · ash cotton"
+    ],
+    [
+      "Violet Nomad",
+      "#49334e",
+      "Acid Nomad · dark plum"
+    ],
+    [
+      "Midnight Tailor",
+      "#252b39",
+      "Shadow Tailor · midnight ink"
+    ]
+  ],
+  "lookNotes": [
+    "An asymmetric leather jacket, a bare waist, a wrap skirt and tall platform boots.",
+    "Oversized shoulders, a layered shirt, wide-leg trousers and chunky footwear.",
+    "A sculptural collar, an elongated vest, rings and tall boots.",
+    "An oversized bomber, a hood, cargo trousers and acid-colored cords.",
+    "Fine violet knitwear, a layered skirt, tall boots and cuffs.",
+    "An architectural coat, crossed straps, loose trousers and chains.",
+    "A silver variation of the asymmetric leather look.",
+    "An ash variation of the elongated, high-collar silhouette.",
+    "A dark-violet variation of the rave cargo look with metal hardware.",
+    "A midnight-ink variation of the deconstructed suit."
+  ],
+  "models": [
+    {
+      "index": 0,
+      "detail": true,
+      "file": "look-0-detail.glb",
+      "bytes": 693088
+    },
+    {
+      "index": 0,
+      "detail": false,
+      "file": "look-0-crowd.glb",
+      "bytes": 389664
+    },
+    {
+      "index": 1,
+      "detail": true,
+      "file": "look-1-detail.glb",
+      "bytes": 664608
+    },
+    {
+      "index": 1,
+      "detail": false,
+      "file": "look-1-crowd.glb",
+      "bytes": 364368
+    },
+    {
+      "index": 2,
+      "detail": true,
+      "file": "look-2-detail.glb",
+      "bytes": 560804
+    },
+    {
+      "index": 2,
+      "detail": false,
+      "file": "look-2-crowd.glb",
+      "bytes": 316452
+    },
+    {
+      "index": 3,
+      "detail": true,
+      "file": "look-3-detail.glb",
+      "bytes": 683864
+    },
+    {
+      "index": 3,
+      "detail": false,
+      "file": "look-3-crowd.glb",
+      "bytes": 376552
+    },
+    {
+      "index": 4,
+      "detail": true,
+      "file": "look-4-detail.glb",
+      "bytes": 742036
+    },
+    {
+      "index": 4,
+      "detail": false,
+      "file": "look-4-crowd.glb",
+      "bytes": 416028
+    },
+    {
+      "index": 5,
+      "detail": true,
+      "file": "look-5-detail.glb",
+      "bytes": 724420
+    },
+    {
+      "index": 5,
+      "detail": false,
+      "file": "look-5-crowd.glb",
+      "bytes": 403180
+    },
+    {
+      "index": 6,
+      "detail": true,
+      "file": "look-6-detail.glb",
+      "bytes": 693088
+    },
+    {
+      "index": 6,
+      "detail": false,
+      "file": "look-6-crowd.glb",
+      "bytes": 389664
+    },
+    {
+      "index": 7,
+      "detail": true,
+      "file": "look-7-detail.glb",
+      "bytes": 560804
+    },
+    {
+      "index": 7,
+      "detail": false,
+      "file": "look-7-crowd.glb",
+      "bytes": 316448
+    },
+    {
+      "index": 8,
+      "detail": true,
+      "file": "look-8-detail.glb",
+      "bytes": 683864
+    },
+    {
+      "index": 8,
+      "detail": false,
+      "file": "look-8-crowd.glb",
+      "bytes": 376552
+    },
+    {
+      "index": 9,
+      "detail": true,
+      "file": "look-9-detail.glb",
+      "bytes": 664604
+    },
+    {
+      "index": 9,
+      "detail": false,
+      "file": "look-9-crowd.glb",
+      "bytes": 364368
+    }
+  ]
+}

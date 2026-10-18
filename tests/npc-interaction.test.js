@@ -2,7 +2,8 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import test from 'node:test';
 import vm from 'node:vm';
-import * as THREE from '../src/three.module.js';
+import { Vec3 } from 'playcanvas';
+import { nearestNpc, blocked } from '../src/club-layout.js';
 import { createNpcInteraction } from '../src/npc-interaction.js';
 
 // Exercise the shipped HTML buttons and app action handlers without a GPU.
@@ -36,10 +37,10 @@ function game() {
   const events = new Map();
   const musicGains = [];
   const context = vm.createContext({
-    THREE, createNpcInteraction, looks: Array.from({ length: 10 }, () => ['Look', '#fff']), lookNotes: [],
-    createFashionAvatar() {}, createFirstPersonHands() {}, createJoystick: () => ({ reset() {} }),
+    Vec3, nearestNpc, blocked, createNpcInteraction, looks: Array.from({ length: 10 }, () => ['Look', '#fff']), lookNotes: [],
+    createJoystick: () => ({ reset() {} }),
     matchMedia: () => ({ matches: false }), localStorage: { getItem: () => null, setItem() {} },
-    performance: { now: () => 1000 }, requestAnimationFrame() {}, setTimeout() {}, clearTimeout() {},
+    innerWidth: 800, innerHeight: 600, performance: { now: () => 1000 }, requestAnimationFrame() {}, setTimeout() {}, clearTimeout() {},
     window: { addEventListener() {}, scrollTo() {} },
     document: {
       hidden: false, body: element(), pointerLockElement: null,
@@ -54,9 +55,9 @@ function game() {
   vm.runInContext(`
     playing = true;
     profile.volume = .7;
-    camera = new THREE.PerspectiveCamera();
+    camera = {position:new Vec3()};
     camera.position.set(0, 1.66, 0);
-    const guest = new THREE.Object3D();
+    const guest = {position:new Vec3(),lookAt(){}};
     guest.position.set(0, 0, -1);
     guest.userData = {name: 'Luna'};
     npcs.push(guest);
@@ -132,7 +133,7 @@ test('blocked playback restores music and permits a later retry', async () => {
   await Promise.resolve();
   assert.equal(g.nodes.get('#npc-speaking').hidden, true);
   assert.equal(g.musicGains.at(-1), .7 * .45);
-  assert.match(g.nodes.get('#toast').textContent, /Не удалось/);
+  assert.match(g.nodes.get('#toast').textContent, /Could not play the voice/);
   g.voice.nextPlayback = Promise.resolve();
   g.click('talk');
   assert.equal(g.voice.playCalls, 2);
@@ -152,4 +153,34 @@ test('opening a menu, hiding the tab or pressing Stop ends speech without muting
     assert.equal(g.nodes.get('#npc-speaking').hidden, true);
     assert.equal(g.run('audio.enabled'), true);
   }
+});
+
+
+test('both input modes move the camera, simultaneous mobile look turns it, and walking stops dancing', () => {
+  const g = game();
+  g.run(`renderer = {draw(){}};document.querySelector('#modal').hidden=true;controlMode='desktop';keys.add('KeyW');dancing=true;animate(16)`);
+  assert.ok(g.run('camera.position.z') < 0);
+  assert.equal(g.run('dancing'),false);
+  const old = g.run('camera.position.z');
+  g.run(`keys.clear();controlMode='mobile';touchInput.y=-1;touchInput.lookX=1;animate(32)`);
+  assert.ok(g.run('camera.position.z') < old);
+  assert.ok(g.run('yaw') < 0);
+  const position = g.run('camera.position.z');
+  g.run(`document.querySelector('#modal').hidden=false;animate(48)`);
+  assert.equal(g.run('camera.position.z'),position,'Menus pause movement');
+});
+
+test('bar drink restriction and toggle survive the engine migration', () => {
+  const g=game();g.click('drink');assert.equal(g.run('drink'),false);
+  g.run('camera.position.set(-6,1.66,1)');g.click('drink');assert.equal(g.run('drink'),false);
+  g.run('camera.position.set(-7,1.66,1)');g.click('drink');assert.equal(g.run('drink'),true);
+  assert.equal(g.nodes.get('#drink-view').hidden,false);
+  g.click('drink');assert.equal(g.run('drink'),false);assert.equal(g.nodes.get('#drink-view').hidden,true);
+});
+
+test('all three original music loops and saved profile key remain available', () => {
+  const g=game();
+  assert.deepEqual(Array.from(g.run('tracks.map(t=>t.bpm)')),[124,118,132]);
+  for(let i=0;i<3;i++) assert.equal(g.run(`tracks[${i}].notes.length`),8);
+  assert.match(app,/localStorage.getItem\('neon-room'\)/);
 });
