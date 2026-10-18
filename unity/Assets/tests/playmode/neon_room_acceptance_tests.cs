@@ -421,6 +421,9 @@ namespace NeonRoom.Tests
         public IEnumerator ReferenceScreens_RenderWardrobeClubAndActionMenuCaptures()
         {
             yield return EnterWardrobe();
+            var mainCamera = GameObject.Find("player-camera").GetComponent<Camera>();
+            Assert.That(mainCamera.clearFlags, Is.EqualTo(CameraClearFlags.SolidColor), "Unity menu screens must not expose the default skybox behind the neon UI.");
+            Assert.That(mainCamera.backgroundColor.maxColorComponent, Is.LessThan(.1f), "The game canvas background must remain dark to match the neon reference style.");
             var directory = Path.Combine(Application.temporaryCachePath, "neon-room-unity-acceptance");
             Directory.CreateDirectory(directory);
 
