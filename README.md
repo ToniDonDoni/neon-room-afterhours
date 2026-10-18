@@ -2,6 +2,21 @@
 
 **NEON ROOM** is a browser game prototype about dressing for an after-hours club, exploring a neon-lit 3D space, and moving to tech house. It is designed for phone screens first and also supports keyboard and mouse.
 
+## JavaScript graphics engine
+
+The current version uses **[PlayCanvas Engine](https://github.com/playcanvas/engine) 2.23.1**, an open-source JavaScript engine for real-time browser 3D graphics. The game uses its code API directly from plain JavaScript ES modules. See the [PlayCanvas documentation](https://developer.playcanvas.com/) for the engine API and examples.
+
+| Component | Implementation |
+| --- | --- |
+| Club and wardrobe rendering | PlayCanvas entities, meshes, cameras and GLB model loading |
+| Neon and glossy surfaces | Emissive and PBR materials, environment reflections, bloom and ACES tone mapping |
+| Scene construction and animation | Project JavaScript in `src/rendering.js`, `src/club-renderer.js`, `src/wardrobe-renderer.js` and `src/avatars.js` |
+| Avatar model generation | Offline Three.js 0.169.0 scripts export articulated GLBs; gltfpack optimizes the exported models |
+| Interface and audio | HTML/CSS, JavaScript and Web Audio API |
+| Browser bundle | esbuild 0.25.11 bundles PlayCanvas and the application into `dist/app.js` |
+
+The original published version uses Three.js. This branch contains the PlayCanvas port, published at its own URL below. All engine and model assets are bundled locally for deployment.
+
 ## Play
 
 - **Public PlayCanvas version:** [Open the separate experiment](https://neon-room-playcanvas-style.jazzyknoll3.chatgpt.site)
