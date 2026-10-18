@@ -102,11 +102,11 @@ The game interface is now entirely in English, including onboarding, all ten out
 
 ## Unity Web build
 
-**Hosted Unity WebGL version:** [Open NEON ROOM in Unity](https://neon-room-unity-webgl.jazzyknoll3.chatgpt.site). The Site is currently owner-private.
+**Hosted Unity WebGL version:** [Open NEON ROOM in Unity](https://neon-room-unity-webgl.jazzyknoll3.chatgpt.site). The Site is public.
 
 For agents: the Unity Site project ID is `appgprj_6ad4b9e3d7c88191a1ded69b7b19334f`. Its deployment source is separate from the JavaScript Site identified by the root `.openai/hosting.json`. Keep Web Player Settings > Publishing Settings > Decompression Fallback enabled: Sites must load the compressed `.unityweb` assets through Unity's built-in decompressor.
 
-The separate Unity port is in [`unity/`](unity/) and its requirements are in [`tasks/spec-006.md`](tasks/spec-006.md). Open that folder with Unity `6000.3.6f1`. Press **Play** to run in the Editor. The root `npm run build` builds the JavaScript site, not Unity.
+The separate Unity port is in [`unity/`](unity/) and its requirements are in [`tasks/spec-006.md`](tasks/spec-006.md). Open that folder with Unity `6000.3.6f1`. Press **Play** to run in the Editor. The root `npm run build` builds the JavaScript site, not Unity. The latest compiled WebGL player is committed in [`unity/web-build/`](unity/web-build/) and includes the Unity loader, WebAssembly, and game data.
 
 To build for the browser, install **Web Build Support** for this Unity version, then select **File > Build Profiles > Web**, choose the `neon_club` scene, and click **Build** (or **Build And Run**). Unity outputs a WebGL browser player, including WebAssembly files. Serve the output over HTTP, for example `npx serve <build-folder>`; don’t open `index.html` directly. Unity’s [Web build settings](https://docs.unity3d.com/6000.0/Manual/web-build-settings.html) document the target and output.
 
