@@ -2,63 +2,63 @@ export const looks = [
   [
     "Draped Noir",
     "#24202b",
-    "Кожа · асимметричная юбка"
+    "Leather · asymmetric skirt"
   ],
   [
     "Shadow Tailor",
     "#29262d",
-    "Деконструкция · широкие брюки"
+    "Deconstructed tailoring · wide-leg trousers"
   ],
   [
     "Ritual",
     "#24252b",
-    "Высокий воротник · платформы"
+    "High collar · platform boots"
   ],
   [
     "Acid Nomad",
     "#30312c",
-    "Объёмный нейлон · acid green"
+    "Oversized nylon · acid green"
   ],
   [
     "Violet Veil",
     "#58304e",
-    "Фиолетовый · многослойность"
+    "Violet · layered silhouette"
   ],
   [
     "Night Mass",
     "#24222c",
-    "Длинное пальто · цепи"
+    "Long coat · chains"
   ],
   [
     "Silver Noir",
     "#525260",
-    "Draped Noir · серебряная кожа"
+    "Draped Noir · silver leather"
   ],
   [
     "Ash Ritual",
     "#706a70",
-    "Ritual · пепельный хлопок"
+    "Ritual · ash cotton"
   ],
   [
     "Violet Nomad",
     "#49334e",
-    "Acid Nomad · тёмная слива"
+    "Acid Nomad · dark plum"
   ],
   [
     "Midnight Tailor",
     "#252b39",
-    "Shadow Tailor · чернильный"
+    "Shadow Tailor · midnight ink"
   ]
 ];
 export const lookNotes = [
-  "Косая кожаная куртка, открытая талия, юбка с запахом и высокие платформы.",
-  "Плечи оверсайз, многослойная рубашка, широкие брюки и тяжёлая обувь.",
-  "Скульптурный воротник, вытянутый жилет, кольца и высокие ботинки.",
-  "Объёмный бомбер, капюшон, карго и кислотные шнуры.",
-  "Тонкий фиолетовый трикотаж, многослойная юбка, высокие ботинки и манжеты.",
-  "Архитектурное пальто, перекрёстные ремни, свободные брюки и цепи.",
-  "Серебряная версия асимметричного кожаного образа.",
-  "Пепельная версия вытянутого силуэта с высоким воротником.",
-  "Тёмно-фиолетовая версия рейв-карго с металлической фурнитурой.",
-  "Чернильная версия деконструированного костюма."
+  "An asymmetric leather jacket, a bare waist, a wrap skirt and tall platform boots.",
+  "Oversized shoulders, a layered shirt, wide-leg trousers and chunky footwear.",
+  "A sculptural collar, an elongated vest, rings and tall boots.",
+  "An oversized bomber, a hood, cargo trousers and acid-colored cords.",
+  "Fine violet knitwear, a layered skirt, tall boots and cuffs.",
+  "An architectural coat, crossed straps, loose trousers and chains.",
+  "A silver variation of the asymmetric leather look.",
+  "An ash variation of the elongated, high-collar silhouette.",
+  "A dark-violet variation of the rave cargo look with metal hardware.",
+  "A midnight-ink variation of the deconstructed suit."
 ];

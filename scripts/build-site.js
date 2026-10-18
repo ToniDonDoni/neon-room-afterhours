@@ -3,7 +3,7 @@ import { build } from 'esbuild';
 const output = new URL('../dist/', import.meta.url);
 await rm(output, { recursive: true, force: true });
 await mkdir(output, { recursive: true });
-for (const file of ['index.html', 'style.css', 'THIRD_PARTY_LICENSES.txt', 'assets']) {
+for (const file of ['index.html', 'style.css', 'club-reference.png', 'THIRD_PARTY_LICENSES.txt', 'assets']) {
   await cp(new URL('../src/' + file, import.meta.url), new URL(file, output), { recursive: true });
 }
 const result = await build({ entryPoints: ['src/app.js'], outfile: 'dist/app.js', bundle: true, plugins: [{ name: 'browser-worker-target', setup(build) {

@@ -133,7 +133,7 @@ test('blocked playback restores music and permits a later retry', async () => {
   await Promise.resolve();
   assert.equal(g.nodes.get('#npc-speaking').hidden, true);
   assert.equal(g.musicGains.at(-1), .7 * .45);
-  assert.match(g.nodes.get('#toast').textContent, /Не удалось/);
+  assert.match(g.nodes.get('#toast').textContent, /Could not play the voice/);
   g.voice.nextPlayback = Promise.resolve();
   g.click('talk');
   assert.equal(g.voice.playCalls, 2);

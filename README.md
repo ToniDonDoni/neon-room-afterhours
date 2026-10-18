@@ -16,7 +16,7 @@ Choose a nickname and one of ten looks, select a control scheme, then enter the 
 
 The current build is a local prototype: its club characters are NPCs. Online multiplayer, friends, voice chat and VR are future work.
 
-Near a character, open Actions and choose **Поговорить / Talk**, heart, wave or high-five to hear the supplied recorded voice reply. Club music continues and briefly becomes quieter during speech. Repeated taps do not overlap replies; the speaking indicator includes a Stop button. See [`Tasks/spec-002.md`](Tasks/spec-002.md).
+Near a character, open Actions and choose **Talk**, heart, wave or high-five to hear the supplied recorded voice reply. Club music continues and briefly becomes quieter during speech. Repeated taps do not overlap replies; the speaking indicator includes a Stop button. See [`Tasks/spec-002.md`](Tasks/spec-002.md).
 
 ## First-time GitHub Pages setup
 
@@ -82,3 +82,5 @@ node scripts/compare-reference.cjs /path/to/reference.png
 ```
 
 `PLAYWRIGHT_CHROMIUM_EXECUTABLE` optionally selects an already installed Chromium binary. The visual scripts serve `dist/` on loopback only and close their servers/browsers when finished. The final action capture pauses Playwright's game clock to capture the brief hand pose.
+
+The game interface is now entirely in English, including onboarding, all ten outfit descriptions, controls, settings, NPC panels, notifications and accessible labels. See [`Tasks/spec-005.md`](Tasks/spec-005.md). Player-entered names and the original prerecorded voice are preserved.

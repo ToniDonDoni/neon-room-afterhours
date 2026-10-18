@@ -1,3 +1,4 @@
+const assertEnglish = require('./assert-english.cjs');
 const { chromium } = require('playwright');
 const assert = require('node:assert/strict');
 const http = require('node:http');
@@ -17,29 +18,32 @@ const browser=await chromium.launch({headless:true,executablePath:process.env.PL
 try{
  const page=await browser.newPage({viewport:{width:1100,height:700},deviceScaleFactor:.75});
  const errors=[];page.on('pageerror',err=>errors.push(String(err)));
- await page.goto('http://127.0.0.1:4174/');
- await page.getByRole('button',{name:'ВОЙТИ В НОЧЬ ↗',exact:true}).click();
+ await page.goto('http://127.0.0.1:4174/');await assertEnglish(page);
+ await page.getByRole('button',{name:'ENTER THE NIGHT ↗',exact:true}).click();
  await page.getByRole('button',{name:'Luna',exact:true}).click();
- await page.getByRole('button',{name:'ВЫБРАТЬ ОБРАЗ →',exact:true}).click();
- await page.getByText('ПРОВЕДИ ДЛЯ ВРАЩЕНИЯ ↔',{exact:true}).waitFor({state:'visible',timeout:60000});
+ await page.getByRole('button',{name:'CHOOSE YOUR LOOK →',exact:true}).click();
+ await page.getByText('DRAG TO ROTATE ↔',{exact:true}).waitFor({state:'visible',timeout:60000});
+ await assertEnglish(page);
  const label=process.argv[2]||'final';
  await page.screenshot({timeout:60000,path:root+`/artifacts/visual/wardrobe-${label}.jpg`});
- await page.getByRole('button',{name:'НАЙТИ ВЕЧЕРИНКУ →',exact:true}).click();
- await page.getByRole('button',{name:'Я В ДЕЛЕ ↗',exact:true}).click();
- await page.getByRole('button',{name:'ВОЙТИ В КЛУБ ↗',exact:true}).click();
+ await assertEnglish(page);
+ await page.getByRole('button',{name:'FIND A PARTY →',exact:true}).click();
+ await assertEnglish(page);await page.getByRole('button',{name:'COUNT ME IN ↗',exact:true}).click();
+ await assertEnglish(page);await page.getByRole('button',{name:'ENTER THE CLUB ↗',exact:true}).click();
  // Wait for all local model requests and native asset construction to settle.
  await page.waitForLoadState('networkidle');
  await page.waitForTimeout(1200);
  await page.screenshot({timeout:60000,path:root+`/artifacts/visual/club-${label}-entrance.jpg`});
- await page.getByRole('button',{name:'Карта клуба',exact:true}).click();
- await page.getByRole('button',{name:'◉ Танцпол',exact:true}).click();
+ await page.getByRole('button',{name:'Club map',exact:true}).click();
+ await page.getByRole('button',{name:'◉ Dance floor',exact:true}).click();
  async function walk(code,frames){await page.keyboard.down(code);for(let i=0;i<frames;i++)await page.evaluate(()=>new Promise(resolve=>requestAnimationFrame(resolve)));await page.keyboard.up(code)}
  await walk('KeyA',16);await walk('KeyW',6);
  // Approach an original guest using the shipped keyboard controls.
- await page.getByRole('button',{name:'ДЕЙСТВИЯ ⊕',exact:true}).click();
+ await page.getByRole('button',{name:'ACTIONS ⊕',exact:true}).click();
  await page.screenshot({timeout:60000,path:root+`/artifacts/visual/club-${label}-interaction.jpg`});
+ await assertEnglish(page);
  await page.clock.install();await page.clock.pauseAt(new Date(Date.now()+500));
- await page.getByRole('button',{name:'Сердечко',exact:true}).click();
+ await page.getByRole('button',{name:'Heart',exact:true}).click();
  await page.clock.runFor(32);
 
  await page.screenshot({timeout:60000,path:root+`/artifacts/visual/club-${label}-heart.jpg`});
