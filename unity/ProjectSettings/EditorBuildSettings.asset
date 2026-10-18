@@ -4,6 +4,9 @@
 EditorBuildSettings:
   m_ObjectHideFlags: 0
   serializedVersion: 2
-  m_Scenes: []
+  m_Scenes:
+  - enabled: 1
+    path: Assets/neon_club.unity
+    guid: f42460925900b4e5dbb938b2f642a4db
   m_configObjects: {}
   m_UseUCBPForAssetBundles: 0

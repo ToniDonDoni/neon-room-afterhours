@@ -21,3 +21,11 @@ MemoryCaptures/
 *.VC.db
 .idea/
 .vs/
+
+# Unity Performance Testing package defaults are local generated metadata.
+Assets/resources/PerformanceTestRunInfo.json
+Assets/resources/PerformanceTestRunInfo.json.meta
+Assets/resources/PerformanceTestRunSettings.json
+Assets/resources/PerformanceTestRunSettings.json.meta
+Assets/InitTestScene*.unity
+Assets/InitTestScene*.unity.meta

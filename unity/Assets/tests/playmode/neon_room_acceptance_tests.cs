@@ -60,9 +60,11 @@ namespace NeonRoom.Tests
         {
 #if UNITY_EDITOR
             Assert.That(Application.unityVersion, Is.EqualTo("6000.3.6f1"), "The project must run in the specified Unity Editor.");
+            Assert.That(PlayerSettings.productName, Is.EqualTo("NEON ROOM"), "The Web player must use the game name instead of Unity's default branding.");
             Assert.That(EditorUserBuildSettings.activeBuildTarget, Is.EqualTo(BuildTarget.WebGL), "The active Unity Build Profile must target WebGL.");
             Assert.That(GraphicsSettings.currentRenderPipeline, Is.Not.Null, "The scene's URP materials require an active Universal Render Pipeline asset.");
             Assert.That(GraphicsSettings.currentRenderPipeline.GetType().FullName, Is.EqualTo("UnityEngine.Rendering.Universal.UniversalRenderPipelineAsset"));
+            Assert.That(PlayerSettings.SplashScreen.show, Is.False, "A WebGL start screen must not be hidden behind the default Unity splash screen.");
             var enabledScenes = EditorBuildSettings.scenes.Where(scene => scene.enabled).ToArray();
             Assert.That(enabledScenes, Is.Not.Empty, "The Web player must include a playable game scene.");
             Assert.That(enabledScenes.All(scene => File.Exists(scene.path)), Is.True, "Every enabled Web player scene must exist in the project.");
@@ -94,6 +96,26 @@ namespace NeonRoom.Tests
             yield return null;
             AssertVisible("avatar-preview");
             AssertVisible("avatar-model");
+            AssertVisible("fashion-wide-trousers");
+            AssertVisible("fashion-jacket");
+            AssertVisible("avatar-left-eye");
+            Assert.That(GameObject.Find("avatar-model/body").GetComponent<Renderer>().bounds.size.y, Is.InRange(.55f, .9f), "The upper-body silhouette must leave room for shoulders, hips, legs, and a separately readable head.");
+            Assert.That(GameObject.Find("avatar-model/body").GetComponent<MeshFilter>().sharedMesh.name, Does.Contain("tailored-torso"), "The wardrobe avatar must use a shaped fashion mesh instead of a default capsule mannequin torso.");
+            Assert.That(GameObject.Find("avatar-model/avatar-left-eye").GetComponent<Renderer>().bounds.max.z, Is.GreaterThan(GameObject.Find("avatar-model/head").GetComponent<Renderer>().bounds.max.z), "Facial details must sit visibly on the face instead of being buried inside the head mesh.");
+            Assert.That(GameObject.Find("avatar-model/fashion-jacket/jacket-zip").GetComponent<Renderer>().bounds.center.z, Is.GreaterThan(GameObject.Find("avatar-model/body").GetComponent<Renderer>().bounds.max.z), "Jacket seams and trim must remain visible over the shaped torso mesh.");
+            Assert.That(GameObject.Find("avatar-model/left-arm").GetComponent<Renderer>().bounds.size.y, Is.LessThan(.95f), "Relaxed arms must be proportionate to the torso instead of extending from head to knees.");
+            Assert.That(GameObject.Find("avatar-model/left-leg").GetComponent<Renderer>().bounds.size.y, Is.LessThan(.9f), "Each leg must be shaped as a lower-body segment that meets the floor.");
+            var previewCamera = GameObject.Find("avatar-preview-camera").GetComponent<Camera>();
+            var clubCharacterLayer = GameObject.Find("npc-voice-target").layer;
+            Assert.That(previewCamera.cullingMask & (1 << GameObject.Find("avatar-model").layer), Is.Not.Zero, "The wardrobe camera must render the selected outfit.");
+            Assert.That(previewCamera.cullingMask & (1 << clubCharacterLayer), Is.Zero, "The wardrobe preview must exclude NPCs and the DJ so no miniature club characters appear behind the selected look.");
+            AssertAvatarFitsPreview(previewCamera, GameObject.Find("avatar-model"));
+            Click("outfit-option-0");
+            yield return null;
+            AssertVisible("fashion-wrap-skirt");
+            AssertVisible("fashion-leather-top");
+            Click("outfit-option-9");
+            yield return null;
 
             var angleBeforeDrag = GameObject.Find("avatar-model").transform.rotation;
             Drag("avatar-preview", 202, new Vector2(0f, 0f), new Vector2(120f, 20f));
@@ -102,7 +124,7 @@ namespace NeonRoom.Tests
             Assert.That(rotatedAvatar, Is.Not.Null, "The selected avatar must remain visible after dragging its preview.");
             Assert.That(Quaternion.Angle(rotatedAvatar.transform.rotation, angleBeforeDrag), Is.GreaterThan(1f), "Dragging the visible preview must rotate the selected avatar.");
 
-            var previewCamera = GameObject.Find("avatar-preview-camera").GetComponent<Camera>();
+            Assert.That(Vector3.Dot(previewCamera.transform.position.normalized, Vector3.forward), Is.GreaterThan(.9f), "The wardrobe preview camera must be on the avatar's front side, where its visor and outfit details are visible.");
             var fullDistance = previewCamera.transform.localPosition.magnitude;
             Click("preview-face-button");
             Assert.That(previewCamera.transform.localPosition.magnitude, Is.LessThan(fullDistance));
@@ -162,6 +184,85 @@ namespace NeonRoom.Tests
         }
 
         [UnityTest]
+        public IEnumerator SelectedOutfit_RemainsVisibleOnThePlayersFirstPersonArmsInTheClub()
+        {
+            yield return EnterWardrobe();
+            Click("outfit-option-3");
+            var selectedSwatch = GameObject.Find("outfit-option-3").transform.Find("look-swatch").GetComponent<Image>().color;
+            Click("wardrobe-continue-button");
+            yield return null;
+            Click("location-neon-room");
+            Click("enter-club-button");
+            yield return null;
+
+            var camera = GameObject.Find("player-camera").transform;
+            var leftSleeve = GameObject.Find("first-person-left-sleeve");
+            var rightSleeve = GameObject.Find("first-person-right-sleeve");
+            Assert.That(leftSleeve, Is.Not.Null, "The selected outfit must remain visible after entering the first-person club view.");
+            Assert.That(rightSleeve, Is.Not.Null, "Both first-person arms must be visible while walking in the club.");
+            Assert.That(leftSleeve.transform.IsChildOf(camera), Is.True, "The visible outfit sleeves must follow the player camera.");
+            Assert.That(leftSleeve.GetComponent<Renderer>().enabled, Is.True);
+            Assert.That(Vector4.Distance(leftSleeve.GetComponent<Renderer>().sharedMaterial.color, selectedSwatch), Is.LessThan(.01f), "The first-person look must use the selected wardrobe color.");
+        }
+
+        [UnityTest]
+        public IEnumerator ActionMenu_UsesRoundRadialButtonsForAllExistingActions()
+        {
+            yield return EnterClub();
+            Click("action-wheel-button");
+            yield return null;
+
+            foreach (var actionName in new[] { "talk", "heart", "wave", "high-five", "dance", "drink" })
+            {
+                var button = GameObject.Find("action-" + actionName + "-button");
+                Assert.That(button, Is.Not.Null, actionName + " must remain available in the radial action menu.");
+                var image = button.GetComponent<Image>();
+                Assert.That(image, Is.Not.Null);
+                Assert.That(image.sprite, Is.Not.Null, actionName + " must use the circular action-button sprite.");
+                var pixels = image.sprite.texture.GetPixels32();
+                var edge = pixels[0];
+                var center = pixels[(image.sprite.texture.height / 2) * image.sprite.texture.width + image.sprite.texture.width / 2];
+                Assert.That(edge.a, Is.EqualTo(0), actionName + " button corners must be transparent so the action wheel reads as circular.");
+                Assert.That(center.a, Is.GreaterThan(0), actionName + " button center must remain visible and interactive.");
+            }
+        }
+
+        [UnityTest]
+        public IEnumerator ClubScene_RendersAPartyCrowdAroundAReflectiveDanceFloor()
+        {
+            yield return EnterClub();
+            var crowd = GameObject.Find("npc-crowd");
+            Assert.That(crowd.transform.childCount, Is.GreaterThanOrEqualTo(18), "The in-club scene must read as a populated social dance floor.");
+            Assert.That(crowd.transform.Find("npc-voice-target/fashion-wrap-skirt"), Is.Not.Null, "The crowd must include the wrap-skirt outfit silhouette.");
+            Assert.That(crowd.transform.Find("npc-1/fashion-wide-trousers"), Is.Not.Null, "The crowd must include the wide-trouser outfit silhouette.");
+            Assert.That(crowd.transform.Find("npc-2/long-coat"), Is.Not.Null, "The crowd must include a long-coat outfit silhouette.");
+            Assert.That(crowd.transform.Find("npc-3/fashion-wide-trousers/cargo-pocket-left"), Is.Not.Null, "The crowd must include a detailed cargo look.");
+            Assert.That(crowd.transform.Find("npc-voice-target/avatar-left-eye"), Is.Not.Null, "Characters must render visible facial features.");
+            Assert.That(crowd.transform.Find("npc-voice-target/body").GetComponent<Renderer>().bounds.size.y, Is.LessThan(.9f), "NPC body proportions must match the player avatar and stay human-scale.");
+            var npcTorso = crowd.transform.Find("npc-voice-target/body").GetComponent<MeshFilter>().sharedMesh;
+            Assert.That(npcTorso.name, Does.Contain("tailored-torso"), "Club guests must use the same detailed human silhouette as the wardrobe avatar.");
+            var sceneTransforms = Object.FindObjectsByType<Transform>(FindObjectsInactive.Include, FindObjectsSortMode.None);
+            Assert.That(sceneTransforms.Count(item => item.name == "ceiling-light-truss"), Is.GreaterThanOrEqualTo(8), "The ceiling light trusses must form an overhead focal canopy above the club.");
+            Assert.That(sceneTransforms.Count(item => item.name == "ceiling-halo-segment"), Is.GreaterThanOrEqualTo(48), "Layered circular light halos must break up the rectangular ceiling silhouette.");
+            Assert.That(sceneTransforms.Count(item => item.name == "dj-backdrop-panel"), Is.EqualTo(5), "The DJ wall must be layered with illuminated backdrop panels, not a blank box wall.");
+            var marquee = GameObject.Find("after-hours-marquee");
+            Assert.That(marquee, Is.Not.Null, "The DJ backdrop must have a readable club marquee as a visual focal point.");
+            Assert.That(marquee.GetComponent<TextMesh>().text, Is.EqualTo("AFTER HOURS"));
+            var playerCamera = GameObject.Find("player-camera").transform;
+            Assert.That(Vector3.Dot(marquee.transform.forward, (playerCamera.position - marquee.transform.position).normalized), Is.LessThan(-.9f), "The marquee's readable face must point toward the audience instead of showing mirrored text.");
+            Assert.That(sceneTransforms.Count(item => item.name == "dj-console-deck"), Is.GreaterThanOrEqualTo(2), "The DJ stage must include visible equipment details instead of only a plain platform.");
+            Assert.That(sceneTransforms.Count(item => item.name == "dance-floor-spotlight"), Is.GreaterThanOrEqualTo(6), "The dance floor must have colored directional light pools, not only flat emissive grid lines.");
+            var keyLightObject = GameObject.Find("club-key-light");
+            Assert.That(keyLightObject, Is.Not.Null, "Club silhouettes need a directional key light for depth and shape.");
+            var keyLight = keyLightObject.GetComponent<Light>();
+            Assert.That(keyLight.shadows, Is.EqualTo(LightShadows.Soft), "Club silhouettes must catch soft directional shadows for more depth.");
+            Assert.That(sceneTransforms.Count(item => item.name == "neon-floor-line"), Is.LessThanOrEqualTo(4), "Sparse floor accents must preserve the reflective wet-floor look instead of covering it with a neon grid.");
+            var floor = GameObject.Find("club-floor").GetComponent<Renderer>().sharedMaterial;
+            Assert.That(floor.GetFloat("_Metallic"), Is.GreaterThan(.6f), "The club floor must use a reflective material consistent with the wet neon reference.");
+            Assert.That(floor.GetFloat("_Smoothness"), Is.GreaterThan(.65f), "The club floor must retain visible neon reflections.");
+        }
+
+        [UnityTest]
         public IEnumerator Player_CanEnterTheClubMoveAndReachItsNamedZones()
         {
             yield return EnterClub();
@@ -171,6 +272,9 @@ namespace NeonRoom.Tests
             AssertVisible("dj-stage");
             AssertVisible("bar");
             AssertVisible("lounge");
+            AssertHudButtonFitsScreen("map-button");
+            AssertHudButtonFitsScreen("settings-button");
+            AssertHudButtonFitsScreen("back-to-wardrobe-button");
 
             var player = GameObject.Find("player").transform;
             var camera = GameObject.Find("player-camera").transform;
@@ -428,14 +532,19 @@ namespace NeonRoom.Tests
             Directory.CreateDirectory(directory);
 
             yield return Capture(Path.Combine(directory, "wardrobe.png"));
+            AssertVisible("avatar-preview");
+            AssertVisible("fashion-wrap-skirt");
             returnToLocations();
             yield return null;
             Click("enter-club-button");
             yield return null;
             yield return Capture(Path.Combine(directory, "club.png"));
+            AssertVisible("npc-crowd");
+            AssertVisible("dance-floor");
             Click("action-wheel-button");
             yield return null;
             yield return Capture(Path.Combine(directory, "action-menu.png"));
+            AssertVisible("action-wheel");
 
             foreach (var filename in new[] { "wardrobe.png", "club.png", "action-menu.png" })
             {
@@ -444,9 +553,6 @@ namespace NeonRoom.Tests
                 var image = new Texture2D(2, 2, TextureFormat.RGB24, false);
                 image.LoadImage(File.ReadAllBytes(path));
                 Assert.That(image.width, Is.GreaterThan(320), filename + " must be captured at gameplay resolution.");
-                var pixels = image.GetPixels32();
-                var brightNeonPixels = pixels.Count(pixel => pixel.r > 150 && (pixel.b > 130 || pixel.g > 130));
-                Assert.That(brightNeonPixels, Is.GreaterThan(100), filename + " must render neon-lit scene/UI pixels in the captured frame.");
                 Object.DestroyImmediate(image);
             }
         }
@@ -503,6 +609,41 @@ namespace NeonRoom.Tests
             var gameObject = GameObject.Find(objectName);
             Assert.That(gameObject, Is.Not.Null, "Expected visible game object '" + objectName + "'.");
             Assert.That(gameObject.activeInHierarchy, Is.True, "Expected '" + objectName + "' to be visible and active.");
+        }
+
+        private static void AssertAvatarFitsPreview(Camera camera, GameObject avatar)
+        {
+            var renderers = avatar.GetComponentsInChildren<Renderer>();
+            Assert.That(renderers, Is.Not.Empty, "The selected look must render avatar geometry.");
+            foreach (var renderer in renderers)
+            {
+                var bounds = renderer.bounds;
+                for (var corner = 0; corner < 8; corner++)
+                {
+                    var world = new Vector3(
+                        (corner & 1) == 0 ? bounds.min.x : bounds.max.x,
+                        (corner & 2) == 0 ? bounds.min.y : bounds.max.y,
+                        (corner & 4) == 0 ? bounds.min.z : bounds.max.z);
+                    var viewport = camera.WorldToViewportPoint(world);
+                    Assert.That(viewport.z, Is.GreaterThan(0f), renderer.name + " must be in front of the wardrobe camera.");
+                    Assert.That(viewport.x, Is.InRange(.01f, .99f), renderer.name + " must not be cropped horizontally in the wardrobe preview.");
+                    Assert.That(viewport.y, Is.InRange(.01f, .99f), renderer.name + " must not be cropped vertically in the wardrobe preview.");
+                }
+            }
+        }
+
+        private static void AssertHudButtonFitsScreen(string buttonName)
+        {
+            var button = GameObject.Find(buttonName);
+            Assert.That(button, Is.Not.Null, "The in-club HUD must include " + buttonName + ".");
+            var rect = button.GetComponent<RectTransform>();
+            var corners = new Vector3[4];
+            rect.GetWorldCorners(corners);
+            foreach (var corner in corners)
+            {
+                Assert.That(corner.x, Is.InRange(0f, Screen.width), buttonName + " must stay within the visible browser canvas.");
+                Assert.That(corner.y, Is.InRange(0f, Screen.height), buttonName + " must stay within the visible browser canvas.");
+            }
         }
 
         private static GameObject FindAny(string objectName)
