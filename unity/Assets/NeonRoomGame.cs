@@ -988,6 +988,14 @@ namespace NeonRoom
 
         private static Transform CreateAvatar(string name, int outfit, int layer)
         {
+            if (outfit == 2)
+            {
+                var acidBloom = Instantiate(Resources.Load<GameObject>("avatars/acid-bloom"));
+                acidBloom.name = name;
+                foreach (var part in acidBloom.GetComponentsInChildren<Transform>(true))
+                    part.gameObject.layer = layer;
+                return acidBloom.transform;
+            }
             var root = new GameObject(name).transform;
             root.gameObject.layer = layer;
             // Keep the original ten outfit choices while giving them visibly distinct
@@ -1215,7 +1223,8 @@ namespace NeonRoom
         private void ApplyFirstPersonOutfit()
         {
             if (firstPersonOutfitMaterial == null) return;
-            var color = OutfitColors[Mathf.Clamp(selectedOutfit, 0, OutfitColors.Length - 1)];
+            var color = selectedOutfit == 2 ? new Color(.025f, .018f, .033f)
+                : OutfitColors[Mathf.Clamp(selectedOutfit, 0, OutfitColors.Length - 1)];
             firstPersonOutfitMaterial.color = color;
             if (firstPersonOutfitMaterial.HasProperty("_EmissionColor"))
                 firstPersonOutfitMaterial.SetColor("_EmissionColor", color * .2f);
