@@ -100,12 +100,12 @@ node scripts/compare-reference.cjs /path/to/reference.png
 
 The game interface is now entirely in English, including onboarding, all ten outfit descriptions, controls, settings, NPC panels, notifications and accessible labels. See [`tasks/spec-005.md`](tasks/spec-005.md). Player-entered names and the original prerecorded voice are preserved.
 
-## Unity WebGL port
+## Unity Web build
 
-The Unity project is in [`unity/`](unity/), documented in [`tasks/spec-006.md`](tasks/spec-006.md). Its WebGL build is separate from the PlayCanvas static site.
+The separate Unity port is in [`unity/`](unity/) and its requirements are in [`tasks/spec-006.md`](tasks/spec-006.md). Open that folder with Unity `6000.3.6f1`. Press **Play** to run in the Editor. The root `npm run build` builds the JavaScript site, not Unity.
 
-To run the Unity game locally, open `unity/` in Unity `6000.3.6f1` and press **Play**. To create a browser build, select **WebGL** in **File > Build Profiles**, then build to an output folder. Serve that folder over HTTP, for example with `npx serve <build-folder>`; do not open `index.html` directly from Finder. The root `npm run build` builds the PlayCanvas site in `dist/`, not the Unity game.
+To build for the browser, install **Web Build Support** for this Unity version, then select **File > Build Profiles > Web**, choose the `neon_club` scene, and click **Build** (or **Build And Run**). Unity outputs a WebGL browser player, including WebAssembly files. Serve the output over HTTP, for example `npx serve <build-folder>`; don’t open `index.html` directly. Unity’s [Web build settings](https://docs.unity3d.com/6000.0/Manual/web-build-settings.html) document the target and output.
 
-For agent work, read [`tasks/spec-006.md`](tasks/spec-006.md) and the applicable Unity skills before editing. Use the Unity MCP connected to the open `unity/` project for Editor state, PlayMode tests and build validation. Local Unity skill checkouts in `skills/unity/` are Mac-only and are not committed.
+For agent work, read `tasks/spec-006.md` and the relevant guides under `skills/`. Open `unity/` in Unity Editor, start the local Unity MCP server from its Editor window, and confirm Codex is connected before using MCP tools. The project includes the MCP package; Mac-only reference skill checkouts live under ignored `skills/unity/`.
 
-The Unity WebGL workflow builds the project and uploads a downloadable artifact; it does not publish it to GitHub Pages. GameCI needs the repository secret `UNITY_LICENSE` before its first Unity job can activate the Editor. See [`unity-webgl-build.yml`](.github/workflows/unity-webgl-build.yml).
+The current GitHub Actions workflow builds and publishes the JavaScript site only; it does not build Unity.
