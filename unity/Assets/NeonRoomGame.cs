@@ -988,6 +988,19 @@ namespace NeonRoom
 
         private static Transform CreateAvatar(string name, int outfit, int layer)
         {
+            if (outfit == 3)
+            {
+                var velvetStatic = Resources.Load<GameObject>("avatars/velvet-static");
+                if (velvetStatic != null)
+                {
+                    var avatar = Instantiate(velvetStatic);
+                    avatar.name = name;
+                    foreach (var part in avatar.GetComponentsInChildren<Transform>(true))
+                        part.gameObject.layer = layer;
+                    return avatar.transform;
+                }
+                Debug.LogError("Velvet Static prefab missing from Resources/avatars.");
+            }
             if (outfit == 2)
             {
                 var acidBloom = Instantiate(Resources.Load<GameObject>("avatars/acid-bloom"));

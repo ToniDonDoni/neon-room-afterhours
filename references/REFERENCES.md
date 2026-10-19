@@ -11,3 +11,9 @@
 ![Close-up of a player making a heart gesture in a neon club](neon-room-club-closeup.png)
 
 `neon-room-club-closeup.png` is the focused in-club reference. Use it for the nightclub's pink and violet lighting, cyan accents, reflective clothing and surfaces, first-person hands, crowd and circular action menu.
+
+## Techno Puma character look
+
+![Techno Puma character outfit shown from the front, back and side](techno_puma.png)
+
+`techno_puma.png` is a three-view character and outfit modeling reference for Blender. Use it to model the character's proportions and silhouette, long pink hair, dark glasses, glossy black cropped jacket and skirt, platform boots, and metallic accessories. The image is a visual guide; it does not define a production-ready topology, rig, or texture layout.
