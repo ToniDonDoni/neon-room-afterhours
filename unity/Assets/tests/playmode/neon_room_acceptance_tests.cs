@@ -55,6 +55,27 @@ namespace NeonRoom.Tests
             Assert.That(inputModule.point.action, Is.Not.Null, "The browser pointer position action must be configured.");
         }
 
+        [UnityTest]
+        public IEnumerator ControlSelection_AppearsBeforeClubAndPhoneModeEnablesTouchControls()
+        {
+            yield return EnterWardrobe();
+            Click("wardrobe-continue-button");
+            yield return null;
+            Click("location-neon-room");
+            Click("enter-club-button");
+            yield return null;
+
+            AssertVisible("control-selection-screen");
+            Click("control-mode-mobile");
+            Assert.That(PlayerPrefs.GetString("neon-room.control-mode", ""), Is.EqualTo("mobile"));
+            Click("control-confirm-button");
+            yield return null;
+            AssertVisible("club-hud");
+            AssertVisible("move-stick");
+            AssertVisible("look-stick");
+            Assert.That(GameObject.Find("action-wheel-button"), Is.Not.Null, "Mobile players must keep access to on-screen game actions.");
+        }
+
         [Test]
         public void EditorBuild_UsesSpecifiedUnityVersionAndIncludesAPlayableWebScene()
         {
