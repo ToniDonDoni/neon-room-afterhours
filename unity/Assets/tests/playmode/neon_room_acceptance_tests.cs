@@ -66,6 +66,8 @@ namespace NeonRoom.Tests
             yield return null;
 
             AssertVisible("control-selection-screen");
+            AssertVisible("control-mode-mobile");
+            AssertVisible("control-mode-desktop");
             Click("control-mode-mobile");
             Assert.That(PlayerPrefs.GetString("neon-room.control-mode", ""), Is.EqualTo("mobile"));
             Click("control-confirm-button");
@@ -73,7 +75,35 @@ namespace NeonRoom.Tests
             AssertVisible("club-hud");
             AssertVisible("move-stick");
             AssertVisible("look-stick");
-            Assert.That(GameObject.Find("action-wheel-button"), Is.Not.Null, "Mobile players must keep access to on-screen game actions.");
+            var actionButton = GameObject.Find("action-wheel-button");
+            Assert.That(actionButton, Is.Not.Null, "Mobile players must keep access to on-screen game actions.");
+            Assert.That(actionButton.activeInHierarchy, Is.True, "The on-screen action control must be visible in Phone mode.");
+            Assert.That(actionButton.GetComponent<Button>().interactable, Is.True, "The on-screen action control must remain usable in Phone mode.");
+            Click("action-wheel-button");
+            AssertVisible("action-wheel");
+        }
+
+        [UnityTest]
+        public IEnumerator ControlSelection_DesktopChoiceEntersClubWithoutMobileSticks()
+        {
+            yield return EnterWardrobe();
+            Click("wardrobe-continue-button");
+            yield return null;
+            Click("location-neon-room");
+            Click("enter-club-button");
+            yield return null;
+
+            AssertVisible("control-selection-screen");
+            Click("control-mode-desktop");
+            Assert.That(PlayerPrefs.GetString("neon-room.control-mode", ""), Is.EqualTo("desktop"));
+            Click("control-confirm-button");
+            yield return null;
+
+            AssertVisible("club-hud");
+            var moveStick = FindAny("move-stick");
+            var lookStick = FindAny("look-stick");
+            Assert.That(moveStick == null || !moveStick.activeInHierarchy, Is.True, "Desktop mode must not obscure the club with mobile sticks.");
+            Assert.That(lookStick == null || !lookStick.activeInHierarchy, Is.True, "Desktop mode must not obscure the club with mobile sticks.");
         }
 
         [Test]
