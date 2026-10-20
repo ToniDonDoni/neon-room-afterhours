@@ -1049,6 +1049,7 @@ namespace NeonRoom
             var sticks = FindAny("mobile-controls");
             var visible = (inClub || (settingsScreen != null && settingsScreen.activeSelf)) && controlMode == "mobile";
             if (sticks != null) sticks.SetActive(visible);
+            if (firstPersonHands != null) firstPersonHands.gameObject.SetActive(inClub && controlMode != "mobile");
             ReportWebState("mobile-controls-visible", visible ? "true" : "false");
         }
 
