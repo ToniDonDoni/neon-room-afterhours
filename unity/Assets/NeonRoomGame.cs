@@ -71,6 +71,7 @@ namespace NeonRoom
         private float selectedVolume;
         private float yaw;
         private float pitch;
+        private bool portraitLayout;
         private float reducedMotion;
         private bool inClub;
         private bool musicInitialized;
@@ -85,6 +86,7 @@ namespace NeonRoom
         private bool wasNearNpc;
         private string lastReportedZoneLabel;
         private float previewYaw;
+        private float nextMobileStateReportTime;
 
 #if UNITY_WEBGL && !UNITY_EDITOR
         [DllImport("__Internal")]
@@ -118,6 +120,7 @@ namespace NeonRoom
 
         private void Update()
         {
+            ApplyResponsiveLayout();
             if (previewAvatar != null)
                 previewAvatar.localRotation = Quaternion.Euler(0f, previewYaw + (reducedMotion < .5f ? Mathf.Sin(Time.unscaledTime * .35f) * 8f : 0f), 0f);
             if (!inClub) return;
@@ -145,6 +148,15 @@ namespace NeonRoom
                     yaw += mobileLook.x * Time.deltaTime * 2.1f;
                     pitch = Mathf.Clamp(pitch - mobileLook.y * Time.deltaTime * 1.5f, -45f, 45f);
                 }
+            }
+
+            if (controlMode == "mobile" && (mobileMoveHeld || mobileLookHeld) && Time.unscaledTime >= nextMobileStateReportTime)
+            {
+                nextMobileStateReportTime = Time.unscaledTime + .2f;
+                ReportWebState("player-position", string.Format(CultureInfo.InvariantCulture, "{0:0.00},{1:0.00},{2:0.00}", player.position.x, player.position.y, player.position.z));
+                ReportWebState("player-yaw", yaw.ToString("0.00", CultureInfo.InvariantCulture));
+                ReportWebState("mobile-move", string.Format(CultureInfo.InvariantCulture, "{0:0.00},{1:0.00}", mobileMove.x, mobileMove.y));
+                ReportWebState("mobile-look", string.Format(CultureInfo.InvariantCulture, "{0:0.00},{1:0.00}", mobileLook.x, mobileLook.y));
             }
 
             if (playerCamera != null) playerCamera.transform.localRotation = Quaternion.Euler(pitch, yaw, 0f);
@@ -397,6 +409,7 @@ namespace NeonRoom
             CreateNicknameScreen();
             CreateWardrobeScreen();
             CreateLocationsScreen();
+            CreateControlSelectionScreen();
             clubHud = CreateRect(uiRoot, "club-hud", Vector2.zero, Vector2.one, Vector2.zero, Vector2.zero).gameObject;
             BuildClubHud(clubHud.transform);
             BuildMobileControls(uiRoot);
@@ -412,6 +425,8 @@ namespace NeonRoom
             danceStatus.SetActive(false);
             drinkStatus = AddTextObject(clubHud.transform, "drink-status", "NEON TONIC  ·  CHEERS", new Vector2(0f, -125f), new Vector2(390f, 44f), 18, AccentCyan);
             drinkStatus.SetActive(false);
+            SetControlSelectionAppearance("control-selection-screen");
+            SetControlSelectionAppearance("settings-screen");
         }
 
         private void CreateNicknameScreen()
@@ -485,9 +500,16 @@ namespace NeonRoom
                 AddButton(screen.transform, "location-" + item.Item1, item.Item2, new Vector2(-300f + i * 200f, -100f), new Vector2(190f, 52f), () => SelectLocation(item.Item1), i == 0 ? AccentLime : AccentViolet);
             }
             AddText(screen.transform, "selected-location-label", "NEON ROOM  ·  OPEN", new Vector2(0f, -163f), new Vector2(700f, 36f), 20, AccentLime);
-            AddButton(screen.transform, "control-mode-mobile", "PHONE  ·  TWO STICKS", new Vector2(-145f, -220f), new Vector2(270f, 50f), () => SetControlMode("mobile"), AccentCyan);
-            AddButton(screen.transform, "control-mode-desktop", "WASD  ·  MOUSE  ·  E", new Vector2(145f, -220f), new Vector2(270f, 50f), () => SetControlMode("desktop"), AccentViolet);
-            AddButton(screen.transform, "enter-club-button", "LET'S GO  ↗", new Vector2(0f, -300f), new Vector2(400f, 60f), EnterClub, AccentLime);
+            AddButton(screen.transform, "enter-club-button", "LET'S GO  ↗", new Vector2(0f, -250f), new Vector2(400f, 60f), OpenControlSelection, AccentLime);
+        }
+
+        private void CreateControlSelectionScreen()
+        {
+            var screen = CreateScreen("control-selection-screen", "HOW WILL YOU PLAY?", "Choose controls for this device. You can change this in Settings.");
+            AddButton(screen.transform, "control-mode-mobile", "PHONE\nTWO TOUCH STICKS", new Vector2(-180f, -70f), new Vector2(340f, 150f), () => SetControlMode("mobile"), AccentCyan);
+            AddButton(screen.transform, "control-mode-desktop", "KEYBOARD & MOUSE\nWASD  ·  MOUSE  ·  E", new Vector2(180f, -70f), new Vector2(340f, 150f), () => SetControlMode("desktop"), AccentViolet);
+            AddButton(screen.transform, "control-confirm-button", "ENTER THE CLUB  ↗", new Vector2(0f, -205f), new Vector2(420f, 62f), ConfirmControlSelection, AccentLime);
+            AddButton(screen.transform, "control-back-button", "BACK TO LOCATIONS", new Vector2(0f, -285f), new Vector2(300f, 46f), ShowLocations, AccentCyan);
         }
 
         private void BuildClubHud(Transform root)
@@ -520,8 +542,8 @@ namespace NeonRoom
         {
             var sticks = AddPanel(root, "mobile-controls", new Vector2(0f, -300f), new Vector2(760f, 180f), new Color(.02f, .02f, .05f, .2f));
             sticks.GetComponent<Image>().raycastTarget = false;
-            var move = AddPanel(sticks.transform, "move-stick", new Vector2(-285f, 0f), new Vector2(150f, 150f), new Color(.12f, .8f, 1f, .22f));
-            var look = AddPanel(sticks.transform, "look-stick", new Vector2(285f, 0f), new Vector2(150f, 150f), new Color(1f, .2f, .6f, .22f));
+            var move = AddPanel(sticks.transform, "move-stick", new Vector2(-285f, 0f), new Vector2(190f, 190f), new Color(.12f, .8f, 1f, .3f));
+            var look = AddPanel(sticks.transform, "look-stick", new Vector2(285f, 0f), new Vector2(190f, 190f), new Color(1f, .2f, .6f, .3f));
             move.AddComponent<MobileStick>().Setup(this, false);
             look.AddComponent<MobileStick>().Setup(this, true);
             sticks.SetActive(false);
@@ -544,8 +566,8 @@ namespace NeonRoom
             AddButton(root, "track-option-1", "VIOLET HOURS", new Vector2(0f, 80f), new Vector2(210f, 52f), () => SelectTrack(1), AccentPink);
             AddButton(root, "track-option-2", "ELECTRIC PULSE", new Vector2(195f, 80f), new Vector2(230f, 52f), () => SelectTrack(2), AccentCyan);
             AddButton(root, "music-toggle-button", "START MUSIC", new Vector2(0f, 15f), new Vector2(330f, 48f), ToggleMusic, AccentLime);
-            AddButton(root, "control-mode-mobile", "PHONE CONTROLS", new Vector2(-160f, -65f), new Vector2(240f, 48f), () => SetControlMode("mobile"), AccentCyan);
-            AddButton(root, "control-mode-desktop", "DESKTOP CONTROLS", new Vector2(160f, -65f), new Vector2(240f, 48f), () => SetControlMode("desktop"), AccentViolet);
+            AddButton(root, "settings-control-mode-mobile", "PHONE CONTROLS", new Vector2(-160f, -65f), new Vector2(240f, 48f), () => SetControlMode("mobile"), AccentCyan);
+            AddButton(root, "settings-control-mode-desktop", "DESKTOP CONTROLS", new Vector2(160f, -65f), new Vector2(240f, 48f), () => SetControlMode("desktop"), AccentViolet);
             AddButton(root, "quality-option-low", "LOW GRAPHICS", new Vector2(-145f, -135f), new Vector2(220f, 48f), () => SetQuality("low"), AccentViolet);
             AddButton(root, "quality-option-high", "HIGH GRAPHICS", new Vector2(145f, -135f), new Vector2(220f, 48f), () => SetQuality("high"), AccentViolet);
             AddButton(root, "reduced-motion-toggle", "REDUCED MOTION  ·  TOGGLE", new Vector2(0f, -202f), new Vector2(400f, 48f), ToggleReducedMotion, AccentPink);
@@ -582,6 +604,135 @@ namespace NeonRoom
             ShowScreen("wardrobe-screen");
         }
         private void ShowLocations() => ShowScreen("locations-screen");
+
+        private void OpenControlSelection() => ShowScreen("control-selection-screen");
+
+        private void ConfirmControlSelection()
+        {
+            EnterClub();
+        }
+
+        private void ApplyResponsiveLayout()
+        {
+            if (canvas == null || Screen.height == 0) return;
+            var isPortrait = (float)Screen.width / Screen.height < .8f;
+            if (isPortrait == portraitLayout) return;
+            portraitLayout = isPortrait;
+            if (isPortrait)
+            {
+                SetRect("wardrobe-heading", new Vector2(0f, 790f), new Vector2(760f, 100f));
+                SetRect("avatar-preview", new Vector2(0f, 340f), new Vector2(590f, 420f));
+                SetRect("avatar-caption", new Vector2(0f, -185f), new Vector2(400f, 34f));
+                SetRect("preview-face-button", new Vector2(-145f, 170f), new Vector2(105f, 40f));
+                SetRect("preview-clothes-button", new Vector2(0f, 170f), new Vector2(125f, 40f));
+                SetRect("preview-full-button", new Vector2(145f, 170f), new Vector2(105f, 40f));
+                SetRect("preview-zoom-in-button", new Vector2(225f, 115f), new Vector2(42f, 38f));
+                SetRect("preview-zoom-out-button", new Vector2(225f, 68f), new Vector2(42f, 38f));
+                SetRect("outfit-label", new Vector2(0f, -105f), new Vector2(700f, 36f));
+                SetRect("outfit-info", new Vector2(0f, -520f), new Vector2(700f, 32f));
+                SetRect("wardrobe-continue-button", new Vector2(0f, -610f), new Vector2(620f, 66f));
+                SetRect("back-to-locations-button", new Vector2(0f, 640f), new Vector2(330f, 44f));
+                for (var i = 0; i < OutfitNames.Length; i++)
+                {
+                    var column = i % 2;
+                    var row = i / 2;
+                    SetRect("outfit-option-" + i, new Vector2(column == 0 ? -190f : 190f, -175f - row * 72f), new Vector2(350f, 62f));
+                }
+                SetRect("location-card", new Vector2(0f, 495f), new Vector2(760f, 150f));
+                SetRect("location-neon-room", new Vector2(-190f, -80f), new Vector2(350f, 58f));
+                SetRect("location-rooftop", new Vector2(190f, -80f), new Vector2(350f, 58f));
+                SetRect("location-forest-rave", new Vector2(-190f, -150f), new Vector2(350f, 58f));
+                SetRect("location-space-club", new Vector2(190f, -150f), new Vector2(350f, 58f));
+                SetRect("selected-location-label", new Vector2(0f, -230f), new Vector2(700f, 38f));
+                SetRect("enter-club-button", new Vector2(0f, -310f), new Vector2(580f, 64f));
+                SetRect("control-mode-mobile", new Vector2(-180f, -70f), new Vector2(340f, 150f));
+                SetRect("control-mode-desktop", new Vector2(180f, -70f), new Vector2(340f, 150f));
+                SetRect("control-confirm-button", new Vector2(0f, -205f), new Vector2(620f, 66f));
+                SetRect("controls-help", new Vector2(0f, -830f), new Vector2(700f, 48f));
+                SetRect("action-wheel-button", new Vector2(0f, 700f), new Vector2(320f, 70f));
+                SetRect("action-wheel", new Vector2(0f, 330f), new Vector2(420f, 420f));
+                SetRect("mobile-controls", new Vector2(0f, -675f), new Vector2(760f, 210f));
+                SetRect("move-stick", new Vector2(-285f, 0f), new Vector2(210f, 210f));
+                SetRect("look-stick", new Vector2(285f, 0f), new Vector2(210f, 210f));
+                SetRect("club-title-label", new Vector2(0f, 805f), new Vector2(760f, 60f));
+                SetRect("current-zone-label", new Vector2(0f, 750f), new Vector2(600f, 48f));
+                SetRect("map-button", new Vector2(-300f, -379f), new Vector2(90f, 48f));
+                SetRect("settings-button", new Vector2(-185f, -379f), new Vector2(115f, 48f));
+                SetRect("back-to-wardrobe-button", new Vector2(-24f, -379f), new Vector2(120f, 48f));
+                SetRect("settings-card", Vector2.zero, new Vector2(740f, 690f));
+                SetRect("settings-title", new Vector2(0f, 280f), new Vector2(640f, 90f));
+                SetRect("track-option-0", new Vector2(-180f, 80f), new Vector2(240f, 50f));
+                SetRect("track-option-1", new Vector2(0f, 80f), new Vector2(220f, 50f));
+                SetRect("track-option-2", new Vector2(180f, 80f), new Vector2(240f, 50f));
+                SetRect("settings-control-mode-mobile", new Vector2(-170f, -65f), new Vector2(320f, 55f));
+                SetRect("settings-control-mode-desktop", new Vector2(170f, -65f), new Vector2(320f, 55f));
+                SetRect("quality-option-low", new Vector2(-145f, -135f), new Vector2(300f, 52f));
+                SetRect("quality-option-high", new Vector2(145f, -135f), new Vector2(300f, 52f));
+                SetRect("settings-close-button", new Vector2(0f, -278f), new Vector2(520f, 58f));
+            }
+            else
+            {
+                SetRect("wardrobe-heading", new Vector2(0f, 385f), new Vector2(1060f, 100f));
+                SetRect("avatar-preview", new Vector2(-360f, -35f), new Vector2(610f, 570f));
+                SetRect("avatar-caption", new Vector2(0f, -250f), new Vector2(420f, 36f));
+                SetRect("preview-face-button", new Vector2(-160f, 245f), new Vector2(120f, 42f));
+                SetRect("preview-clothes-button", new Vector2(0f, 245f), new Vector2(140f, 42f));
+                SetRect("preview-full-button", new Vector2(160f, 245f), new Vector2(120f, 42f));
+                SetRect("preview-zoom-in-button", new Vector2(250f, 195f), new Vector2(48f, 42f));
+                SetRect("preview-zoom-out-button", new Vector2(250f, 145f), new Vector2(48f, 42f));
+                SetRect("outfit-label", new Vector2(435f, 260f), new Vector2(400f, 40f));
+                SetRect("outfit-info", new Vector2(435f, -155f), new Vector2(470f, 32f));
+                SetRect("wardrobe-continue-button", new Vector2(435f, -225f), new Vector2(480f, 62f));
+                SetRect("back-to-locations-button", new Vector2(435f, 340f), new Vector2(280f, 42f));
+                for (var i = 0; i < OutfitNames.Length; i++)
+                {
+                    var column = i % 2;
+                    var row = i / 2;
+                    SetRect("outfit-option-" + i, new Vector2(315f + column * 245f, 195f - row * 82f), new Vector2(230f, 68f));
+                }
+                SetRect("location-card", new Vector2(0f, 32f), new Vector2(790f, 160f));
+                SetRect("location-neon-room", new Vector2(-300f, -100f), new Vector2(190f, 52f));
+                SetRect("location-rooftop", new Vector2(-100f, -100f), new Vector2(190f, 52f));
+                SetRect("location-forest-rave", new Vector2(100f, -100f), new Vector2(190f, 52f));
+                SetRect("location-space-club", new Vector2(300f, -100f), new Vector2(190f, 52f));
+                SetRect("selected-location-label", new Vector2(0f, -163f), new Vector2(700f, 36f));
+                SetRect("enter-club-button", new Vector2(0f, -250f), new Vector2(400f, 60f));
+                SetRect("control-mode-mobile", new Vector2(-180f, -70f), new Vector2(340f, 150f));
+                SetRect("control-mode-desktop", new Vector2(180f, -70f), new Vector2(340f, 150f));
+                SetRect("control-confirm-button", new Vector2(0f, -205f), new Vector2(420f, 62f));
+                SetRect("controls-help", new Vector2(0f, -405f), new Vector2(700f, 48f));
+                SetRect("action-wheel-button", new Vector2(0f, -345f), new Vector2(260f, 62f));
+                SetRect("action-wheel", new Vector2(0f, -125f), new Vector2(440f, 440f));
+                SetRect("mobile-controls", new Vector2(0f, -300f), new Vector2(760f, 180f));
+                SetRect("move-stick", new Vector2(-285f, 0f), new Vector2(190f, 190f));
+                SetRect("look-stick", new Vector2(285f, 0f), new Vector2(190f, 190f));
+                SetRect("club-title-label", new Vector2(-490f, 405f), new Vector2(500f, 60f));
+                SetRect("current-zone-label", new Vector2(0f, 405f), new Vector2(360f, 54f));
+                SetRect("map-button", new Vector2(-333f, -379f), new Vector2(105f, 52f));
+                SetRect("settings-button", new Vector2(-181f, -379f), new Vector2(140f, 52f));
+                SetRect("back-to-wardrobe-button", new Vector2(-24f, -379f), new Vector2(145f, 52f));
+                SetRect("settings-card", Vector2.zero, new Vector2(740f, 690f));
+                SetRect("settings-title", new Vector2(0f, 280f), new Vector2(640f, 90f));
+                SetRect("track-option-0", new Vector2(-190f, 80f), new Vector2(230f, 52f));
+                SetRect("track-option-1", new Vector2(0f, 80f), new Vector2(210f, 52f));
+                SetRect("track-option-2", new Vector2(195f, 80f), new Vector2(230f, 52f));
+                SetRect("settings-control-mode-mobile", new Vector2(-160f, -65f), new Vector2(240f, 48f));
+                SetRect("settings-control-mode-desktop", new Vector2(160f, -65f), new Vector2(240f, 48f));
+                SetRect("quality-option-low", new Vector2(-145f, -135f), new Vector2(220f, 48f));
+                SetRect("quality-option-high", new Vector2(145f, -135f), new Vector2(220f, 48f));
+                SetRect("settings-close-button", new Vector2(0f, -278f), new Vector2(360f, 52f));
+            }
+        }
+
+        private static void SetRect(string name, Vector2 position, Vector2 size)
+        {
+            var gameObject = FindAny(name);
+            if (gameObject == null) return;
+            var rect = gameObject.GetComponent<RectTransform>();
+            if (rect == null) return;
+            rect.anchoredPosition = position;
+            rect.sizeDelta = size;
+        }
 
         private void ShowScreen(string screenName)
         {
@@ -670,6 +821,8 @@ namespace NeonRoom
             player.position = new Vector3(0f, 0f, 10f);
             yaw = 180f;
             pitch = 0f;
+            ReportWebState("player-position", string.Format(CultureInfo.InvariantCulture, "{0:0.00},{1:0.00},{2:0.00}", player.position.x, player.position.y, player.position.z));
+            ReportWebState("player-yaw", yaw.ToString("0.00", CultureInfo.InvariantCulture));
             inClub = true;
             if (!musicInitialized)
             {
@@ -839,16 +992,45 @@ namespace NeonRoom
 
         private void SetControlMode(string mode)
         {
+            if (mode != "mobile" && mode != "desktop") return;
             controlMode = mode;
             PlayerPrefs.SetString(ControlsKey, mode);
             PlayerPrefs.Save();
+            ReportWebState("control-mode", mode);
+            SetControlSelectionAppearance("control-selection-screen");
+            SetControlSelectionAppearance("settings-screen");
+            var help = FindAny("controls-help");
+            if (help != null)
+            {
+                var label = help.GetComponent<Text>();
+                if (label != null) label.text = mode == "mobile" ? "LEFT STICK MOVE   ·   RIGHT STICK LOOK   ·   ACTIONS" : "WASD MOVE   ·   MOUSE LOOK   ·   E ACTIONS";
+            }
             ApplyControls();
+        }
+
+        private void SetControlSelectionAppearance(string screenName)
+        {
+            var screen = FindAny(screenName);
+            if (screen == null) return;
+            var phone = screen.transform.Find(screenName == "settings-screen" ? "settings-control-mode-mobile" : "control-mode-mobile");
+            var desktop = screen.transform.Find(screenName == "settings-screen" ? "settings-control-mode-desktop" : "control-mode-desktop");
+            SetSelectedControlColor(phone, controlMode == "mobile", AccentCyan);
+            SetSelectedControlColor(desktop, controlMode == "desktop", AccentViolet);
+        }
+
+        private static void SetSelectedControlColor(Transform button, bool selected, Color accent)
+        {
+            if (button == null) return;
+            var image = button.GetComponent<Image>();
+            if (image != null) image.color = selected ? new Color(accent.r, accent.g, accent.b, .55f) : new Color(.09f, .07f, .16f, .96f);
         }
 
         private void ApplyControls()
         {
             var sticks = FindAny("mobile-controls");
-            if (sticks != null) sticks.SetActive((inClub || (settingsScreen != null && settingsScreen.activeSelf)) && controlMode == "mobile");
+            var visible = (inClub || (settingsScreen != null && settingsScreen.activeSelf)) && controlMode == "mobile";
+            if (sticks != null) sticks.SetActive(visible);
+            ReportWebState("mobile-controls-visible", visible ? "true" : "false");
         }
 
         private static GameObject FindAny(string objectName)

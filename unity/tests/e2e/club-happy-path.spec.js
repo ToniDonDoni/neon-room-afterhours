@@ -81,8 +81,10 @@ test('player chooses a look and club, walks to an NPC, talks, and hears the reco
   await expectVisibleEnglishUi(page, 'DANCE FLOOR');
   await clickUi(-300, -100);
   await expect(state).toHaveAttribute('data-location', 'neon-room');
-  await clickUi(145, -220);
-  await clickUi(0, -300);
+  await clickUi(0, -250);
+  await expect(state).toHaveAttribute('data-screen', 'control-selection-screen');
+  await clickUi(180, -70);
+  await clickUi(0, -205);
   await expect(state).toHaveAttribute('data-screen', 'club-hud');
   await expectVisibleEnglishUi(page, 'NEON ROOM');
   await page.evaluate(() => { window.__neonRoomPeakRms = 0; });

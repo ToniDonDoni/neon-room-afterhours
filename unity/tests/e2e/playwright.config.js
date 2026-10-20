@@ -7,7 +7,7 @@ const buildPath = process.env.UNITY_WEBGL_BUILD_PATH || path.resolve(here, '../.
 
 export default defineConfig({
   testDir: '.',
-  testMatch: 'club-happy-path.spec.js',
+  testMatch: '**/*.spec.js',
   timeout: 240_000,
   expect: { timeout: 15_000 },
   fullyParallel: false,

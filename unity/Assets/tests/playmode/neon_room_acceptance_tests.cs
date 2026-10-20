@@ -188,11 +188,14 @@ namespace NeonRoom.Tests
             Click("wardrobe-continue-button");
             yield return null;
             AssertVisible("locations-screen");
-            Click("control-mode-mobile");
-            Assert.That(PlayerPrefs.GetString("neon-room.control-mode", ""), Is.EqualTo("mobile"), "The player chooses a control scheme before entering the club.");
             Click("location-neon-room");
             Assert.That(GameObject.Find("club-title").GetComponent<Text>().text, Does.Contain("DANCE FLOOR"), "All visible location names and descriptions must be in English.");
             Click("enter-club-button");
+            yield return null;
+            AssertVisible("control-selection-screen");
+            Click("control-mode-mobile");
+            Assert.That(PlayerPrefs.GetString("neon-room.control-mode", ""), Is.EqualTo("mobile"), "The player chooses a control scheme before entering the club.");
+            Click("control-confirm-button");
             yield return null;
             AssertVisible("club-hud");
             Click("back-to-wardrobe-button");
@@ -209,6 +212,9 @@ namespace NeonRoom.Tests
             Click("location-neon-room");
             Assert.That(GameObject.Find("enter-club-button").GetComponent<Button>().interactable, Is.True);
             Click("enter-club-button");
+            yield return null;
+            Click("control-mode-mobile");
+            Click("control-confirm-button");
             yield return null;
             AssertVisible("move-stick");
             AssertVisible("look-stick");
@@ -244,6 +250,9 @@ namespace NeonRoom.Tests
             yield return null;
             Click("location-neon-room");
             Click("enter-club-button");
+            yield return null;
+            Click("control-mode-desktop");
+            Click("control-confirm-button");
             yield return null;
 
             var camera = GameObject.Find("player-camera").transform;
@@ -338,6 +347,7 @@ namespace NeonRoom.Tests
             AssertHudButtonFitsScreen("map-button");
             AssertHudButtonFitsScreen("settings-button");
             AssertHudButtonFitsScreen("back-to-wardrobe-button");
+            Assert.That(PlayerPrefs.GetString("neon-room.control-mode", ""), Is.EqualTo("desktop"), "The desktop movement test must start with Keyboard & Mouse selected.");
 
             var player = GameObject.Find("player").transform;
             var camera = GameObject.Find("player-camera").transform;
@@ -345,6 +355,7 @@ namespace NeonRoom.Tests
             Assert.That(Vector3.Dot(camera.forward, npcDirection.normalized), Is.GreaterThan(.5f), "The club entrance camera must face into the club toward its guests.");
             var start = player.position;
             var keyboard = InputSystem.AddDevice<Keyboard>();
+            keyboard.MakeCurrent();
             InputSystem.QueueStateEvent(keyboard, new KeyboardState(Key.W));
             InputSystem.Update();
             yield return new WaitForSeconds(.3f);
@@ -394,7 +405,7 @@ namespace NeonRoom.Tests
 
             Click("settings-button");
             yield return null;
-            Click("control-mode-mobile");
+            Click("settings-control-mode-mobile");
             AssertVisible("move-stick");
             AssertVisible("look-stick");
             Click("settings-close-button");
@@ -416,7 +427,7 @@ namespace NeonRoom.Tests
             yield return EnterClub();
             Click("settings-button");
             yield return null;
-            Click("control-mode-desktop");
+            Click("settings-control-mode-desktop");
             var clubMusicForContinuity = GameObject.Find("club-music-source").GetComponent<AudioSource>();
             Assert.That(clubMusicForContinuity.isPlaying, Is.True, "The club track must be playing before testing an NPC reply.");
             var musicClipBeforeReply = clubMusicForContinuity.clip;
@@ -528,7 +539,7 @@ namespace NeonRoom.Tests
             Click("settings-button");
             yield return null;
             AssertVisible("settings-screen");
-            Click("control-mode-mobile");
+            Click("settings-control-mode-mobile");
             Assert.That(PlayerPrefs.GetString("neon-room.control-mode", ""), Is.EqualTo("mobile"));
             AssertVisible("move-stick");
             AssertVisible("look-stick");
@@ -572,7 +583,7 @@ namespace NeonRoom.Tests
             Click("reduced-motion-toggle");
             Assert.That(PlayerPrefs.GetInt("neon-room.reduced-motion", 0), Is.EqualTo(1));
 
-            Click("control-mode-desktop");
+            Click("settings-control-mode-desktop");
             Assert.That(PlayerPrefs.GetString("neon-room.control-mode", ""), Is.EqualTo("desktop"));
 
             PlayerPrefs.Save();
@@ -604,6 +615,9 @@ namespace NeonRoom.Tests
             returnToLocations();
             yield return null;
             Click("enter-club-button");
+            yield return null;
+            Click("control-mode-desktop");
+            Click("control-confirm-button");
             yield return null;
             yield return Capture(Path.Combine(directory, "club.png"));
             AssertVisible("npc-crowd");
@@ -654,6 +668,9 @@ namespace NeonRoom.Tests
             yield return null;
             Click("location-neon-room");
             Click("enter-club-button");
+            yield return null;
+            Click("control-mode-desktop");
+            Click("control-confirm-button");
             yield return null;
             AssertVisible("club-hud");
         }
