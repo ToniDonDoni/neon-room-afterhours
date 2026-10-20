@@ -1170,6 +1170,28 @@ namespace NeonRoom
 
         private static Transform CreateAvatar(string name, int outfit, int layer)
         {
+            if (outfit == 8)
+            {
+                var glassHeart = Resources.Load<GameObject>("avatars/glass-heart-ai");
+                if (glassHeart != null)
+                {
+                    var avatar = new GameObject(name).transform;
+                    var model = Instantiate(glassHeart, avatar).transform;
+                    var renderers = model.GetComponentsInChildren<Renderer>();
+                    if (renderers.Length > 0)
+                    {
+                        var bounds = renderers[0].bounds;
+                        foreach (var renderer in renderers) bounds.Encapsulate(renderer.bounds);
+                        var scale = 2.08f / Mathf.Max(bounds.size.y, .001f);
+                        model.localScale *= scale;
+                        model.localPosition -= new Vector3(bounds.center.x, bounds.min.y, bounds.center.z) * scale;
+                    }
+                    foreach (var part in avatar.GetComponentsInChildren<Transform>(true))
+                        part.gameObject.layer = layer;
+                    return avatar;
+                }
+                Debug.LogError("Glass Heart model missing from Resources/avatars.");
+            }
             if (outfit == 3)
             {
                 var velvetStatic = Resources.Load<GameObject>("avatars/velvet-static");

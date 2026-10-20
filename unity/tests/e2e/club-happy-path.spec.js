@@ -108,6 +108,20 @@ test('player chooses a look and club, walks to an NPC, talks, and hears the reco
   await page.waitForFunction(() => window.__neonRoomPeakRms > 0.0001, null, { timeout: 15_000 });
   expect(await page.evaluate(() => window.__neonRoomPeakRms)).toBeGreaterThan(0.0001);
   await page.screenshot({ path: 'test-results/05-npc-reply-playing.png' });
+
+  for (let conversation = 2; conversation <= 3; conversation += 1) {
+    await expect(state).toHaveAttribute('data-reply-playing', 'false', { timeout: 10_000 });
+    await clickUi(0, -345);
+    await expectVisibleEnglishUi(page, 'TALK');
+    await page.evaluate(() => { window.__neonRoomPeakRms = 0; });
+    await clickUi(0, 10);
+    await expect(state).toHaveAttribute('data-reply-playing', 'true');
+    await expect(state).toHaveAttribute('data-voice-clip', 'npc-voice');
+    await page.waitForFunction(() => window.__neonRoomPeakRms > 0.0001, null, { timeout: 15_000 });
+    expect(await page.evaluate(() => window.__neonRoomPeakRms)).toBeGreaterThan(0.0001);
+    await expectVisibleEnglishUi(page, 'I RECOGNIZE THIS MUSIC');
+    await page.screenshot({ path: `test-results/0${conversation + 4}-npc-reply-playing.png` });
+  }
 });
 
 async function expectVisibleEnglishUi(page, expectedCopy) {

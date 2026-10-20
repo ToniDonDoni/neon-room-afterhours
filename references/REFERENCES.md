@@ -17,3 +17,7 @@
 ![Techno Puma character outfit shown from the front, back and side](techno_puma.png)
 
 `techno_puma.png` is a three-view character and outfit modeling reference for Blender. Use it to model the character's proportions and silhouette, long pink hair, dark glasses, glossy black cropped jacket and skirt, platform boots, and metallic accessories. The image is a visual guide; it does not define a production-ready topology, rig, or texture layout.
+
+## Techno Puma source model
+
+`techno_puma_source.glb` is a local-only full 3D character reference copied from the Downloads folder. The file is about 77 MB and is ignored by Git to keep it out of commits. Use it for inspection and later conversion or optimization before importing a deliverable into Unity.

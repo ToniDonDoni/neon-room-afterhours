@@ -125,6 +125,92 @@ namespace NeonRoom.Tests
         }
 
         [UnityTest]
+        public IEnumerator GlassHeart_ShowsTheTexturedAiCharacterInTheWardrobe()
+        {
+            yield return EnterWardrobe();
+            var originalLooks = new Dictionary<int, string>();
+            for (var outfit = 0; outfit < 10; outfit++)
+            {
+                if (outfit == 8) continue;
+                Click("outfit-option-" + outfit);
+                yield return null;
+                originalLooks[outfit] = AvatarGeometrySignature(GameObject.Find("avatar-model"));
+            }
+            Click("outfit-option-8");
+            yield return null;
+
+            var avatar = GameObject.Find("avatar-model");
+            Assert.That(avatar, Is.Not.Null, "Selecting Glass Heart must show a wardrobe avatar.");
+            var source = Resources.Load<GameObject>("avatars/glass-heart-ai");
+            Assert.That(source, Is.Not.Null, "Glass Heart must have an imported AI character asset in Resources/avatars.");
+            var sourceMeshes = source.GetComponentsInChildren<MeshFilter>()
+                .Select(part => part.sharedMesh).Where(mesh => mesh != null).ToArray();
+            var avatarMeshes = avatar.GetComponentsInChildren<MeshFilter>()
+                .Select(part => part.sharedMesh).Where(mesh => mesh != null).ToArray();
+            Assert.That(sourceMeshes, Is.Not.Empty, "The imported AI character must contain visible mesh geometry.");
+            Assert.That(avatarMeshes, Is.EquivalentTo(sourceMeshes),
+                "Selecting Glass Heart must instantiate the imported AI meshes without replacing or simplifying them.");
+#if UNITY_EDITOR
+            var sourcePath = AssetDatabase.GetAssetPath(source);
+            Assert.That(sourcePath, Is.EqualTo("Assets/resources/avatars/glass-heart-ai.glb"));
+            using (var sha = SHA256.Create())
+            using (var stream = File.OpenRead(sourcePath))
+            {
+                var hash = System.BitConverter.ToString(sha.ComputeHash(stream)).Replace("-", "").ToLowerInvariant();
+                Assert.That(hash, Is.EqualTo("736b1832d1a109e53bb1384753fdec8fc704f5fd162841fc87042909851b38fc"),
+                    "Glass Heart must use the GLB exported from techno_puma_ai.blend, not a substitute model.");
+            }
+#endif
+            var sourceRenderers = source.GetComponentsInChildren<Renderer>();
+            var avatarRenderers = avatar.GetComponentsInChildren<Renderer>();
+            Assert.That(avatarRenderers, Is.Not.Empty, "The imported model must have renderers.");
+            Assert.That(avatarRenderers.All(renderer => renderer.enabled && renderer.gameObject.activeInHierarchy), Is.True,
+                "The imported model must be visible in the wardrobe.");
+            Assert.That(avatarRenderers.SelectMany(renderer => renderer.sharedMaterials),
+                Is.EquivalentTo(sourceRenderers.SelectMany(renderer => renderer.sharedMaterials)),
+                "The wardrobe model must retain the imported materials instead of replacing them.");
+            var textures = avatarRenderers.SelectMany(renderer => renderer.sharedMaterials)
+                .Where(material => material != null)
+                .SelectMany(material => material.GetTexturePropertyNames().Select(material.GetTexture))
+                .Where(texture => texture != null).Distinct().ToArray();
+            Assert.That(textures.Length, Is.GreaterThanOrEqualTo(3),
+                "The imported model must retain distinct color, normal, and metallic-roughness image textures.");
+            AssertAvatarFitsPreview(GameObject.Find("avatar-preview-camera").GetComponent<Camera>(), avatar);
+
+            foreach (var look in originalLooks)
+            {
+                Click("outfit-option-" + look.Key);
+                yield return null;
+                Assert.That(AvatarGeometrySignature(GameObject.Find("avatar-model")), Is.EqualTo(look.Value),
+                    "Viewing Glass Heart must not change the geometry of outfit " + look.Key + ".");
+            }
+        }
+
+        private static string AvatarGeometrySignature(GameObject avatar)
+        {
+            using (var stream = new MemoryStream())
+            using (var writer = new BinaryWriter(stream))
+            using (var sha = SHA256.Create())
+            {
+                foreach (var part in avatar.GetComponentsInChildren<MeshFilter>())
+                {
+                    var mesh = part.sharedMesh;
+                    writer.Write(part.name);
+                    writer.Write(mesh.vertexCount);
+                    foreach (var vertex in mesh.vertices)
+                    {
+                        writer.Write(vertex.x);
+                        writer.Write(vertex.y);
+                        writer.Write(vertex.z);
+                    }
+                    foreach (var index in mesh.triangles) writer.Write(index);
+                }
+                writer.Flush();
+                return System.BitConverter.ToString(sha.ComputeHash(stream.ToArray()));
+            }
+        }
+
+        [UnityTest]
         public IEnumerator NewPlayer_CanEnterACustomNicknameChooseTenLooksAndInspectTheLiveAvatar()
         {
             yield return null;
@@ -530,6 +616,44 @@ namespace NeonRoom.Tests
             Click("action-wheel-button");
             Click("action-drink-button");
             Assert.That(GameObject.Find("npc-voice-source").GetComponent<AudioSource>().isPlaying, Is.False, "Drinking must not start an NPC reply.");
+        }
+
+        [UnityTest]
+        public IEnumerator NpcTalk_ReplaysRecordedLineAfterItFinishesAcrossThreeConversations()
+        {
+            yield return EnterClub();
+            Click("map-button");
+            yield return null;
+            Click("map-zone-dancefloor");
+            yield return null;
+
+            var voice = GameObject.Find("npc-voice-source").GetComponent<AudioSource>();
+            var music = GameObject.Find("club-music-source").GetComponent<AudioSource>();
+            var expectedVolume = PlayerPrefs.GetFloat("neon-room.volume", .35f);
+            for (var conversation = 0; conversation < 3; conversation++)
+            {
+                Click("action-wheel-button");
+                yield return null;
+                Click("action-talk-button");
+                yield return null;
+                Assert.That(voice.isPlaying, Is.True,
+                    "Talk must start the recorded reply in conversation " + (conversation + 1) + ".");
+                Assert.That(voice.timeSamples, Is.LessThan(voice.clip.samples / 4),
+                    "Each conversation must start the reply from the beginning.");
+                Assert.That(GameObject.Find("npc-speaking-status").activeInHierarchy, Is.True);
+                Assert.That(music.isPlaying, Is.True, "The club track must continue during every reply.");
+                Assert.That(music.volume, Is.LessThan(expectedVolume), "The club track must duck while Luna speaks.");
+
+                var timeout = Time.time + voice.clip.length + 1f;
+                while (voice.isPlaying && Time.time < timeout) yield return null;
+                Assert.That(voice.isPlaying, Is.False, "The recorded reply must finish before the next conversation.");
+                var speakingStatus = FindAny("npc-speaking-status");
+                Assert.That(speakingStatus == null || !speakingStatus.activeInHierarchy, Is.True,
+                    "The speaking indicator must close when the recording ends.");
+                Assert.That(music.isPlaying, Is.True);
+                Assert.That(music.volume, Is.EqualTo(expectedVolume).Within(.02f),
+                    "Music volume must return to its saved level after every reply.");
+            }
         }
 
         [UnityTest]

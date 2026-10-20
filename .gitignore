@@ -4,5 +4,21 @@ build-meta.json
 .DS_Store
 skills/unity/
 skills/blender-skills/
+/references/techno_puma_source.glb
 /unity/tests/e2e/test-results/
 /unity/tests/e2e/playwright-report/
+
+# Keep large source models local; the compiled Unity WebGL player is tracked separately.
+*.glb
+*.glb.meta
+
+# Blender backups and generated visual evidence are local working files.
+*.blend1
+/blender/backups/
+/blender/*_before_*.blend
+/blender/*_previous_*.blend
+/blender/*_pre_import_backup.blend
+/blender/techno_puma*.blend
+/unity/captures/
+/artifacts/visual/
+/unity/web-build/
