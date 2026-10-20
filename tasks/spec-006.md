@@ -15,6 +15,7 @@ Recreate the game in Unity, preserving all current gameplay mechanics and matchi
 - [ ] Before entering the club, players choose Phone or Keyboard & Mouse controls on a dedicated screen. Phone mode shows two independent touch sticks, supports simultaneous movement and looking, and retains on-screen actions; the choice is saved and can be changed in Settings.
 - [ ] A recorded NPC reply plays again from the start on each of three consecutive `Talk` interactions after the prior reply finishes, while club music continues and returns to its saved volume.
 - [ ] `Talk` plays the current recorded NPC reply when the player is within 3.5 Unity units of any of the 20 club NPCs, including NPCs other than the first; it does not play when the player is farther away.
+- [ ] Glass Heart and Chrome Siren exchange positions in the wardrobe and club crowd: Glass Heart is first and selected for new players, Chrome Siren takes Glass Heart's previous position, saved selections retain their character through migration, and all other looks keep their order.
 - [ ] Actual Unity gameplay looks visually similar to `References/club-meeting-reference.png` in lighting, palette, materials, characters and interface. Verify this with rendered gameplay screenshots.
 
 ## 4. Analysis

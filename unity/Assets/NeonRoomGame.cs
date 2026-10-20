@@ -16,8 +16,8 @@ namespace NeonRoom
     {
         private static readonly string[] OutfitNames =
         {
-            "Chrome Siren", "Afterglow", "Acid Bloom", "Velvet Static", "Neon Nomad",
-            "Midnight Icon", "Silver Current", "Violet Signal", "Glass Heart", "Last Light"
+            "Glass Heart", "Afterglow", "Acid Bloom", "Velvet Static", "Neon Nomad",
+            "Midnight Icon", "Silver Current", "Violet Signal", "Chrome Siren", "Last Light"
         };
 
         private static readonly Color[] OutfitColors =
@@ -27,8 +27,11 @@ namespace NeonRoom
             new Color(.48f, .78f, 1f), new Color(.75f, .35f, 1f), new Color(1f, .39f, .78f), new Color(.85f, 1f, .35f)
         };
 
+        private static readonly int[] OutfitAppearanceIndices = { 8, 1, 2, 3, 4, 5, 6, 7, 0, 9 };
+
         private const string NicknameKey = "neon-room.nickname";
         private const string OutfitKey = "neon-room.outfit";
+        private const string OutfitOrderVersionKey = "neon-room.outfit-order-version";
         private const string ControlsKey = "neon-room.control-mode";
         private const string TrackKey = "neon-room.track";
         private const string VolumeKey = "neon-room.volume";
@@ -104,7 +107,8 @@ namespace NeonRoom
         private void Awake()
         {
             Application.targetFrameRate = 60;
-            selectedOutfit = Mathf.Clamp(PlayerPrefs.GetInt(OutfitKey, 5), 0, OutfitNames.Length - 1);
+            MigrateOutfitOrder();
+            selectedOutfit = Mathf.Clamp(PlayerPrefs.GetInt(OutfitKey, 0), 0, OutfitNames.Length - 1);
             selectedTrack = Mathf.Clamp(PlayerPrefs.GetInt(TrackKey, 0), 0, 2);
             selectedVolume = Mathf.Clamp01(PlayerPrefs.GetFloat(VolumeKey, .35f));
             controlMode = PlayerPrefs.GetString(ControlsKey, "desktop");
@@ -115,6 +119,19 @@ namespace NeonRoom
             CreateUi();
             ShowScreen("start-screen");
             ReportWebState("outfit", selectedOutfit.ToString());
+        }
+
+        private static void MigrateOutfitOrder()
+        {
+            if (PlayerPrefs.GetInt(OutfitOrderVersionKey, 0) >= 1) return;
+            if (PlayerPrefs.HasKey(OutfitKey))
+            {
+                var savedOutfit = PlayerPrefs.GetInt(OutfitKey, 0);
+                if (savedOutfit == 0) PlayerPrefs.SetInt(OutfitKey, 8);
+                else if (savedOutfit == 8) PlayerPrefs.SetInt(OutfitKey, 0);
+            }
+            PlayerPrefs.SetInt(OutfitOrderVersionKey, 1);
+            PlayerPrefs.Save();
         }
 
         private void Update()
@@ -475,11 +492,12 @@ namespace NeonRoom
             for (var i = 0; i < OutfitNames.Length; i++)
             {
                 var index = i;
+                var color = OutfitColors[OutfitAppearanceIndices[i]];
                 var column = i % 2;
                 var row = i / 2;
-                var button = AddButton(screen.transform, "outfit-option-" + i, OutfitNames[i].ToUpperInvariant(), new Vector2(315f + column * 245f, 195f - row * 82f), new Vector2(230f, 68f), () => SelectOutfit(index), OutfitColors[i]);
+                var button = AddButton(screen.transform, "outfit-option-" + i, OutfitNames[i].ToUpperInvariant(), new Vector2(315f + column * 245f, 195f - row * 82f), new Vector2(230f, 68f), () => SelectOutfit(index), color);
                 button.GetComponent<Image>().color = new Color(.09f, .07f, .16f, .96f);
-                var swatch = AddPanel(button.transform, "look-swatch", new Vector2(-88f, 0f), new Vector2(11f, 42f), OutfitColors[i]);
+                var swatch = AddPanel(button.transform, "look-swatch", new Vector2(-88f, 0f), new Vector2(11f, 42f), color);
             }
             AddText(screen.transform, "outfit-info", "ASYMMETRY  ·  DRAPE  ·  CHROME", new Vector2(435f, -155f), new Vector2(470f, 32f), 15, new Color(.76f, .73f, .84f));
             AddButton(screen.transform, "wardrobe-continue-button", "FIND YOUR PARTY  →", new Vector2(435f, -225f), new Vector2(480f, 62f), ShowLocations, AccentLime);
@@ -1186,7 +1204,8 @@ namespace NeonRoom
 
         private static Transform CreateAvatar(string name, int outfit, int layer)
         {
-            if (outfit == 8)
+            var appearance = OutfitAppearanceIndices[Mathf.Clamp(outfit, 0, OutfitAppearanceIndices.Length - 1)];
+            if (appearance == 8)
             {
                 var glassHeart = Resources.Load<GameObject>("avatars/glass-heart-ai");
                 if (glassHeart != null)
@@ -1208,7 +1227,7 @@ namespace NeonRoom
                 }
                 Debug.LogError("Glass Heart model missing from Resources/avatars.");
             }
-            if (outfit == 3)
+            if (appearance == 3)
             {
                 var velvetStatic = Resources.Load<GameObject>("avatars/velvet-static");
                 if (velvetStatic != null)
@@ -1221,7 +1240,7 @@ namespace NeonRoom
                 }
                 Debug.LogError("Velvet Static prefab missing from Resources/avatars.");
             }
-            if (outfit == 2)
+            if (appearance == 2)
             {
                 var acidBloom = Instantiate(Resources.Load<GameObject>("avatars/acid-bloom"));
                 acidBloom.name = name;
@@ -1233,13 +1252,13 @@ namespace NeonRoom
             root.gameObject.layer = layer;
             // Keep the original ten outfit choices while giving them visibly distinct
             // silhouettes matching the fashion styles used by the browser prototype.
-            var style = new[] { 0, 1, 2, 3, 4, 5, 0, 2, 3, 1 }[Mathf.Abs(outfit) % 10];
+            var style = new[] { 0, 1, 2, 3, 4, 5, 0, 2, 3, 1 }[appearance];
             var fitted = style == 0 || style == 4;
             var wide = style == 1 || style == 3 || style == 5;
             var skin = CreateMaterial(new Color(.72f, .55f, .6f), .05f, .65f);
-            var suit = CreateMaterial(OutfitColors[Mathf.Clamp(outfit, 0, OutfitColors.Length - 1)], .65f, .25f, OutfitColors[Mathf.Clamp(outfit, 0, OutfitColors.Length - 1)] * .45f);
+            var suit = CreateMaterial(OutfitColors[appearance], .65f, .25f, OutfitColors[appearance] * .45f);
             var dark = CreateMaterial(new Color(.035f, .025f, .06f), .25f, .38f);
-            var metal = CreateMaterial(new Color(.58f, .72f, .82f), .82f, .78f, OutfitColors[Mathf.Abs(outfit) % OutfitColors.Length] * .4f);
+            var metal = CreateMaterial(new Color(.58f, .72f, .82f), .82f, .78f, OutfitColors[appearance] * .4f);
             var torsoWidth = style == 5 ? .4f : .36f;
             MakeProfiledPart(root, "body", new Vector3(0f, 1.23f, 0f), new[]
             {
@@ -1457,7 +1476,7 @@ namespace NeonRoom
         {
             if (firstPersonOutfitMaterial == null) return;
             var color = selectedOutfit == 2 ? new Color(.025f, .018f, .033f)
-                : OutfitColors[Mathf.Clamp(selectedOutfit, 0, OutfitColors.Length - 1)];
+                : OutfitColors[OutfitAppearanceIndices[Mathf.Clamp(selectedOutfit, 0, OutfitAppearanceIndices.Length - 1)]];
             firstPersonOutfitMaterial.color = color;
             if (firstPersonOutfitMaterial.HasProperty("_EmissionColor"))
                 firstPersonOutfitMaterial.SetColor("_EmissionColor", color * .2f);

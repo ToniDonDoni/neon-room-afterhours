@@ -28,6 +28,7 @@ namespace NeonRoom.Tests
         {
             PlayerPrefs.DeleteKey("neon-room.nickname");
             PlayerPrefs.DeleteKey("neon-room.outfit");
+            PlayerPrefs.DeleteKey("neon-room.outfit-order-version");
             PlayerPrefs.DeleteKey("neon-room.control-mode");
             PlayerPrefs.DeleteKey("neon-room.track");
             PlayerPrefs.DeleteKey("neon-room.volume");
@@ -131,12 +132,12 @@ namespace NeonRoom.Tests
             var originalLooks = new Dictionary<int, string>();
             for (var outfit = 0; outfit < 10; outfit++)
             {
-                if (outfit == 8) continue;
+                if (outfit == 0) continue;
                 Click("outfit-option-" + outfit);
                 yield return null;
                 originalLooks[outfit] = AvatarGeometrySignature(GameObject.Find("avatar-model"));
             }
-            Click("outfit-option-8");
+            Click("outfit-option-0");
             yield return null;
 
             var avatar = GameObject.Find("avatar-model");
@@ -247,7 +248,7 @@ namespace NeonRoom.Tests
             Assert.That(previewCamera.cullingMask & (1 << GameObject.Find("avatar-model").layer), Is.Not.Zero, "The wardrobe camera must render the selected outfit.");
             Assert.That(previewCamera.cullingMask & (1 << clubCharacterLayer), Is.Zero, "The wardrobe preview must exclude NPCs and the DJ so no miniature club characters appear behind the selected look.");
             AssertAvatarFitsPreview(previewCamera, GameObject.Find("avatar-model"));
-            Click("outfit-option-0");
+            Click("outfit-option-8");
             yield return null;
             AssertVisible("fashion-wrap-skirt");
             AssertVisible("fashion-leather-top");
