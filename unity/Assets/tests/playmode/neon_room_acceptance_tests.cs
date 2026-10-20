@@ -657,6 +657,50 @@ namespace NeonRoom.Tests
         }
 
         [UnityTest]
+        public IEnumerator NpcTalk_AnyClubGuestCanStartTheRecordedReplyOnlyWithinRange()
+        {
+            // SDDTDD SPEC: tasks/spec-006.md — Talk must work for all 20 NPCs within 3.5 units and stay silent outside that range.
+            yield return EnterClub();
+            Click("map-button");
+            yield return null;
+            Click("map-zone-dancefloor");
+            yield return null;
+
+            var crowd = GameObject.Find("npc-crowd").transform;
+            var guests = crowd.Cast<Transform>().Where(item => item.parent == crowd).ToArray();
+            Assert.That(guests, Has.Length.EqualTo(20), "The test must cover every club guest.");
+
+            var player = GameObject.Find("player").transform;
+            var voice = GameObject.Find("npc-voice-source").GetComponent<AudioSource>();
+            foreach (var guest in guests)
+            {
+                player.position = guest.position;
+                var nearestGuest = guests.OrderBy(item => Vector3.Distance(player.position, item.position)).First();
+                Assert.That(nearestGuest, Is.SameAs(guest),
+                    "The guest under test must be the uniquely nearest interaction target: " + guest.name + ".");
+                Click("action-wheel-button");
+                yield return null;
+                Click("action-talk-button");
+                yield return null;
+                Assert.That(voice.isPlaying, Is.True,
+                    "Talk must start the recorded reply near club guest " + guest.name + ".");
+                Click("npc-stop-button");
+                yield return null;
+                Assert.That(voice.isPlaying, Is.False, "Stopping a reply must leave the next guest interaction ready.");
+            }
+
+            var outsideRangePosition = new Vector3(0f, 0f, -20f);
+            Assert.That(guests.Min(item => Vector3.Distance(outsideRangePosition, item.position)), Is.GreaterThan(3.5f),
+                "The outside-range case must be farther than 3.5 units from every club guest.");
+            player.position = outsideRangePosition;
+            Click("action-wheel-button");
+            yield return null;
+            Click("action-talk-button");
+            Assert.That(voice.isPlaying, Is.False,
+                "Talking to a guest from farther than 3.5 units must not start the recorded reply.");
+        }
+
+        [UnityTest]
         public IEnumerator Settings_ChangeAndPersistControlsMusicVolumeTrackAndGraphics()
         {
             yield return EnterClub();
