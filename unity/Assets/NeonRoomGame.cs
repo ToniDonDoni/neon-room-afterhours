@@ -556,12 +556,14 @@ namespace NeonRoom
 
         private void BuildMobileControls(Transform root)
         {
-            var sticks = AddPanel(root, "mobile-controls", new Vector2(0f, -300f), new Vector2(760f, 180f), new Color(.02f, .02f, .05f, .2f));
+            var sticks = AddPanel(root, "mobile-controls", new Vector2(0f, -300f), new Vector2(760f, 180f), new Color(.02f, .02f, .05f, 0f));
             sticks.GetComponent<Image>().raycastTarget = false;
-            var move = AddPanel(sticks.transform, "move-stick", new Vector2(-285f, 0f), new Vector2(190f, 190f), new Color(.12f, .8f, 1f, .3f));
-            var look = AddPanel(sticks.transform, "look-stick", new Vector2(285f, 0f), new Vector2(190f, 190f), new Color(1f, .2f, .6f, .3f));
-            move.AddComponent<MobileStick>().Setup(this, false);
-            look.AddComponent<MobileStick>().Setup(this, true);
+            var move = AddPanel(sticks.transform, "move-stick", new Vector2(-285f, 0f), new Vector2(190f, 190f), new Color(0f, 0f, 0f, 0f));
+            var look = AddPanel(sticks.transform, "look-stick", new Vector2(285f, 0f), new Vector2(190f, 190f), new Color(0f, 0f, 0f, 0f));
+            var moveView = NeonStickView.Build(move.transform, false);
+            var lookView = NeonStickView.Build(look.transform, true);
+            move.AddComponent<MobileStick>().Setup(this, false, moveView);
+            look.AddComponent<MobileStick>().Setup(this, true, lookView);
             sticks.SetActive(false);
         }
 
@@ -1685,34 +1687,58 @@ namespace NeonRoom
         private sealed class MobileStick : MonoBehaviour, IPointerDownHandler, IDragHandler, IPointerUpHandler
         {
             private NeonRoomGame game;
+            private NeonStickView view;
             private bool lookStick;
+            private bool held;
             private Vector2 origin;
-            public void Setup(NeonRoomGame owner, bool isLook)
+
+            public void Setup(NeonRoomGame owner, bool isLook, NeonStickView stickView)
             {
                 game = owner;
                 lookStick = isLook;
+                view = stickView;
             }
+
             public void OnPointerDown(PointerEventData eventData)
             {
                 origin = eventData.position;
+                held = true;
                 SetHeld(true);
+                if (view != null) view.SetHeld(true);
+                Apply(eventData);
             }
+
             public void OnDrag(PointerEventData eventData)
+            {
+                if (!held) return;
+                Apply(eventData);
+            }
+
+            public void OnPointerUp(PointerEventData eventData)
+            {
+                held = false;
+                if (lookStick) game.mobileLook = Vector2.zero;
+                else game.mobileMove = Vector2.zero;
+                SetHeld(false);
+                if (view != null)
+                {
+                    view.SetHeld(false);
+                    view.SetValue(Vector2.zero);
+                }
+            }
+
+            private void Apply(PointerEventData eventData)
             {
                 var value = Vector2.ClampMagnitude((eventData.position - origin) / 70f, 1f);
                 if (lookStick) game.mobileLook = value;
                 else game.mobileMove = value;
+                if (view != null) view.SetValue(value);
             }
-            public void OnPointerUp(PointerEventData eventData)
+
+            private void SetHeld(bool value)
             {
-                if (lookStick) game.mobileLook = Vector2.zero;
-                else game.mobileMove = Vector2.zero;
-                SetHeld(false);
-            }
-            private void SetHeld(bool held)
-            {
-                if (lookStick) game.mobileLookHeld = held;
-                else game.mobileMoveHeld = held;
+                if (lookStick) game.mobileLookHeld = value;
+                else game.mobileMoveHeld = value;
             }
         }
     }
