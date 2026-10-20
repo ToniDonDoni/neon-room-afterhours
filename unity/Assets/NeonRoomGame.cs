@@ -51,7 +51,6 @@ namespace NeonRoom
         private AudioSource voiceSource;
         private AudioClip[] musicTracks;
         private GameObject npcCrowd;
-        private Transform npcVoiceTarget;
         private Transform[] crowdAvatars;
         private Vector3[] crowdRestPositions;
         private Quaternion[] crowdRestRotations;
@@ -338,7 +337,6 @@ namespace NeonRoom
                 if (i == 0)
                 {
                     avatar.name = "npc-voice-target";
-                    npcVoiceTarget = avatar;
                 }
             }
             crowdAvatars = npcCrowd.GetComponentsInChildren<Transform>().Where(item => item.parent == npcCrowd.transform).ToArray();
@@ -924,8 +922,9 @@ namespace NeonRoom
         {
             actionWheel.SetActive(false);
             if (dancing || drinking) return;
-            if (npcCrowd == null || !npcCrowd.activeInHierarchy || npcVoiceTarget == null) return;
-            if (Vector3.Distance(player.position, npcVoiceTarget.position) > 3.5f)
+            var nearestNpc = FindNearestNpc();
+            if (npcCrowd == null || !npcCrowd.activeInHierarchy || nearestNpc == null) return;
+            if (Vector3.Distance(player.position, nearestNpc.position) > 3.5f)
             {
                 SetStatus("MOVE CLOSER TO A CLUB GUEST");
                 return;
@@ -1097,11 +1096,28 @@ namespace NeonRoom
 
         private void UpdateNpcProximity()
         {
-            if (!inClub || player == null || npcVoiceTarget == null) return;
-            var nearNpc = Vector3.Distance(player.position, npcVoiceTarget.position) <= 3.5f;
+            if (!inClub || player == null) return;
+            var nearestNpc = FindNearestNpc();
+            var nearNpc = nearestNpc != null && Vector3.Distance(player.position, nearestNpc.position) <= 3.5f;
             if (nearNpc == wasNearNpc) return;
             wasNearNpc = nearNpc;
             ReportWebState("near-npc", nearNpc ? "true" : "false");
+        }
+
+        private Transform FindNearestNpc()
+        {
+            if (player == null || crowdAvatars == null) return null;
+            Transform nearestNpc = null;
+            var nearestDistance = float.PositiveInfinity;
+            foreach (var npc in crowdAvatars)
+            {
+                if (npc == null || !npc.gameObject.activeInHierarchy) continue;
+                var distance = Vector3.Distance(player.position, npc.position);
+                if (distance >= nearestDistance) continue;
+                nearestDistance = distance;
+                nearestNpc = npc;
+            }
+            return nearestNpc;
         }
 
         private void UpdateCrowd()
