@@ -39,6 +39,9 @@ namespace NeonRoom
         private const string MotionKey = "neon-room.reduced-motion";
         private const int PreviewAvatarLayer = 8;
         private const int ClubCharacterLayer = 9;
+        // The look stick feeds Euler angles, so these are degrees per second at full deflection.
+        private const float MobileLookYawDegreesPerSecond = 30f;
+        private const float MobileLookPitchDegreesPerSecond = 21f;
 
         private Canvas canvas;
         private Transform uiRoot;
@@ -161,8 +164,8 @@ namespace NeonRoom
                 MovePlayer(mobileMove.y, mobileMove.x, Time.deltaTime);
                 if (mobileLookHeld)
                 {
-                    yaw += mobileLook.x * Time.deltaTime * 2.1f;
-                    pitch = Mathf.Clamp(pitch - mobileLook.y * Time.deltaTime * 1.5f, -45f, 45f);
+                    yaw += mobileLook.x * Time.deltaTime * MobileLookYawDegreesPerSecond;
+                    pitch = Mathf.Clamp(pitch - mobileLook.y * Time.deltaTime * MobileLookPitchDegreesPerSecond, -45f, 45f);
                 }
             }
 
